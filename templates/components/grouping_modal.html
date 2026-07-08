@@ -1,0 +1,102 @@
+<!--=======================================================================-->
+<!-- Grouping "Under Development" Modal -->
+<div id="grouping-modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.82); z-index:99999; align-items:center; justify-content:center;">
+    <div style="background:#2c2c2c; border:1px solid #444; border-radius:22px; padding:36px 28px 26px; width:340px; text-align:center; animation:groupModalIn 0.25s cubic-bezier(0.22,1,0.36,1);">
+
+        <!-- Icon circle -->
+        <div style="width:56px; height:56px; border-radius:50%; background:#3a3a3a; border:1px solid #555; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z"/>
+            </svg>
+        </div>
+
+        <!-- Badge -->
+        <div style="display:inline-flex; align-items:center; gap:6px; background:#fef3c7; border-radius:20px; padding:5px 14px; margin-bottom:16px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            <span style="font-size:13px; color:#d98f06; font-weight:400;">Under Development</span>
+        </div>
+
+        <!-- Title -->
+        <h3 style="color:#fff; font-size:20px; font-weight:700; margin:0 0 10px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">Grouping is just getting makeup for you</h3>
+
+        <!-- Description -->
+        <p style="color:rgba(255,255,255,0.5); font-size:14px; line-height:1.7; margin:0 0 24px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">We appreciate your interest! This feature is currently under development and will be available in a future update of Clive.</p>
+
+        <!-- Buttons -->
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            <button class="grp-btn-primary" onclick="closeGroupingModal()">Got it</button>
+            <button class="grp-btn-secondary" onclick="closeGroupingModal()">Notify me when ready</button>
+        </div>
+    </div>
+</div>
+<!--=======================================================================-->
+
+
+<style>
+/*=======================================================================*/
+@keyframes groupModalIn {
+    from { opacity:0; transform:scale(0.92) translateY(12px); }
+    to   { opacity:1; transform:scale(1) translateY(0); }
+}
+
+.grp-btn-primary {
+    width: 100%;
+    padding: 13px;
+    background: #f5f5f0;
+    color: #111;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+.grp-btn-primary:hover {
+    background: #ffffff;
+    transform: scale(1.02);
+}
+.grp-btn-primary:active {
+    transform: scale(0.98);
+    background: #e8e8e3;
+}
+
+.grp-btn-secondary {
+    width: 100%;
+    padding: 13px;
+    background: transparent;
+    color: rgba(255,255,255,0.4);
+    border: 1px solid #444;
+    border-radius: 12px;
+    font-size: 15px;
+    cursor: pointer;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.grp-btn-secondary:hover {
+    background: rgba(255,255,255,0.07);
+    border-color: #666;
+    color: rgba(255,255,255,0.7);
+    transform: scale(1.02);
+}
+.grp-btn-secondary:active {
+    transform: scale(0.98);
+}
+/*=======================================================================*/
+</style>
+
+
+<script>
+/*=======================================================================*/
+function openGroupingModal() {
+    const overlay = document.getElementById('grouping-modal-overlay');
+    overlay.style.display = 'flex';
+}
+function closeGroupingModal() {
+    document.getElementById('grouping-modal-overlay').style.display = 'none';
+}
+document.getElementById('grouping-modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeGroupingModal();
+});
+/*=======================================================================*/
+</script>

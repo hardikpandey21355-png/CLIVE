@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personalize Clive</title>
+
+<style>
+    /* ===========================================
+       BASE
+       =========================================== */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: #0d0d0d;
+        font-family: Arial, sans-serif;
+        color: white;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        padding: 40px 20px 100px;
+    }
+
+    .page {
+        width: 100%;
+        max-width: 680px;
+    }
+
+    /* ===========================================
+       BACK BUTTON — TOP LEFT
+       =========================================== */
+    .top-back {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #5b9bd5;
+        font-size: 14px;
+        cursor: pointer;
+        margin-bottom: 28px;
+        width: fit-content;
+        background: none;
+        border: none;
+    }
+
+    .top-back:hover {
+        color: #7ab0e8;
+    }
+
+    .top-back svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* ===========================================
+       SECTION HEADING (Base style and tone, About you, etc.)
+       =========================================== */
+    .section-head {
+        font-size: 18px;
+        font-weight: 600;
+        color: #fff;
+        margin-top: 32px;
+        margin-bottom: 6px;
+    }
+
+    .section-head:first-of-type {
+        margin-top: 0;
+    }
+
+    .section-sub {
+        font-size: 13px;
+        color: #777;
+        line-height: 1.45;
+        margin-bottom: 18px;
+    }
+
+    /* Divider line */
+    .divider {
+        border: none;
+        border-top: 1px solid #2a2a2a;
+        margin: 24px 0;
+    }
+
+    /* ===========================================
+       DROPDOWN ROW  (label left, "Default ˅" right)
+       =========================================== */
+    .dropdown-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 0;
+        border-bottom: 1px solid #222;
+        position: relative;
+    }
+
+    .dropdown-row-label {
+        font-size: 15px;
+        color: #ddd;
+    }
+
+    .dropdown-trigger {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .dropdown-trigger span {
+        font-size: 15px;
+        color: #999;
+    }
+
+    .dropdown-trigger svg {
+        width: 12px;
+        height: 12px;
+        color: #666;
+        transition: transform 0.2s;
+    }
+
+    .dropdown-row.open .dropdown-trigger svg {
+        transform: rotate(180deg);
+    }
+
+    /* Dropdown menu */
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: calc(100% + 4px);
+        right: 0;
+        background: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 10px;
+        min-width: 150px;
+        z-index: 100;
+        overflow: hidden;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    }
+
+    .dropdown-row.open .dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-option {
+        padding: 10px 16px;
+        font-size: 14px;
+        color: #ccc;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .dropdown-option:hover {
+        background: #2a2a2a;
+    }
+
+    .dropdown-option.selected {
+        color: #5b9bd5;
+    }
+
+    /* ===========================================
+       INPUT FIELDS
+       =========================================== */
+    .input-label {
+        font-size: 15px;
+        color: #ddd;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .input-field {
+        width: 100%;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 10px;
+        padding: 14px 16px;
+        font-size: 15px;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        outline: none;
+        transition: border-color 0.2s;
+        margin-bottom: 20px;
+    }
+
+    .input-field::placeholder {
+        color: #555;
+    }
+
+    .input-field:focus {
+        border-color: #5b9bd5;
+    }
+
+    textarea.input-field {
+        resize: vertical;
+        min-height: 52px;
+    }
+
+    /* ===========================================
+       MEMORY HEADER ROW (title + ? icon + Manage btn)
+       =========================================== */
+    .memory-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+
+    .memory-header-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .memory-header-left h3 {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .info-icon {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 1.5px solid #555;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        color: #555;
+        cursor: pointer;
+    }
+
+    .manage-btn {
+        padding: 8px 18px;
+        background: #2a2a2a;
+        color: #ddd;
+        border: 1px solid #3a3a3a;
+        border-radius: 50px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .manage-btn:hover {
+        background: #3a3a3a;
+    }
+
+    /* ===========================================
+       TOGGLE ROW (label + desc left, big toggle right)
+       =========================================== */
+    .toggle-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 14px 0;
+        border-bottom: 1px solid #222;
+    }
+
+    .toggle-row-left {
+        flex: 1;
+        padding-right: 20px;
+    }
+
+    .toggle-row-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 3px;
+    }
+
+    .toggle-row-desc {
+        font-size: 13px;
+        color: #666;
+        line-height: 1.4;
+    }
+
+    .toggle-row-desc a {
+        color: #5b9bd5;
+        text-decoration: none;
+    }
+
+    .toggle-row-desc a:hover {
+        text-decoration: underline;
+    }
+
+    /* Big iOS toggle for this page */
+    .big-toggle {
+        width: 48px;
+        height: 28px;
+        background: #444;
+        border-radius: 14px;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.25s;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .big-toggle.active {
+        background: #3a86f5;
+    }
+
+    .big-toggle .thumb {
+        width: 24px;
+        height: 24px;
+        background: #fff;
+        border-radius: 50%;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        transition: left 0.25s;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
+    .big-toggle.active .thumb {
+        left: 22px;
+    }
+
+    /* ===========================================
+       ADVANCED COLLAPSIBLE SECTION
+       =========================================== */
+    .advanced-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        user-select: none;
+        padding: 8px 0;
+    }
+
+    .advanced-header h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #fff;
+    }
+
+    .advanced-header svg {
+        width: 16px;
+        height: 16px;
+        color: #777;
+        transition: transform 0.25s;
+    }
+
+    .advanced-header.open svg {
+        transform: rotate(180deg);
+    }
+
+    .advanced-body {
+        display: none;
+    }
+
+    .advanced-body.open {
+        display: block;
+    }
+
+    /* ===========================================
+       CUSTOM SCROLLBAR
+       =========================================== */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0d0d0d; }
+    ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+
+    /* ===========================================
+       BOTTOM BACK BUTTON
+       =========================================== */
+    .back-button-container {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+    }
+
+    .back-btn {
+        background: #2664d7;
+        color: white;
+        border: 1px solid rgba(240, 248, 255, 0.137);
+        padding: 12px 24px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .back-btn:hover {
+        background: #2664d7a8;
+    }
+
+    .back-btn svg {
+        width: 16px;
+        height: 16px;
+        fill: currentColor;
+    }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+    <!-- TOP BACK -->
+    <button class="top-back" onclick="window.location.href='/';">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Back to Home Page
+    </button>
+
+    <!-- =====================
+         BASE STYLE AND TONE
+         ===================== -->
+    <div class="section-head">Base style and tone</div>
+    <div class="section-sub">Choose how Clive communicates with you. This only changes the way Clive talks — it won't affect what Clive can do.</div>
+
+    <div class="dropdown-row" id="style-row">
+        <div class="dropdown-row-label">Style</div>
+        <div class="dropdown-trigger" onclick="openDropdown('style-row')">
+            <span class="dropdown-val">Default</span>
+            <svg viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="dropdown-menu">
+            <div class="dropdown-option selected" onclick="pickOption(this, 'Default')">Default</div>
+            <div class="dropdown-option" onclick="pickOption(this, 'Formal')">Formal</div>
+            <div class="dropdown-option" onclick="pickOption(this, 'Casual')">Casual</div>
+            <div class="dropdown-option" onclick="pickOption(this, 'Concise')">Concise</div>
+        </div>
+    </div>
+
+    <!-- =====================
+         CHARACTERISTICS
+         ===================== -->
+    <div class="section-head" style="margin-top:28px;">Characteristics</div>
+    <div class="section-sub">Pick extra tweaks on top of your base style so Clive feels more like you.</div>
+
+    <div class="dropdown-row" id="warm-row">
+        <div class="dropdown-row-label">Warm</div>
+        <div class="dropdown-trigger" onclick="openDropdown('warm-row')">
+            <span class="dropdown-val">Default</span>
+            <svg viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="dropdown-menu">
+            <div class="dropdown-option selected" onclick="pickOption(this, 'Default')">Default</div>
+            <div class="dropdown-option" onclick="pickOption(this, 'More')">More</div>
+            <div class="dropdown-option" onclick="pickOption(this, 'Less')">Less</div>
+        </div>
+    </div>
+
+    <div class="dropdown-row" id="enthusiastic-row">
+        <div class="dropdown-row-label">Enthusiastic</div>
+        <div class="dropdown-trigger" onclick="openDropdown('enthusiastic-row')">
+            <span class="dropdown-val">Default</span>
+            <svg viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="dropdown-menu">
+            <div class="dropdown-option selected" onclick="pickOption(this, 'Default')">Default</div>
+            <div class="dropdown-option" onclick="pickOption(this, 'More')">More</div>
+            <div class="dropdown-option" onclick="pickOption(this, 'Less')">Less</div>
+        </div>
+    </div>
+
+    <div class="dropdown-row" id="headers-row">
+        <div class="dropdown-row-label">Headers & Lists</div>
+        <div class="dropdown-trigger" onclick="openDropdown('headers-row')">
+            <span class="dropdown-val">Default</span>
+            <svg viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="dropdown-menu">
+            <div class="dropdown-option selected" onclick="pickOption(this, 'Default')">Default</div>
+            <div class="dropdown-option" onclick="pickOption(this, 'More')">More</div>
+            <div class="dropdown-option" onclick="pickOption(this, 'Less')">Less</div>
+        </div>
+    </div>
+
+    <div class="dropdown-row" id="emoji-row">
+        <div class="dropdown-row-label">Emoji</div>
+        <div class="dropdown-trigger" onclick="openDropdown('emoji-row')">
+            <span class="dropdown-val">Default</span>
+            <svg viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="dropdown-menu">
+            <div class="dropdown-option selected" onclick="pickOption(this, 'Default')">Default</div>
+            <div class="dropdown-option" onclick="pickOption(this, 'More')">More</div>
+            <div class="dropdown-option" onclick="pickOption(this, 'Less')">Less</div>
+        </div>
+    </div>
+
+    <!-- =====================
+         CUSTOM INSTRUCTIONS
+         ===================== -->
+    <div class="section-head" style="margin-top:28px;">Custom instructions</div>
+    <textarea class="input-field" placeholder="Tell Clive how you'd like it to behave, its tone, or any other preferences…"></textarea>
+
+    <!-- =====================
+         ABOUT YOU
+         ===================== -->
+    <hr class="divider">
+    <div class="section-head">About you</div>
+    <hr class="divider" style="margin-top:0; margin-bottom:20px;">
+
+    <label class="input-label">Nickname</label>
+    <input type="text" class="input-field" placeholder="What should Clive call you?">
+
+    <label class="input-label">Occupation</label>
+    <input type="text" class="input-field" placeholder="What do you do for a living?">
+
+    <label class="input-label">More about you</label>
+    <textarea class="input-field" placeholder="Anything else Clive should keep in mind about you…"></textarea>
+
+    <!-- =====================
+         MEMORY
+         ===================== -->
+    <hr class="divider">
+
+    <div class="memory-header">
+        <div class="memory-header-left">
+            <h3>Memory</h3>
+            <div class="info-icon">?</div>
+        </div>
+        <button class="manage-btn">Manage</button>
+    </div>
+
+    <div class="toggle-row">
+        <div class="toggle-row-left">
+            <div class="toggle-row-title">Remember past conversations</div>
+            <div class="toggle-row-desc">Let Clive hold onto memories so it can learn and improve over time.</div>
+        </div>
+        <div class="big-toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+    </div>
+
+    <div class="toggle-row">
+        <div class="toggle-row-left">
+            <div class="toggle-row-title">Use recent chat context</div>
+            <div class="toggle-row-desc">Allow Clive to look back at your recent chats while answering.</div>
+        </div>
+        <div class="big-toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+    </div>
+
+    <p style="font-size:13px; color:#555; margin-top:14px; line-height:1.5;">
+        Clive may use Memory to make your searches more personal, like when using search providers. <a href="#" style="color:#5b9bd5; text-decoration:none;">Learn more</a>
+    </p>
+
+    <!-- =====================
+         ADVANCED (collapsible)
+         ===================== -->
+    <hr class="divider">
+
+    <div class="advanced-header" id="advHeader" onclick="toggleAdvanced()">
+        <h3>Advanced</h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9l6 6 6-6"/>
+        </svg>
+    </div>
+    <hr class="divider" style="margin-top:0;">
+
+    <div class="advanced-body open" id="advBody">
+
+        <div class="toggle-row">
+            <div class="toggle-row-left">
+                <div class="toggle-row-title">Web search</div>
+                <div class="toggle-row-desc">Let Clive browse the internet to find up-to-date answers for you.</div>
+            </div>
+            <div class="big-toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+        </div>
+
+        <div class="toggle-row">
+            <div class="toggle-row-left">
+                <div class="toggle-row-title">Code</div>
+                <div class="toggle-row-desc">Allow Clive to write and run code when needed.</div>
+            </div>
+            <div class="big-toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+        </div>
+
+        <div class="toggle-row">
+            <div class="toggle-row-left">
+                <div class="toggle-row-title">Canvas</div>
+                <div class="toggle-row-desc">Work together with Clive on documents, text, and code in real time.</div>
+            </div>
+            <div class="big-toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+        </div>
+
+        <div class="toggle-row">
+            <div class="toggle-row-left">
+                <div class="toggle-row-title">Clive Voice</div>
+                <div class="toggle-row-desc">Turn on voice mode so you can talk to Clive out loud.</div>
+            </div>
+            <div class="big-toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+        </div>
+
+        <div class="toggle-row">
+            <div class="toggle-row-left">
+                <div class="toggle-row-title">Advanced voice</div>
+                <div class="toggle-row-desc">Make conversations with Clive sound more natural and fluid.</div>
+            </div>
+            <div class="big-toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+        </div>
+
+        <div class="toggle-row" style="border-bottom:none;">
+            <div class="toggle-row-left">
+                <div class="toggle-row-title">Connector search</div>
+                <div class="toggle-row-desc">Let Clive pull answers from your connected apps and sources.</div>
+            </div>
+            <div class="big-toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+        </div>
+
+    </div><!-- end advanced-body -->
+
+</div><!-- end page -->
+
+<!-- BOTTOM BACK BUTTON -->
+<div class="back-button-container">
+    <button class="back-btn" onclick="window.location.href='/';">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M9 19l-7-7 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12h20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back
+    </button>
+</div>
+
+<!-- ===========================================
+     SCRIPTS
+     =========================================== -->
+<script>
+    /* --- DROPDOWN OPEN/CLOSE --- */
+    function openDropdown(rowId) {
+        const row = document.getElementById(rowId);
+        // Close all others
+        document.querySelectorAll(".dropdown-row.open").forEach(el => {
+            if (el.id !== rowId) el.classList.remove("open");
+        });
+        row.classList.toggle("open");
+    }
+
+    // Close on outside click
+    document.addEventListener("click", function(e) {
+        if (!e.target.closest(".dropdown-row")) {
+            document.querySelectorAll(".dropdown-row.open").forEach(el => el.classList.remove("open"));
+        }
+    });
+
+    /* --- PICK OPTION --- */
+    function pickOption(optionEl, value) {
+        const menu   = optionEl.closest(".dropdown-menu");
+        const row    = optionEl.closest(".dropdown-row");
+        const valEl  = row.querySelector(".dropdown-val");
+
+        // Deselect all, select this one
+        menu.querySelectorAll(".dropdown-option").forEach(o => o.classList.remove("selected"));
+        optionEl.classList.add("selected");
+
+        // Update label
+        valEl.textContent = value;
+
+        // Close dropdown
+        row.classList.remove("open");
+    }
+
+    /* --- ADVANCED COLLAPSIBLE --- */
+    function toggleAdvanced() {
+        const header = document.getElementById("advHeader");
+        const body   = document.getElementById("advBody");
+        header.classList.toggle("open");
+        body.classList.toggle("open");
+    }
+    // Start expanded — add .open to header
+    document.getElementById("advHeader").classList.add("open");
+</script>
+
+</body>
+</html>

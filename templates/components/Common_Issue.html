@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Common Issues - Clive Help Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #fafafa;
+            --bg-card: #ffffff;
+            --border: #e4e4e7;
+            --border-hover: #a1a1aa;
+            --text-primary: #18181b;
+            --text-secondary: #52525b;
+            --text-muted: #a1a1aa;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --shadow-hover: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .header { text-align: center; padding: 60px 20px 30px; }
+        .logo { font-size: 2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; letter-spacing: -0.5px; }
+        .subtitle { color: var(--text-secondary); font-size: 1rem; }
+
+        .search-container { max-width: 600px; margin: 0 auto 40px; padding: 0 20px; position: relative; z-index: 999; }
+        .search-wrapper {
+            position: relative; background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 4px; box-shadow: var(--shadow); transition: all 0.3s ease;
+        }
+        .search-wrapper:focus-within {
+            border-color: #18181b; box-shadow: 0 0 0 3px rgba(24,24,27,0.07), var(--shadow-hover); transform: translateY(-1px);
+        }
+        .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: var(--text-muted); z-index: 2; pointer-events: none; }
+        .search-input { width: 100%; padding: 14px 44px 14px 44px; background: transparent; border: none; color: var(--text-primary); font-size: 1rem; font-family: inherit; outline: none; }
+        .search-input::placeholder { color: var(--text-muted); }
+        .search-clear {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: var(--border); border: none; color: var(--text-secondary);
+            width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
+            opacity: 0; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; font-size: 12px; z-index: 2;
+        }
+        .search-wrapper.has-value .search-clear { opacity: 1; }
+        .search-clear:hover { background: #18181b; color: white; }
+
+        .search-dropdown {
+            position: absolute; top: calc(100% + 10px); left: 0; right: 0;
+            background: #ffffff; border: 1.5px solid #e4e4e7; border-radius: 14px; overflow: hidden;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.10), 0 24px 56px rgba(0,0,0,0.08);
+            z-index: 99999; max-height: 0; opacity: 0; pointer-events: none;
+            transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease;
+        }
+        .search-dropdown.open { max-height: 400px; opacity: 1; pointer-events: all; }
+        .dropdown-header { padding: 12px 16px 8px; font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: #a1a1aa; background: #fafafa; border-bottom: 1px solid #f0f0f0; }
+        .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 11px 16px; cursor: pointer; border-bottom: 1px solid #f4f4f5; transition: background 0.12s ease; user-select: none; }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background: #f8f8f8; }
+        .dropdown-item:hover .di-icon { background: #18181b; border-color: #18181b; }
+        .dropdown-item:hover .di-icon svg { stroke: #ffffff; }
+        .dropdown-item:hover .di-arrow { opacity: 1; transform: translateX(0); }
+        .di-icon { width: 36px; height: 36px; border-radius: 9px; background: #f4f4f5; border: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.18s ease, border-color 0.18s ease; }
+        .di-icon svg { width: 16px; height: 16px; stroke: #52525b; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.18s ease; }
+        .di-title { flex: 1; font-size: 13.5px; font-weight: 500; color: #18181b; line-height: 1.3; }
+        .di-title mark { background: #f0f0f0; color: #18181b; border-radius: 3px; padding: 0 2px; font-weight: 700; font-style: normal; }
+        .di-arrow { font-size: 13px; color: #a1a1aa; opacity: 0; transform: translateX(-4px); transition: opacity 0.15s, transform 0.15s; flex-shrink: 0; }
+        .dropdown-no-results { padding: 28px 20px; text-align: center; color: var(--text-muted); font-size: 13.5px; }
+        .dropdown-no-results strong { color: var(--text-secondary); }
+
+        .faq-container { max-width: 800px; margin: 0 auto; padding: 0 20px 60px; position: relative; z-index: 1; }
+        .section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 16px; font-weight: 600; }
+        .faq-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .faq-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); opacity: 0; transform: translateY(10px); animation: fadeInUp 0.4s ease forwards; }
+        .faq-card:hover { border-color: var(--border-hover); box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+        .faq-card.hidden { display: none; }
+        .faq-card.highlighted { border-color: #18181b; box-shadow: 0 0 0 2px rgba(24,24,27,0.12), var(--shadow-hover); }
+
+        .faq-question { padding: 20px 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; transition: all 0.2s ease; }
+        .faq-question:hover { background: #fafafa; }
+        .faq-title-wrapper { display: flex; align-items: center; gap: 16px; flex: 1; }
+
+        .faq-icon { width: 44px; height: 44px; background: #f4f4f5; border: 1px solid #e4e4e7; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease; }
+        .faq-card:hover .faq-icon, .faq-card.active .faq-icon { background: #18181b; border-color: #18181b; transform: scale(1.05); }
+        .faq-icon svg { width: 22px; height: 22px; stroke: #3f3f46; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: all 0.3s ease; }
+        .faq-card:hover .faq-icon svg, .faq-card.active .faq-icon svg { stroke: #ffffff; }
+
+        .faq-card:hover .icon-login   { animation: shake 0.5s ease; }
+        .faq-card:hover .icon-logout  { animation: slideOut 0.5s ease; }
+        .faq-card:hover .icon-diamond { animation: sparkle 0.6s ease; }
+        .faq-card:hover .icon-archive { animation: bounce 0.5s ease; }
+        .faq-card:hover .icon-merge   { animation: rotateAnim 0.6s ease; }
+        .faq-card:hover .icon-clock   { animation: spin 1s linear; }
+        .faq-card:hover .icon-lock    { animation: pulseAnim 0.5s ease; }
+        .faq-card:hover .icon-video   { animation: playAnim 0.6s ease; }
+        .faq-card:hover .icon-image   { animation: fadeScale 0.5s ease; }
+        .faq-card:hover .icon-message { animation: pop 0.4s ease; }
+
+        @keyframes shake     { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-10deg)} 75%{transform:rotate(10deg)} }
+        @keyframes slideOut  { 0%{transform:translateX(0)} 50%{transform:translateX(3px)} 100%{transform:translateX(0)} }
+        @keyframes sparkle   { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+        @keyframes bounce    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+        @keyframes rotateAnim{ 0%{transform:rotate(0)} 100%{transform:rotate(180deg)} }
+        @keyframes spin      { from{transform:rotate(0)} to{transform:rotate(360deg)} }
+        @keyframes pulseAnim { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+        @keyframes playAnim  { 0%{transform:scale(1)} 50%{transform:scale(0.9)} 100%{transform:scale(1)} }
+        @keyframes fadeScale { 0%{transform:scale(1);opacity:1} 50%{transform:scale(1.1);opacity:0.8} 100%{transform:scale(1);opacity:1} }
+        @keyframes pop       { 0%{transform:scale(1)} 50%{transform:scale(1.15)} 100%{transform:scale(1)} }
+
+        .faq-title { font-size: 1rem; font-weight: 500; color: var(--text-primary); margin: 0; }
+        .faq-toggle { width: 28px; height: 28px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; flex-shrink: 0; }
+        .faq-card.active .faq-toggle { background: #18181b; border-color: #18181b; transform: rotate(180deg); }
+        .faq-toggle svg { width: 14px; height: 14px; stroke: var(--text-muted); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.3s ease; }
+        .faq-card.active .faq-toggle svg { stroke: white; }
+
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1); }
+        .faq-card.active .faq-answer { max-height: 600px; }
+        .faq-answer-content { padding: 16px 24px 20px 84px; border-top: 1px solid var(--border); color: var(--text-secondary); line-height: 1.7; font-size: 0.9rem; }
+        .faq-answer-content p { margin-bottom: 12px; }
+        .faq-answer-content p:last-child { margin-bottom: 0; }
+        .faq-answer-content strong { color: var(--text-primary); font-weight: 600; }
+        .step-box { background: #f4f4f5; border-left: 3px solid #18181b; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 12px 0; }
+
+        .no-results { text-align: center; padding: 60px 20px; display: none; }
+        .no-results.show { display: block; animation: fadeIn 0.3s ease; }
+        .no-results-icon { width: 64px; height: 64px; margin: 0 auto 20px; color: var(--text-muted); }
+        .no-results h3 { font-size: 1.25rem; margin-bottom: 8px; font-weight: 600; }
+        .no-results p { color: var(--text-secondary); font-size: 0.95rem; }
+
+        .contact-section { max-width: 800px; margin: 0 auto 60px; padding: 0 20px; }
+        .contact-card { background: #18181b; border-radius: 16px; padding: 36px 40px; display: flex; align-items: center; justify-content: space-between; gap: 24px; position: relative; overflow: hidden; }
+        .contact-card::before { content: ''; position: absolute; top: -50px; right: -50px; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,0.04); pointer-events: none; }
+        .contact-card::after { content: ''; position: absolute; bottom: -70px; right: 100px; width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,0.03); pointer-events: none; }
+        .contact-left { display: flex; align-items: center; gap: 20px; position: relative; z-index: 1; }
+        .contact-icon { width: 52px; height: 52px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.14); border-radius: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .contact-icon svg { width: 24px; height: 24px; stroke: #ffffff; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .contact-text h3 { font-size: 1.1rem; font-weight: 600; color: #ffffff; margin-bottom: 4px; }
+        .contact-text p { font-size: 0.875rem; color: rgba(255,255,255,0.5); line-height: 1.5; }
+        .contact-btn { background: #ffffff; color: #18181b; border: none; padding: 12px 24px; border-radius: 9px; font-family: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer; white-space: nowrap; position: relative; z-index: 1; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .contact-btn:hover { background: #f4f4f5; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+        .contact-btn svg { width: 15px; height: 15px; stroke: #18181b; stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn   { from { opacity: 0; } to { opacity: 1; } }
+
+        .faq-card:nth-child(1){animation-delay:.04s} .faq-card:nth-child(2){animation-delay:.08s}
+        .faq-card:nth-child(3){animation-delay:.12s} .faq-card:nth-child(4){animation-delay:.16s}
+        .faq-card:nth-child(5){animation-delay:.20s} .faq-card:nth-child(6){animation-delay:.24s}
+        .faq-card:nth-child(7){animation-delay:.28s} .faq-card:nth-child(8){animation-delay:.32s}
+        .faq-card:nth-child(9){animation-delay:.36s} .faq-card:nth-child(10){animation-delay:.40s}
+
+        @media (max-width: 640px) {
+            .header { padding: 40px 20px 20px; }
+            .logo { font-size: 1.75rem; }
+            .faq-question { padding: 16px 20px; }
+            .faq-answer-content { padding: 16px 20px; }
+            .faq-icon { width: 40px; height: 40px; }
+            .faq-title-wrapper { gap: 12px; }
+            .contact-card { flex-direction: column; align-items: flex-start; padding: 28px 24px; }
+            .contact-btn { width: 100%; justify-content: center; }
+        }
+
+        /* ───── Contact Popup ───── */
+        .cp-overlay {
+            position: fixed; inset: 0; z-index: 99999;
+            background: rgba(0,0,0,0.32); backdrop-filter: blur(5px);
+            display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .cp-overlay.cp-open { display: flex; animation: overlayIn 0.22s ease forwards; }
+        @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+        .cp-popup {
+            background: #ffffff; border: 1.5px solid #e4e4e7; border-radius: 22px;
+            width: 100%; max-width: 430px; padding: 28px 28px 22px; position: relative;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08), 0 32px 72px rgba(0,0,0,0.12);
+            animation: popupIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
+        }
+        @keyframes popupIn { from { transform: translateY(20px) scale(0.96); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+        .cp-close { position: absolute; top: 18px; right: 18px; width: 30px; height: 30px; border-radius: 50%; background: #f4f4f5; border: 1px solid #e4e4e7; cursor: pointer; color: #71717a; display: flex; align-items: center; justify-content: center; transition: background 0.18s, color 0.18s, border-color 0.18s; }
+        .cp-close:hover { background: #18181b; color: #fff; border-color: #18181b; }
+        .cp-close svg { width: 13px; height: 13px; stroke: currentColor; stroke-width: 2.5; fill: none; stroke-linecap: round; }
+        .cp-head { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+        .cp-head-icon { width: 50px; height: 50px; border-radius: 14px; background: #f4f4f5; border: 1px solid #e4e4e7; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .cp-head-icon svg { width: 22px; height: 22px; stroke: #18181b; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .cp-head-title { font-size: 17px; font-weight: 700; color: #18181b; margin-bottom: 3px; letter-spacing: -0.3px; }
+        .cp-head-sub { font-size: 13px; color: #a1a1aa; }
+        .cp-divider { height: 1px; background: #f0f0f0; margin-bottom: 16px; }
+        .cp-items { display: flex; flex-direction: column; gap: 9px; }
+        .cp-item {
+            display: flex; align-items: center; gap: 13px;
+            padding: 13px 15px; border-radius: 13px;
+            background: #fafafa; border: 1px solid #e8e8ea;
+            text-decoration: none; cursor: pointer;
+            transition: background 0.16s, border-color 0.16s, transform 0.16s;
+        }
+        .cp-item:hover { background: #f4f4f5; border-color: #c4c4c8; transform: translateX(3px); }
+        .cp-item.cp-paid { cursor: default; }
+        .cp-item.cp-paid:hover { transform: none; background: #fafafa; border-color: #e8e8ea; }
+        .cp-item-ico { width: 38px; height: 38px; border-radius: 10px; background: #f0f0f0; border: 1px solid #e4e4e7; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.16s, border-color 0.16s; }
+        .cp-item:not(.cp-paid):hover .cp-item-ico { background: #18181b; border-color: #18181b; }
+        .cp-item:not(.cp-paid):hover .cp-item-ico svg { stroke: #fff; }
+        .cp-item-ico svg { width: 17px; height: 17px; stroke: #3f3f46; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.16s; }
+        .cp-item-body { flex: 1; min-width: 0; }
+        .cp-item-label { display: flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700; color: #a1a1aa; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 3px; }
+        .cp-item-val { font-size: 13.5px; font-weight: 600; color: #18181b; }
+        .cp-paid-badge { display: inline-flex; align-items: center; gap: 4px; background: #18181b; color: #fff; font-size: 9.5px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; padding: 2px 7px; border-radius: 20px; }
+        .cp-paid-badge svg { width: 9px; height: 9px; stroke: #fff; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .cp-val-blur { display: flex; align-items: center; gap: 8px; }
+        .cp-blurred { font-size: 13.5px; font-weight: 600; color: #18181b; filter: blur(4px); user-select: none; letter-spacing: 1px; }
+        .cp-upgrade-hint { font-size: 11px; color: #a1a1aa; margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+        .cp-upgrade-hint svg { width: 11px; height: 11px; stroke: #a1a1aa; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .cp-arrow { color: #c4c4c8; flex-shrink: 0; transition: color 0.16s, transform 0.16s; }
+        .cp-arrow svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .cp-item:not(.cp-paid):hover .cp-arrow { color: #71717a; transform: translateX(2px); }
+        .cp-foot { margin-top: 18px; padding-top: 14px; border-top: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11.5px; color: #a1a1aa; }
+        .cp-foot svg { width: 12px; height: 12px; stroke: #c4c4c8; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1 class="logo">Common Issues</h1>
+        <p class="subtitle">Find answers to frequently asked questions</p>
+    </header>
+
+    <div class="search-container" id="searchContainer">
+        <div class="search-wrapper" id="searchWrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input type="text" class="search-input" id="searchInput" placeholder="Search for answers..." autocomplete="off">
+            <button class="search-clear" id="searchClear">✕</button>
+        </div>
+        <div class="search-dropdown" id="searchDropdown"></div>
+    </div>
+
+    <div class="faq-container">
+        <div class="section-title">Frequently Asked Questions</div>
+        <div class="faq-list" id="faqList">
+
+            <div class="faq-card" data-keywords="login sign in access account enter credentials password email">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <div class="faq-title-wrapper">
+                        <div class="faq-icon"><svg class="icon-login" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg></div>
+                        <h3 class="faq-title">How to Log In to Clive</h3>
+                    </div>
+                    <div class="faq-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+                </div>
+                <div class="faq-answer"><div class="faq-answer-content">
+                    <p>Logging into Clive is quick and secure. Follow these simple steps:</p>
+                    <div class="step-box">
+                        <strong>Step 1:</strong> Open the Clive app or visit the website<br>
+                        <strong>Step 2:</strong> Click on the <strong>"Login"</strong> button at the top right<br>
+                        <strong>Step 3:</strong> Enter your registered email address<br>
+                        <strong>Step 4:</strong> Type your password<br>
+                        <strong>Step 5:</strong> Click <strong>"Sign In"</strong> and you're ready to chat!
+                    </div>
+                    <p><strong>Tip:</strong> If you forgot your password, click "Forgot Password" to reset it via email.</p>
+                </div></div>
+            </div>
+
+            <div class="faq-card" data-keywords="logout sign out exit account leave close session">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <div class="faq-title-wrapper">
+                        <div class="faq-icon"><svg class="icon-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></div>
+                        <h3 class="faq-title">How to Log Out of Clive</h3>
+                    </div>
+                    <div class="faq-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+                </div>
+                <div class="faq-answer"><div class="faq-answer-content">
+                    <p>To safely sign out of your Clive account:</p>
+                    <div class="step-box">
+                        <strong>Step 1:</strong> Click on your <strong>profile picture</strong> or name in the top right corner<br>
+                        <strong>Step 2:</strong> A dropdown menu will appear<br>
+                        <strong>Step 3:</strong> Select <strong>"Log Out"</strong> from the menu<br>
+                        <strong>Step 4:</strong> Confirm if prompted
+                    </div>
+                    <p><strong>Note:</strong> Logging out will end your current session. Make sure to save any important information before signing out.</p>
+                </div></div>
+            </div>
+
+            <div class="faq-card" data-keywords="purchase buy paid plan subscription upgrade payment billing pro premium">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <div class="faq-title-wrapper">
+                        <div class="faq-icon"><svg class="icon-diamond" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div>
+                        <h3 class="faq-title">How to Purchase a Paid Plan</h3>
+                    </div>
+                    <div class="faq-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+                </div>
+                <div class="faq-answer"><div class="faq-answer-content">
+                    <p>Upgrade to Clive Premium for unlimited access and exclusive features:</p>
+                    <div class="step-box">
+                        <strong>Step 1:</strong> Click on <strong>"Upgrade"</strong> or <strong>"Get Premium"</strong> in the sidebar<br>
+                        <strong>Step 2:</strong> Choose your plan (Monthly or Yearly — Yearly saves 20%!)<br>
+                        <strong>Step 3:</strong> Click <strong>"Subscribe Now"</strong><br>
+                        <strong>Step 4:</strong> Enter your payment details (Credit Card, PayPal, or UPI)<br>
+                        <strong>Step 5:</strong> Confirm payment and enjoy premium features instantly!
+                    </div>
+                    <p><strong>Benefits:</strong> Unlimited messages, priority support, advanced AI models, and no ads.</p>
+                </div></div>
+            </div>
+
+            <div class="faq-card" data-keywords="archive save hide chat conversation store backup">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <div class="faq-title-wrapper">
+                        <div class="faq-icon"><svg class="icon-archive" viewBox="0 0 24 24"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg></div>
+                        <h3 class="faq-title">How to Archive Chats</h3>
+                    </div>
+                    <div class="faq-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+                </div>
+                <div class="faq-answer"><div class="faq-answer-content">
+                    <p>Keep your chat list clean by archiving old conversations:</p>
+                    <div class="step-box">
+                        <strong>Method 1 — Single Chat:</strong><br>
+                        • Right-click on the chat you want to archive<br>
+                        • Select <strong>"Archive Chat"</strong> from the menu<br>
+                        • The chat will move to your Archive folder
+                    </div>
+                    <div class="step-box">
+                        <strong>Method 2 — Multiple Chats:</strong><br>
+                        • Long press (mobile) or Ctrl+Click (desktop) to select multiple chats<br>
+                        • Click the <strong>Archive icon</strong> at the top
+                    </div>
+                    <p><strong>To View Archived Chats:</strong> Go to Settings → Archived Chats. Your chats are safely stored and can be restored anytime.</p>
+                </div></div>
+            </div>
+
+            <div class="faq-card" data-keywords="merge combine chats conversation join together bundle">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <div class="faq-title-wrapper">
+                        <div class="faq-icon"><svg class="icon-merge" viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M6 9v3a3 3 0 0 0 3 3h6a3 3 0 0 1 3 3v3"></path></svg></div>
+                        <h3 class="faq-title">How to Use "Merge Chats" Feature</h3>
+                    </div>
+                    <div class="faq-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+                </div>
+                <div class="faq-answer"><div class="faq-answer-content">
+                    <p>Combine multiple conversations into one seamless chat:</p>
+                    <div class="step-box">
+                        <strong>Step 1:</strong> Open the <strong>"Merge Chats"</strong> option from the main menu or sidebar<br>
+                        <strong>Step 2:</strong> Select the chats you want to merge (minimum 2, maximum 5)<br>
+                        <strong>Step 3:</strong> Arrange them in your preferred order by dragging<br>
+                        <strong>Step 4:</strong> Choose a <strong>title</strong> for your merged chat<br>
+                        <strong>Step 5:</strong> Click <strong>"Merge"</strong> — All messages will be combined chronologically!
+                    </div>
+                    <p><strong>Perfect for:</strong> Combining project discussions, trip planning, or research from multiple conversations.</p>
+                </div></div>
+            </div>
+
+            <div class="faq-card" data-keywords="retrieve past history old chat conversation find search previous">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <div class="faq-title-wrapper">
+                        <div class="faq-icon"><svg class="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+                        <h3 class="faq-title">How to Retrieve Past Chats</h3>
+                    </div>
+                    <div class="faq-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+                </div>
+                <div class="faq-answer"><div class="faq-answer-content">
+                    <p>Access your conversation history anytime:</p>
+                    <div class="step-box">
+                        <strong>Method 1 — Browse:</strong><br>
+                        • All your chats are automatically saved in the sidebar<br>
+                        • Scroll through to find old conversations<br>
+                        • Use the <strong>search bar</strong> at the top of the chat list
+                    </div>
+                    <div class="step-box">
+                        <strong>Method 2 — Search Within Chats:</strong><br>
+                        • Open any chat and press <strong>Ctrl+F</strong> (or Cmd+F on Mac)<br>
+                        • Type keywords to find specific messages
+                    </div>
+                    <p><strong>Cloud Sync:</strong> Your chats are synced across all devices. Log in anywhere to access your full history.</p>
+                </div></div>
+            </div>
+
+            <div class="faq-card" data-keywords="password set create security pin lock protect account">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <div class="faq-title-wrapper">
+                        <div class="faq-icon"><svg class="icon-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+                        <h3 class="faq-title">How to Set Password on Clive</h3>
+                    </div>
+                    <div class="faq-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+                </div>
+                <div class="faq-answer"><div class="faq-answer-content">
+                    <p>Secure your Clive account with a strong password:</p>
+                    <div class="step-box">
+                        <strong>During Sign Up:</strong><br>
+                        • Create a password with at least 8 characters<br>
+                        • Use a mix of letters, numbers, and symbols<br>
+                        • Avoid common words or personal information
+                    </div>
+                    <div class="step-box">
+                        <strong>Change Existing Password:</strong><br>
+                        <strong>Step 1:</strong> Go to <strong>Settings</strong> → <strong>Security</strong><br>
+                        <strong>Step 2:</strong> Click <strong>"Change Password"</strong><br>
+                        <strong>Step 3:</strong> Enter your current password<br>
+                        <strong>Step 4:</strong> Type your new password twice<br>
+                        <strong>Step 5:</strong> Click <strong>"Update Password"</strong>
+                    </div>
+                    <p><strong>Security Tip:</strong> Enable Two-Factor Authentication (2FA) for extra protection in Settings → Security.</p>
+                </div></div>
+            </div>
+
+            <div class="faq-card" data-keywords="background video change animated live theme appearance">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <div class="faq-title-wrapper">
+                        <div class="faq-icon"><svg class="icon-video" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg></div>
+                        <h3 class="faq-title">How to Change Background Video</h3>
+                    </div>
+                    <div class="faq-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+                </div>
+                <div class="faq-answer"><div class="faq-answer-content">
+                    <p>Customize your chat experience with animated backgrounds:</p>
+                    <div class="step-box">
+                        <strong>Step 1:</strong> Click on <strong>Settings</strong> (gear icon)<br>
+                        <strong>Step 2:</strong> Select <strong>"Appearance"</strong> or <strong>"Themes"</strong><br>
+                        <strong>Step 3:</strong> Choose <strong>"Background Video"</strong> option<br>
+                        <strong>Step 4:</strong> Browse our library of live wallpapers (nature, abstract, gradients)<br>
+                        <strong>Step 5:</strong> Click <strong>"Apply"</strong> and adjust opacity &amp; blur to your liking
+                    </div>
+                    <p><strong>Note:</strong> Background videos may use more battery. Switch to static wallpaper to save power.</p>
+                </div></div>
+            </div>
+
+            <div class="faq-card" data-keywords="wallpaper background image static picture theme color customize">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <div class="faq-title-wrapper">
+                        <div class="faq-icon"><svg class="icon-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></div>
+                        <h3 class="faq-title">How to Change Wallpaper</h3>
+                    </div>
+                    <div class="faq-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+                </div>
+                <div class="faq-answer"><div class="faq-answer-content">
+                    <p>Personalize your chat background with static images:</p>
+                    <div class="step-box">
+                        <strong>Step 1:</strong> Go to <strong>Settings</strong> → <strong>Appearance</strong><br>
+                        <strong>Step 2:</strong> Click on <strong>"Wallpaper"</strong><br>
+                        <strong>Step 3:</strong> Choose from Solid Colors, Gradients, Images, or upload your own<br>
+                        <strong>Step 4:</strong> Adjust <strong>brightness</strong> and <strong>contrast</strong> so text remains readable<br>
+                        <strong>Step 5:</strong> Click <strong>"Save"</strong> to apply
+                    </div>
+                    <p><strong>Pro Tip:</strong> Darker wallpapers work best for night mode and reduce eye strain.</p>
+                </div></div>
+            </div>
+
+            <div class="faq-card" data-keywords="message bubble customize chat style color font appearance text">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <div class="faq-title-wrapper">
+                        <div class="faq-icon"><svg class="icon-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
+                        <h3 class="faq-title">How to Customize Message Bubble</h3>
+                    </div>
+                    <div class="faq-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+                </div>
+                <div class="faq-answer"><div class="faq-answer-content">
+                    <p>Make your chats uniquely yours with custom message bubbles:</p>
+                    <div class="step-box">
+                        <strong>Step 1:</strong> Open <strong>Settings</strong> → <strong>Chat Settings</strong><br>
+                        <strong>Step 2:</strong> Select <strong>"Message Bubbles"</strong><br>
+                        <strong>Step 3:</strong> Customize Colors, Shapes, Transparency, and Borders<br>
+                        <strong>Step 4:</strong> Customize received messages separately<br>
+                        <strong>Step 5:</strong> Preview changes in real-time<br>
+                        <strong>Step 6:</strong> Click <strong>"Save Changes"</strong>
+                    </div>
+                    <p><strong>Special Effects:</strong> Premium users can add animated bubbles, 3D effects, and custom fonts!</p>
+                </div></div>
+            </div>
+
+        </div>
+
+        <div class="no-results" id="noResults">
+            <svg class="no-results-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path>
+                <path d="M8 8l6 6"></path><path d="M14 8l-6 6"></path>
+            </svg>
+            <h3>No results found</h3>
+            <p>Try searching with different keywords</p>
+        </div>
+    </div>
+
+    <div class="contact-section">
+        <div class="contact-card">
+            <div class="contact-left">
+                <div class="contact-icon">
+                    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                </div>
+                <div class="contact-text">
+                    <h3>Still need help?</h3>
+                    <p>Our support team is available 24/7 to assist you with anything.</p>
+                </div>
+            </div>
+            <button class="contact-btn" onclick="openContactPopup()">
+                Contact Support
+                <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+        </div>
+    </div>
+
+    <footer style="text-align:center; padding: 0 20px 40px; font-size: 13px; color: #a1a1aa; font-family: 'Inter', sans-serif;">
+        © 2026 Clive. All rights reserved.
+    </footer>
+
+    <!-- Contact Popup -->
+    <div class="cp-overlay" id="cpOverlay">
+        <div class="cp-popup" id="cpPopup">
+
+            <button class="cp-close" onclick="closeContactPopup()">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+
+            <div class="cp-head">
+                <div class="cp-head-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#18181b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+                        <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/>
+                        <path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="cp-head-title">Contact Support</div>
+                    <div class="cp-head-sub">We're available 24/7 to help you</div>
+                </div>
+            </div>
+
+            <div class="cp-divider"></div>
+
+            <div class="cp-items">
+
+                <!-- Email — FREE -->
+                
+                <div class="cp-item" onclick="openSupportEmail()" style="cursor:pointer;">
+                    <div class="cp-item-ico">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#3f3f46" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="4" width="20" height="16" rx="2"/>
+                            <polyline points="2,4 12,13 22,4"/>
+                        </svg>
+                    </div>
+                    <div class="cp-item-body">
+                        <div class="cp-item-label">Email Support — Free</div>
+                        <div class="cp-item-val" id="supportEmailDisplay"></div>
+                    </div>
+                    <div class="cp-arrow">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </div>
+                </div>
+
+                <!-- Phone 1 — PAID -->
+                <div class="cp-item cp-paid">
+                    <div class="cp-item-ico">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#3f3f46" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.06 6.06l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/>
+                        </svg>
+                    </div>
+                    <div class="cp-item-body">
+                        <div class="cp-item-label">
+                            Phone — Primary
+                            <span class="cp-paid-badge">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                Paid
+                            </span>
+                        </div>
+                        <div class="cp-val-blur"><span class="cp-blurred">+91 82183 84624</span></div>
+                        <div class="cp-upgrade-hint">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            Upgrade to Premium to unlock
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phone 2 — PAID -->
+                <div class="cp-item cp-paid">
+                    <div class="cp-item-ico">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#3f3f46" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="5" y="2" width="14" height="20" rx="2"/>
+                            <circle cx="12" cy="17" r="1" fill="#3f3f46" stroke="none"/>
+                        </svg>
+                    </div>
+                    <div class="cp-item-body">
+                        <div class="cp-item-label">
+                            Phone — Secondary
+                            <span class="cp-paid-badge">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                Paid
+                            </span>
+                        </div>
+                        <div class="cp-val-blur"><span class="cp-blurred">+91 74538 25758</span></div>
+                        <div class="cp-upgrade-hint">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            Upgrade to Premium to unlock
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="cp-foot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#c4c4c8" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Email support typically responds within 2–4 hours
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ── Email built in JS — Cloudflare cannot obfuscate this ──
+        const _u = 'artificialintelligentclive';
+        const _d = 'gmail.com';
+        const _e = _u + '@' + _d;
+
+        // Show email address in the popup
+        document.getElementById('supportEmailDisplay').textContent = _e;
+
+        function openSupportEmail() {
+    const subject = 'Support Request - Clive';
+    const body = 'Hi Clive Support Team,\n\nI need help with the following issue:\n\n[Describe your issue here]\n\n---\nApp Version: [your version]\nDevice: [your device]\n\nThank you';
+    const gmailUrl = 'https://mail.google.com/mail/?view=cm&fs=1'
+        + '&to=' + encodeURIComponent(_e)
+        + '&su=' + encodeURIComponent(subject)
+        + '&body=' + encodeURIComponent(body);
+    window.open(gmailUrl, '_blank');
+}
+
+        // ── Popup ──
+        function openContactPopup() {
+            const overlay = document.getElementById('cpOverlay');
+            overlay.style.display = 'flex';
+            // force reflow then add open class for animation
+            requestAnimationFrame(() => overlay.classList.add('cp-open'));
+            document.body.style.overflow = 'hidden';
+        }
+        function closeContactPopup() {
+            const overlay = document.getElementById('cpOverlay');
+            overlay.classList.remove('cp-open');
+            setTimeout(() => { overlay.style.display = 'none'; }, 220);
+            document.body.style.overflow = '';
+        }
+
+        // Click outside popup to close
+        document.getElementById('cpOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeContactPopup();
+        });
+
+        // ── FAQ ──
+        const iconPaths = {
+            'icon-login':   `<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line>`,
+            'icon-logout':  `<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line>`,
+            'icon-diamond': `<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>`,
+            'icon-archive': `<polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line>`,
+            'icon-merge':   `<circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M6 9v3a3 3 0 0 0 3 3h6a3 3 0 0 1 3 3v3"></path>`,
+            'icon-clock':   `<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>`,
+            'icon-lock':    `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>`,
+            'icon-video':   `<polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>`,
+            'icon-image':   `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline>`,
+            'icon-message': `<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>`
+        };
+
+        const faqCards = Array.from(document.querySelectorAll('.faq-card'));
+        const allTopics = faqCards.map(card => {
+            const svgEl = card.querySelector('.faq-icon svg');
+            const iconClass = Array.from(svgEl.classList).find(c => c.startsWith('icon-')) || 'icon-login';
+            return { el: card, title: card.querySelector('.faq-title').textContent, keywords: card.getAttribute('data-keywords') || '', iconClass, svgInner: iconPaths[iconClass] || '' };
+        });
+
+        function toggleFaq(element) {
+            const card = element.parentElement;
+            document.querySelectorAll('.faq-card.active').forEach(c => { if (c !== card) c.classList.remove('active'); });
+            card.classList.toggle('active');
+        }
+
+        const searchInput = document.getElementById('searchInput');
+        const searchWrapper = document.getElementById('searchWrapper');
+        const searchClear = document.getElementById('searchClear');
+        const searchDropdown = document.getElementById('searchDropdown');
+        const noResults = document.getElementById('noResults');
+
+        function hl(text, q) {
+            if (!q) return text;
+            return text.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<mark>$1</mark>');
+        }
+
+        function showDropdown(results, q) {
+            if (!q.trim()) { closeDropdown(); return; }
+            searchDropdown.innerHTML = '';
+            if (!results.length) {
+                searchDropdown.innerHTML = `<div class="dropdown-no-results">No results for "<strong>${q}</strong>"</div>`;
+            } else {
+                const hdr = document.createElement('div');
+                hdr.className = 'dropdown-header';
+                hdr.textContent = 'Suggestions';
+                searchDropdown.appendChild(hdr);
+                results.forEach(r => {
+                    const item = document.createElement('div');
+                    item.className = 'dropdown-item';
+                    item.innerHTML = `<div class="di-icon"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">${r.svgInner}</svg></div><div class="di-title">${hl(r.title, q)}</div><span class="di-arrow">→</span>`;
+                    item.addEventListener('click', () => {
+                        closeDropdown();
+                        searchInput.value = '';
+                        searchWrapper.classList.remove('has-value');
+                        performSearch('');
+                        setTimeout(() => {
+                            r.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            r.el.classList.add('highlighted');
+                            if (!r.el.classList.contains('active')) toggleFaq(r.el.querySelector('.faq-question'));
+                            setTimeout(() => r.el.classList.remove('highlighted'), 2500);
+                        }, 80);
+                    });
+                    searchDropdown.appendChild(item);
+                });
+            }
+            searchDropdown.classList.add('open');
+        }
+
+        function closeDropdown() {
+            searchDropdown.classList.remove('open');
+            setTimeout(() => { if (!searchDropdown.classList.contains('open')) searchDropdown.innerHTML = ''; }, 320);
+        }
+
+        function performSearch(query) {
+            const q = query.toLowerCase().trim();
+            if (q) {
+                showDropdown(allTopics.filter(t => t.title.toLowerCase().includes(q) || t.keywords.toLowerCase().includes(q)), query);
+            } else { closeDropdown(); }
+            let visible = 0;
+            faqCards.forEach(card => {
+                const match = !q || card.querySelector('.faq-title').textContent.toLowerCase().includes(q) || card.querySelector('.faq-answer-content').textContent.toLowerCase().includes(q) || card.getAttribute('data-keywords').toLowerCase().includes(q);
+                card.classList.toggle('hidden', !match);
+                card.classList.toggle('highlighted', match && !!q);
+                if (match) visible++;
+            });
+            noResults.classList.toggle('show', visible === 0 && !!q);
+        }
+
+        searchInput.addEventListener('input', function () {
+            searchWrapper.classList.toggle('has-value', this.value.length > 0);
+            performSearch(this.value);
+        });
+        searchClear.addEventListener('click', () => { searchInput.value = ''; searchWrapper.classList.remove('has-value'); performSearch(''); searchInput.focus(); });
+        document.addEventListener('click', e => { if (!e.target.closest('#searchContainer')) closeDropdown(); });
+        document.addEventListener('keydown', e => {
+            if (e.key === '/' && document.activeElement !== searchInput) { e.preventDefault(); searchInput.focus(); }
+            if (e.key === 'Escape') { searchInput.value = ''; searchWrapper.classList.remove('has-value'); performSearch(''); searchInput.blur(); closeDropdown(); closeContactPopup(); }
+        });
+    </script>
+
+</body>
+</html>

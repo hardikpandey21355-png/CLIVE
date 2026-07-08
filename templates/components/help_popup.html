@@ -1,0 +1,161 @@
+<!--=======================================================================-->
+
+<!-- HELP POPUP - Opens when cursor touches the Help button -->
+<div class="help-popup" id="help-popup" onmouseenter="clearTimeout(helpCloseTimer)" onmouseleave="scheduleHelpClose()">
+    <!-- Option 1: Common Issue - Opens common issues page in new tab -->
+    <div class="help-option" onclick="window.open('/common-issues', '_blank');">
+        <span class="help-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 16v-4"></path>
+                <path d="M12 8h.01"></path>
+            </svg>
+        </span>
+        Common Issue
+    </div>
+    <!-- Option 2: Personal Issue - Opens personal issue popup modal -->
+    {% include 'components/Personal_Issue.html' %}
+    <div class="help-option" onclick="openPersonalIssuePopup()">
+        <span class="help-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <path d="M12 17h.01"></path>
+            </svg>
+        </span>
+        Personal Issue
+    </div>
+    <!-- Option 3: Contact Support - Opens contact support modal -->
+    {% include 'components/contact_support_modal.html' %}
+    <div class="help-option" onclick="openContactSupport()">
+        <span class="help-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+        </span>
+        Contact Support
+    </div>
+</div>
+<!--=======================================================================-->
+
+
+<style>
+/*=======================================================================*/
+.help-btn {
+    position: fixed;
+    top: 18px;
+    right: 420px;
+    z-index: 9999;
+    background-color: transparent;
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    padding: 8px 13px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+}
+.help-btn:hover {
+    background-color: #000000a1;
+}
+.help-btn:active {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+/*=======================================================================*/
+
+
+/*=======================================================================*/
+.help-popup {
+    position: fixed;
+    top: 55px;
+    right: 360px;
+    width: 185px;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 6px 0;
+    z-index: 9999;
+    display: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    animation: helpSlideDown 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.help-popup.show {
+    display: block;
+}
+@keyframes helpSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.help-option {
+    width: calc(100% - 12px);
+    padding: 10px 10px;
+    margin: 2px 6px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #ececec;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    transition: background 0.1s ease;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.help-option:hover {
+    background: #2b2b2b;
+}
+.help-option:active {
+    background: #333;
+}
+.help-option .help-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    opacity: 0.8;
+}
+.help-option .help-icon svg {
+    width: 18px;
+    height: 18px;
+}
+/*=======================================================================*/
+</style>
+
+
+<script>
+/*=======================================================================*/
+function openSupportGmail() {
+    const to = 'artificialintelligentclive@gmail.com';
+    const subject = 'Support Request - Clive';
+    const body = `Hi Clive Support Team,\n\nI am facing the following issue:\n\n[Describe your issue here]\n\n---\nApp: Clive-V1\nDevice: [your device]`;
+    const gmailUrl = 'https://mail.google.com/mail/?view=cm&fs=1' +
+        '&to=' + encodeURIComponent(to) +
+        '&su=' + encodeURIComponent(subject) +
+        '&body=' + encodeURIComponent(body);
+    window.open(gmailUrl, '_blank');
+}
+
+let helpCloseTimer;
+function openHelpPopup() {
+    clearTimeout(helpCloseTimer);
+    document.getElementById('help-popup').classList.add('show');
+}
+function scheduleHelpClose() {
+    helpCloseTimer = setTimeout(() => {
+        document.getElementById('help-popup').classList.remove('show');
+    }, 200);
+}
+/*=======================================================================*/
+</script>

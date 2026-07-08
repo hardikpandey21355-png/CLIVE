@@ -1,0 +1,409 @@
+<!-- ============================== HTML STRUCTURE ============================== -->
+<!-- ── Offer 1 Popup: "One month of Clive Pro, free" ── -->
+<div class="offer-popup-overlay" id="offerPopupOverlay" onclick="closeOfferPopup()">
+    <div class="offer-popup" onclick="event.stopPropagation()">
+
+        <!-- Close button -->
+        <button class="offer-popup-close" onclick="closeOfferPopup()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+        </button>
+
+        <!-- Badge -->
+        <div class="offer-popup-badge">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            Students Only
+        </div>
+
+        <!-- Icon -->
+        <div class="offer-popup-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+        </div>
+
+        <!-- Title -->
+        <h2 class="offer-popup-title">One month of<br><span>Clive Pro, free.</span></h2>
+
+        <p class="offer-popup-sub">
+            We believe every student deserves world-class AI. Verify your university email and get a full month of Clive Pro — completely free, no credit card required.
+        </p>
+
+        <div class="offer-popup-divider"></div>
+
+        <!-- Perks -->
+        <p class="offer-popup-section-label">What's included</p>
+        <div class="offer-popup-perks">
+            <div class="offer-perk">
+                <div class="offer-perk-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                    </svg>
+                </div>
+                <div class="offer-perk-body">
+                    <span class="offer-perk-name">Advanced AI Model</span>
+                    <span class="offer-perk-desc">Full access to Clive's most powerful reasoning engine</span>
+                </div>
+            </div>
+            <div class="offer-perk">
+                <div class="offer-perk-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                    </svg>
+                </div>
+                <div class="offer-perk-body">
+                    <span class="offer-perk-name">Deep Research</span>
+                    <span class="offer-perk-desc">Unlimited deep research for essays, projects & papers</span>
+                </div>
+            </div>
+            <div class="offer-perk">
+                <div class="offer-perk-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                    </svg>
+                </div>
+                <div class="offer-perk-body">
+                    <span class="offer-perk-name">Code Collective</span>
+                    <span class="offer-perk-desc">5 AI coding agents working on your problems in parallel</span>
+                </div>
+            </div>
+            <div class="offer-perk">
+                <div class="offer-perk-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                </div>
+                <div class="offer-perk-body">
+                    <span class="offer-perk-name">Unlimited Messages</span>
+                    <span class="offer-perk-desc">No daily limits — chat as much as you need</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="offer-popup-divider"></div>
+
+        <!-- Steps -->
+        <p class="offer-popup-section-label">How to claim</p>
+        <div class="offer-popup-steps">
+            <div class="offer-step">
+                <span class="offer-step-num">01</span>
+                <span class="offer-step-text">Sign in with your university email address</span>
+            </div>
+            <div class="offer-step">
+                <span class="offer-step-num">02</span>
+                <span class="offer-step-text">We send a verification link to confirm you're a student</span>
+            </div>
+            <div class="offer-step">
+                <span class="offer-step-num">03</span>
+                <span class="offer-step-text">Pro unlocks instantly — valid for 30 days, no card needed</span>
+            </div>
+        </div>
+
+        <!-- CTA Buttons -->
+        <button class="offer-popup-cta">
+            Verify My University Email
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+        </button>
+        <button class="offer-popup-cta-secondary" onclick="closeOfferPopup()">Maybe later</button>
+
+        <p class="offer-popup-footnote">
+            Available for students with a valid university email. One redemption per account.
+        </p>
+
+    </div>
+</div>
+<!-- ==================THIS IS END OF THE OFFER 1 POPUP============================ -->
+<!--=======================================================================-->
+
+
+<!-- ============================== CSS STYLES FOR OFFER 1 POPUP ============================== -->
+<style>
+.offer-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    backdrop-filter: blur(8px);
+}
+
+.offer-popup-overlay.show {
+    display: flex;
+}
+
+.offer-popup {
+    background: #1a1a1a;
+    border: 1px solid #444;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 380px;
+    max-height: 78vh;
+    padding: 26px 22px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #444 transparent;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    z-index: 100000;
+}
+
+.offer-popup::-webkit-scrollbar {
+    width: 6px;
+}
+.offer-popup::-webkit-scrollbar-track {
+    background: transparent;
+}
+.offer-popup::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 10px;
+}
+.offer-popup::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+.offer-popup::-webkit-scrollbar-button {
+    display: none;
+}
+
+/* Close Button */
+.offer-popup-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.offer-popup-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.offer-popup-close svg {
+    width: 20px;
+    height: 20px;
+    stroke: #aaa;
+}
+
+.offer-popup-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(217, 119, 6, 0.15);
+    color: #fbbf24;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 30px;
+    margin-bottom: 20px;
+}
+
+.offer-popup-badge svg {
+    margin-right: 2px;
+}
+
+.offer-popup-icon {
+    margin: 10px 0 20px 0;
+}
+
+.offer-popup-icon svg {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.offer-popup-title {
+    font-size: 28px;
+    line-height: 1.1;
+    margin: 0 0 16px 0;
+    font-weight: 700;
+}
+
+.offer-popup-title span {
+    color: #60a5fa;
+}
+
+.offer-popup-sub {
+    font-size: 15.5px;
+    line-height: 1.45;
+    color: #ccc;
+    margin: 0 0 24px 0;
+}
+
+.offer-popup-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 24px 0;
+}
+
+.offer-popup-section-label {
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    color: #888;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.offer-popup-perks {
+    text-align: left;
+    margin-bottom: 8px;
+}
+
+.offer-perk {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.offer-perk:last-child {
+    margin-bottom: 0;
+}
+
+.offer-perk-icon {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    margin-top: 2px;
+}
+
+.offer-perk-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.offer-perk-body {
+    text-align: left;
+}
+
+.offer-perk-name {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 3px;
+    font-size: 15.5px;
+}
+
+.offer-perk-desc {
+    display: block;
+    font-size: 14px;
+    color: #aaa;
+    line-height: 1.4;
+}
+
+.offer-popup-steps {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.offer-step {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.offer-step:last-child {
+    margin-bottom: 0;
+}
+
+.offer-step-num {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    background: rgba(255,255,255,0.1);
+    color: #60a5fa;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+}
+
+.offer-step-text {
+    font-size: 15px;
+    color: #ddd;
+    line-height: 1.45;
+}
+
+.offer-popup-cta {
+    width: 100%;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.offer-popup-cta:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+.offer-popup-cta-secondary {
+    width: 100%;
+    background: transparent;
+    color: #aaa;
+    border: 1px solid #555;
+    padding: 15px;
+    font-size: 15.5px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.offer-popup-cta-secondary:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+.offer-popup-footnote {
+    font-size: 12.5px;
+    color: #666;
+    margin-top: 20px;
+    line-height: 1.4;
+}
+</style>
+<!-- ===========AND HERE THE CSS CODE OF OFFER 1 POPUP ENDS========================================= -->
+
+
+<!-- ============================== JS BEHAVIOR ============================== -->
+<!--=======================================================================-->
+<script>
+/* Open/close behavior for the Offer 1 ("Clive Pro free month") popup */
+function openOfferPopup() {
+    document.getElementById('offerPopupOverlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+function closeOfferPopup() {
+    document.getElementById('offerPopupOverlay').classList.remove('show');
+    document.body.style.overflow = '';
+}
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeOfferPopup();
+});
+</script>
+<!--=======================================================================-->

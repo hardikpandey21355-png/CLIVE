@@ -1,0 +1,1618 @@
+/* Reset default browser styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+/* Black background, full viewport */
+body {
+    background-color: rgb(0, 0, 0);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+/* ====================================================================== */
+/* Thin vertical line on the left side of home page to indicate the area of sidebar */
+.vertical-line {
+    position: fixed;
+    left: 4%;
+    width: 0.5px;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.233);
+}
+/* ====================================================================== */
+
+
+/* ====================================================================== */
+/* this is the whole code of sidebar which decides the size of sidebar */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 4%;
+    background-color: rgb(0, 0, 0);
+    border-right: 0.5px solid rgba(255,255,255,0.233);
+    transition: width 0.35s ease;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+/* When sidebar expands, move icon to right */
+.sidebar.expanded {
+    width: 15%;
+    justify-content: flex-end;
+}
+/* ====================================================================== */
+/* ⬆️ SIDEBAR CODE ENDS HERE */
+
+
+/* ====================================================================== */
+/* TOGGLE BUTTON CODE — controls the expand and collapse nature of toggle button*/
+.sidebar.expanded .sidebar-toggle {
+    margin-right: 20px;
+}
+/* Toggle icon container */
+.sidebar-toggle {
+    margin-bottom: 20px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.6);
+    transition: transform 0.35s ease, color 0.3s ease;
+}
+/* SVG size */
+.sidebar-toggle svg {
+    width: 18px;
+    height: 18px;
+}
+/* Hover effect */
+.sidebar-toggle:hover {
+    color: white;
+    transform: scale(1.2);
+}
+
+.sidebar-toggle.toggle-disabled {
+    cursor: not-allowed;
+    opacity: 0.35;
+    pointer-events: none; /* belt-and-suspenders: blocks the click entirely too */
+}
+/* ====================================================================== */
+/* ⬆️ TOGGLE BUTTON CODE ENDS HERE */
+
+
+/* ====================================================================== */
+/* Profile circle button */
+.sidebar-circle {
+    position: fixed;
+    left: 1%;
+    bottom: 60px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background-color: #1e1e1e;
+    z-index: 10;
+    transition: transform 0.35s ease, left 0.35s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.sidebar.expanded~.sidebar-circle {
+    transform: translateY(40px);
+}
+/* Overlay */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9998;
+    transition: opacity 0.3s ease;
+}
+.overlay.hidden { display: none; }
+/* Profile popup container */
+.profile-popup {
+    position: fixed;
+    bottom: 58px;
+    left: 10px;
+    width: 280px;
+    background: #1e1e1e;
+    border-radius: 12px;
+    padding: 6px 0;
+    z-index: 9999;
+    border: 1px solid #333;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    animation: popIn 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    transform-origin: bottom left;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+@keyframes popIn {
+    from { opacity: 0.5; transform: scaleY(0.9); }
+    to   { opacity: 1; transform: scaleY(1); }
+}
+.profile-popup.hidden { display: none; }
+.profile-popup, .profile-popup * { color: #ececec !important; }
+.profile-email {
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-bottom: 6px;
+}
+.profile-option {
+    width: calc(100% - 12px);
+    padding: 10px 10px;
+    margin: 2px 6px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    transition: background 0.1s ease;
+}
+.profile-option:hover { background: #2b2b2b; }
+.profile-option:active { background: #333; }
+.profile-option .icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    opacity: 0.8;
+}
+.profile-option .icon svg { width: 18px; height: 18px; }
+.profile-option .label { flex: 1; }
+.profile-option .shortcut {
+    margin-left: auto;
+    font-size: 12px;
+    color: #888 !important;
+    opacity: 0.8;
+}
+.profile-option .arrow-right {
+    margin-left: auto;
+    width: 16px;
+    height: 16px;
+    color: #888 !important;
+    display: flex;
+    align-items: center;
+}
+.profile-option .arrow-right svg { width: 16px; height: 16px; }
+.popup-divider {
+    border: none;
+    border-top: 1px solid #333;
+    margin: 6px 0;
+}
+/* Language submenu */
+.language-popup {
+    position: fixed;
+    bottom: 50px;
+    left: 282px;
+    width: 240px;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 6px 0;
+    z-index: 10000;
+    display: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    max-height: 360px;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+.language-popup.show { display: block; }
+.language-popup::-webkit-scrollbar { display: none; }
+.language-item {
+    padding: 11px 16px;
+    font-size: 14px;
+    color: #ececec;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 6px;
+    margin: 2px 6px;
+    width: calc(100% - 12px);
+}
+.language-item:hover { background: #2b2b2b; }
+.language-item.active { color: #ffffff; font-weight: 500; }
+.lang-check { color: #ececec; font-size: 14px; }
+/* Privacy popup */
+.privacy-option { position: relative; }
+.prv-popup {
+    display: none;
+    position: absolute;
+    left: calc(98% + 2px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 260px;
+    background: #1e1e1e;
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 12px;
+    padding: 8px;
+    z-index: 10000;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+}
+.prv-popup.show { display: block; opacity: 1; pointer-events: all; }
+.prv-popup-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    padding: 4px 8px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 5px;
+}
+.prv-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    transition: background 0.13s;
+}
+.prv-row:hover  { background: rgba(255,255,255,0.04); }
+.prv-row.active { background: rgba(255,255,255,0.04); }
+.prv-row-info  { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.prv-row-title { font-size: 12.5px; color: rgba(255,255,255,0.8); font-weight: 500; }
+.prv-row-sub   { font-size: 10.5px; color: rgba(255,255,255,0.28); line-height: 1.4; }
+.prv-toggle {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.prv-toggle input { opacity: 0; width: 0; height: 0; }
+.prv-slider {
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.12);
+    border-radius: 20px;
+    transition: background 0.2s;
+}
+.prv-slider::before {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    left: 3px; top: 3px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 50%;
+    transition: transform 0.2s cubic-bezier(.34,1.56,.64,1), background 0.2s;
+}
+.prv-toggle input:checked + .prv-slider { background: rgba(255,255,255,0.85); }
+.prv-toggle input:checked + .prv-slider::before {
+    transform: translateX(14px);
+    background: #111111;
+}
+.prv-reward {
+    display: none;
+    font-size: 11px;
+    color: rgba(255,210,80,0.85);
+    padding: 5px 10px 6px 12px;
+    margin: -3px 0 2px;
+    border-left: 2px solid rgba(255,210,80,0.35);
+    margin-left: 10px;
+    animation: prvFadeIn 0.2s ease;
+}
+@keyframes prvFadeIn {
+    from { opacity: 0; transform: translateY(-3px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.prv-popup-footer {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 6px;
+    padding: 7px 8px 3px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+}
+/* Gift Clive popup */
+.gift-option { position: relative; }
+.gift-popup {
+    display: none;
+    position: absolute;
+    left: calc(98% + 2px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 268px;
+    background: #1e1e1e;
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 12px;
+    padding: 8px;
+    z-index: 10000;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+}
+.gift-popup.show { display: block; opacity: 1; pointer-events: all; }
+.gift-rating-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 10px 6px;
+}
+.gift-rating-label { font-size: 12px; color: rgba(255,255,255,0.55); font-weight: 400; }
+.gift-stars { display: flex; gap: 4px; }
+.gift-star {
+    font-size: 22px;
+    color: rgba(255,255,255,0.15);
+    cursor: pointer;
+    transition: color 0.15s, transform 0.1s;
+    line-height: 1;
+}
+.gift-star:hover, .gift-star.active {
+    color: rgba(255, 210, 80, 0.9);
+    transform: scale(1.15);
+}
+.gift-tags-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 4px 10px 8px;
+}
+.gift-tag {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    user-select: none;
+}
+.gift-tag:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.65); }
+.gift-tag.selected {
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.9);
+    border-color: rgba(255,255,255,0.3);
+}
+.gift-textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    color: rgba(255,255,255,0.8);
+    font-size: 12.5px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 9px 11px;
+    resize: none;
+    height: 72px;
+    outline: none;
+    margin: 0 2px;
+    width: calc(100% - 4px);
+    transition: border-color 0.15s;
+    line-height: 1.5;
+}
+.gift-textarea::placeholder { color: rgba(255,255,255,0.2); }
+.gift-textarea:focus { border-color: rgba(255,255,255,0.2); }
+.gift-charcount {
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+    text-align: right;
+    padding: 3px 4px 6px;
+}
+.gift-submit-btn {
+    width: calc(100% - 4px);
+    margin: 2px 2px 6px;
+    padding: 9px;
+    background: rgba(255,255,255,0.9);
+    color: #111 !important;
+    border: none;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.gift-submit-btn:hover { background: #fff; transform: translateY(-1px); }
+.gift-submit-btn:active { transform: translateY(0); }
+.gift-success {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 10px 8px;
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.7);
+    animation: prvFadeIn 0.25s ease;
+}
+/* ====================================================================== */
+/* ⬆️  PROFILE ICON CODE ENDS HERE */
+
+
+/* ====================================================================== */
+/* Logo of Clive Which is at the top left corner */
+.sidebar-logo {
+    position: fixed;
+    top: 20px;
+    left: 0.7%;
+    z-index: 20;
+}
+.sidebar-logo img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: antiquewhite;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+/* ====================================================================== */
+/* ⬆️ SIDEBAR LOGO of "CLIVE" CODE ENDS HERE */
+
+
+/* ====================================================================== */
+/* Voice button code which is in the sidebar */
+.sidebar-voice-btn {
+    position: fixed;
+    top: 90px;
+    left: 10px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.879);
+    border-radius: 8px;
+    /* IMPORTANT: transition width, not transform */
+    transition: width 0.3s ease, background 0.2s ease;
+}
+/* Icon wrapper — LOCKS icon position */
+.sidebar-voice-btn svg {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    /* fixed spacing */
+    flex-shrink: 0;
+    /* 🔒 prevents any shift */
+}
+/* Hover glow (collapsed + expanded) */
+.sidebar-voice-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+/* TEXT APPEAR WHEN SIDEBAR EXPANDS*/
+.voice-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 550;
+    font-size: 14px;
+    margin-left: 8px;
+    /* space AFTER icon */
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.85);
+    opacity: 0;
+    transform: translateX(-6px);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/*EXPANDED STATE*/
+.sidebar.expanded~.sidebar-voice-btn {
+    width: calc(15% - 20px);
+    /* expands ONLY to the right */
+    background: transparent;
+}
+/* Show text ONLY when sidebar expanded */
+.sidebar.expanded~.sidebar-voice-btn .voice-text {
+    opacity: 1;
+    transform: translateX(0);
+}
+/* FORCE hover glow even when sidebar is expanded */
+.sidebar.expanded~.sidebar-voice-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+/* ====================================================================== */
+/* ⬆️ VOICE BUTTON CODE ENDS HERE */
+
+
+/* ====================================================================== */
+/* Projects button code which is in the sidebar */
+.sidebar-projects-btn {
+    position: fixed;
+    top: 130px;
+    left: 10px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.879);
+    border-radius: 8px;
+    transition: width 0.3s ease, background 0.2s ease;
+}
+.sidebar-projects-btn svg {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    flex-shrink: 0;
+}
+.sidebar-projects-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+/* TEXT APPEAR WHEN SIDEBAR EXPANDS */
+.projects-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 550;
+    font-size: 14px;
+    margin-left: 8px;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.85);
+    opacity: 0;
+    transform: translateX(-6px);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+/*EXPANDED STATE */
+.sidebar.expanded~.sidebar-projects-btn {
+    width: calc(15% - 20px);
+    background: transparent;
+}
+.sidebar.expanded~.sidebar-projects-btn .projects-text {
+    opacity: 1;
+    transform: translateX(0);
+}
+.sidebar.expanded~.sidebar-projects-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+/* ====================================================================== */
+/* ⬆️ Projects button code ends here */
+
+
+/* ====================================================================== */
+/* Groups button code which is in the sidebar */
+.sidebar-MergeChats-btn {
+    position: fixed;
+    top: 170px;
+    left: 10px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.879);
+    border-radius: 8px;
+    transition: width 0.3s ease, background 0.2s ease;
+}
+.sidebar-MergeChats-btn svg {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    flex-shrink: 0;
+}
+.sidebar-MergeChats-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+/*  TEXT APPEAR WHEN SIDEBAR EXPANDS  */
+.MergeChats-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 550;
+    font-size: 14px;
+    margin-left: 8px;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.85);
+    opacity: 0;
+    transform: translateX(-6px);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.exp-badge {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #f87171;
+    background-color: rgba(239, 68, 68, 0.15);
+    border-radius: 4px;
+    padding: 2px 5px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+    margin-left: 6px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: inline-block;
+}
+/*  EXPANDED STATE */
+.sidebar.expanded~.sidebar-MergeChats-btn {
+    width: calc(15% - 20px);
+    background: transparent;
+}
+.sidebar.expanded~.sidebar-MergeChats-btn .MergeChats-text {
+    opacity: 1;
+    transform: translateX(0);
+}
+.sidebar.expanded~.sidebar-MergeChats-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+/* ====================================================================== */
+/* ⬆️ Groups button code ends here */
+
+
+/* ====================================================================== */
+/* personalize button code which is in the sidebar */
+.sidebar-personalize-btn {
+    position: fixed;
+    top: 210px;
+    left: 10px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.879);
+    border-radius: 8px;
+    transition: width 0.3s ease, background 0.2s ease;
+}
+.sidebar-personalize-btn svg {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    flex-shrink: 0;
+}
+.sidebar-personalize-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+/*  TEXT APPEAR WHEN SIDEBAR EXPANDS  */
+.personalize-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 550;
+    font-size: 14px;
+    margin-left: 8px;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.85);
+    opacity: 0;
+    transform: translateX(-6px);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+/*  EXPANDED STATE  */
+.sidebar.expanded~.sidebar-personalize-btn {
+    width: calc(15% - 20px);
+    background: transparent;
+}
+.sidebar.expanded~.sidebar-personalize-btn .personalize-text {
+    opacity: 1;
+    transform: translateX(0);
+}
+.sidebar.expanded~.sidebar-personalize-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+/* ====================================================================== */
+/* ⬆️ personalize button code ends here */
+
+
+/* ====================================================================== */
+/* Background video button code which is in the sidebar*/
+.sidebar-BackgroundVideo-btn {
+    position: fixed;
+    top: 250px;
+    left: 10px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.879);
+    border-radius: 8px;
+    transition: width 0.3s ease, background 0.2s ease;
+}
+.sidebar-BackgroundVideo-btn svg {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    flex-shrink: 0;
+}
+.sidebar-BackgroundVideo-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+/*  TEXT APPEAR WHEN SIDEBAR EXPANDS  */
+.BackgroundVideo-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 550;
+    font-size: 14px;
+    margin-left: 8px;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.85);
+    opacity: 0;
+    transform: translateX(-6px);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+/* EXPANDED STATE  */
+.sidebar.expanded~.sidebar-BackgroundVideo-btn {
+    width: calc(15% - 20px);
+    background: transparent;
+}
+.sidebar.expanded~.sidebar-BackgroundVideo-btn .BackgroundVideo-text {
+    opacity: 1;
+    transform: translateX(0);
+}
+.sidebar.expanded~.sidebar-BackgroundVideo-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+/* ====================================================================== */
+/* ⬆️ Background video button ends here */
+
+
+/* ====================================================================== */
+/* CreateImage button code which is in the sidebar */
+.sidebar-CreateImage-btn {
+    position: fixed;
+    top: 290px;
+    left: 10px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.879);
+    border-radius: 8px;
+    transition: width 0.3s ease, background 0.2s ease;
+}
+.sidebar-CreateImage-btn svg {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    flex-shrink: 0;
+}
+.sidebar-CreateImage-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+/*  TEXT APPEAR WHEN SIDEBAR EXPANDS*/
+.CreateImage-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 550;
+    font-size: 14px;
+    margin-left: 8px;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.85);
+    opacity: 0;
+    transform: translateX(-6px);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.beta-badge {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #3d75de;
+    background-color: rgba(57, 118, 188, 0.292);
+    border-radius: 4px;
+    padding: 2px 5px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+    margin-left: 6px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: inline-block;
+}
+/*  EXPANDED STATE  */
+.sidebar.expanded~.sidebar-CreateImage-btn {
+    width: calc(15% - 20px);
+    background: transparent;
+}
+.sidebar.expanded~.sidebar-CreateImage-btn .CreateImage-text {
+    opacity: 1;
+    transform: translateX(0);
+}
+.sidebar.expanded~.sidebar-CreateImage-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+/* ====================================================================== */
+/* ⬆️ CreateImage button code ends here */
+
+
+/* ====================================================================== */
+/* History button code which is in the sidebar */
+.sidebar-History-btn {
+    position: fixed;
+    top: 330px;
+    left: 10px;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.879);
+    border-radius: 8px;
+    transition: width 0.3s ease, background 0.2s ease;
+}
+.sidebar-History-btn svg {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    flex-shrink: 0;
+}
+.sidebar-History-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+/*  TEXT APPEAR WHEN SIDEBAR EXPANDS */
+.History-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 550;
+    font-size: 14px;
+    margin-left: 8px;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.85);
+    opacity: 0;
+    transform: translateX(-6px);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+/*  EXPANDED STATE  */
+.sidebar.expanded~.sidebar-History-btn {
+    width: calc(15% - 20px);
+    background: transparent;
+}
+.sidebar.expanded~.sidebar-History-btn .History-text {
+    opacity: 1;
+    transform: translateX(0);
+}
+.history-arrow {
+    width: 14px;
+    height: 14px;
+    margin-left: auto;
+    flex-shrink: 0;
+    opacity: 0;
+    transform: translateX(-6px);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.sidebar.expanded~.sidebar-History-btn .history-arrow {
+    opacity: 1;
+    transform: translateX(0);
+}
+.sidebar.expanded~.sidebar-History-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+/* ====================================================================== */
+/* ⬆️ Histroy button code ends here */
+
+
+/* ====================================================================== */
+/* CLIVE text which is above the input bar */
+.clive-title {
+    position: fixed;
+    top: 225px;
+    left: 53%;
+    transform: translateX(-50%);
+    font-size: 72px;
+    color: #cccccc;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    letter-spacing: 5px;
+    z-index: 2;
+    user-select: none;
+    transition: left 0.35s ease;
+}
+.clive-title.hidden {
+    display: none;
+}
+.clive-title.sidebar-shifted {
+    left: calc(53% + 100px);
+}
+/* ====================================================================== */
+/* ⬆️ CLIVE text which is above the input bar when it is in mid of the screen button code ends here */
+
+
+/* ====================================================================== */
+/* Offers Section - Offer to Gain */
+.offers-section {
+    position: fixed;
+    bottom: 100px;
+    left: 53%;
+    transform: translateX(-50%);
+    width: 75%;
+    max-width: 750px;
+    z-index: 2;
+}
+.offers-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.offers-title {
+    color: #b3b3b3;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+}
+.offers-more {
+    color: #b3b3b3;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+}
+.offers-more:hover {
+    color: #fff;
+}
+.offers-cards {
+    display: flex;
+    gap: 12px;
+}
+.offer-card {
+    flex: 1;
+    background: #1a1a1ae0;
+    border-radius: 12px;
+    border: 1px solid #88888840;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                border-color 0.3s ease, 
+                box-shadow 0.3s ease;
+    position: relative;
+}
+.offer-card:hover {
+    transform: translateY(-6px) scale(1.03);
+    border-color: rgba(255,255,255,0.25);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+}
+.offer-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease, filter 0.3s ease;
+}
+.offer-card:hover img {
+    transform: scale(1.08);
+    filter: brightness(1.1);
+}
+.offer-card .offer-caption {
+    color: #b3b3b3;
+    font-size: 12px;
+    font-family: Arial, sans-serif;
+    padding: 8px 10px;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s ease;
+}
+.offer-card:hover .offer-caption {
+    color: #ffffff;
+}
+/* When sidebar is expanded */
+.sidebar.expanded~.offers-section {
+    left: calc(53% + 5.5%);
+    transition: left 0.35s ease;
+}
+.offers-section {
+    transition: left 0.35s ease;
+}
+/* ====================================================================== */
+/* ⬆️The offer to gain with it's images code ends here */
+
+
+/* ====================================================================== */
+/* Upgrade your Plan Button - Top Left Corner */
+.upgrade-plan-btn {
+    position: fixed;
+    top: 18px;
+    left: 80px;
+    z-index: 9999;
+    background-color: #1a1f2e;
+    color: #4a9eff;
+    border: none;
+    border-radius: 50px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    font-family: Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+    transition: left 0.35s ease, background 0.2s ease;
+}
+.upgrade-plan-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: #4a9eff;
+    flex-shrink: 0;
+}
+.upgrade-plan-btn:hover {
+    background-color: #1e2540;
+}
+/* Shining ray animation */
+.upgrade-plan-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -75%;
+    width: 40%;
+    height: 200%;
+    background: linear-gradient(120deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.15) 50%,
+            transparent 100%);
+    transform: skewX(-20deg);
+    animation: shineRay 3s ease-in-out infinite;
+}
+@keyframes shineRay {
+    0% {
+        left: -75%;
+    }
+    50% {
+        left: 130%;
+    }
+    100% {
+        left: 130%;
+    }
+}
+/* When sidebar is expanded */
+.sidebar.expanded~.upgrade-plan-btn {
+    left: calc(70px + 11%);
+}
+/* ====================================================================== */
+/* ⬆️Upgrade your Plan Button code ends here  */
+
+
+/* ====================================================================== */
+/* All buttons code which are below the input bar (create image, grouping , project , version) */
+.quick-actions {
+    position: fixed;
+    top: calc(46% + 52px);
+    left: 53%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 2;
+}
+.quick-actions.hidden {
+    display: none;
+}
+.quick-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50px;
+    color: #ccc;
+    font-size: 13.5px;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+    backdrop-filter: blur(4px);
+}
+.quick-btn svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    color: inherit;
+}
+.quick-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #fff;
+}
+.quick-btn:active {
+    background: rgba(255, 255, 255, 0.08);
+    transform: scale(0.97);
+}
+#quickActions {
+    transition: left 0.3s ease;
+}
+#quickActions.sidebar-shifted {
+    left: calc(50% + 120px);
+    /* same value as your title and input bar */
+    transform: translateX(-50%);
+}
+.soon-badge {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #f59e0b;
+    background-color: rgba(245, 158, 11, 0.15);
+    border-radius: 4px;
+    padding: 2px 5px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+    margin-left: -1px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: inline-block;
+}
+.und-badge {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #f87171;
+    background-color: rgba(239, 68, 68, 0.15);
+    border-radius: 4px;
+    padding: 2px 5px;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+    margin-left: -1px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: inline-block;
+}
+/* ====================================================================== */
+/*⬆️ All buttons code which are below the input bar (create image, grouping , project , version) code ends here */
+
+
+/* ====================================================================== */
+/* So this is the code of those buttons which are at the top right corner 
+     (Privacy , About , Features , Privacy Mode , Voice mode) */
+/* Privacy Button */
+.privacy-btn {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 9999;
+    background-color: #ffffff;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 50px;
+    padding: 8px 13px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+.privacy-btn:hover {
+    background-color: #f0f0f0a1;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+.privacy-btn:active {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+/* Voice Button */
+.voice-btn {
+    position: fixed;
+    top: 18px;
+    right: 120px;
+    z-index: 9999;
+    background-color: white;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 50px;
+    padding: 8px 13px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+}
+.voice-btn:hover {
+    background-color: #f0f0f0a1;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+.voice-btn:active {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+/* Features Button */
+.features-btn {
+    position: fixed;
+    top: 18px;
+    right: 240px;
+    z-index: 9999;
+    background-color: transparent;
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    padding: 8px 13px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+}
+.features-btn:hover {
+    background-color: #000000a1;
+}
+.features-btn:active {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+/* About Button */
+.about-btn {
+    position: fixed;
+    top: 18px;
+    right: 340px;
+    z-index: 9999;
+    background-color: transparent;
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    padding: 8px 13px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+}
+.about-btn:hover {
+    background-color: #000000a1;
+}
+.about-btn:active {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+/* Help Button */
+.help-btn {
+    position: fixed;
+    top: 18px;
+    right: 420px;
+    z-index: 9999;
+    background-color: transparent;
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    padding: 8px 13px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+}
+.help-btn:hover {
+    background-color: #000000a1;
+}
+.help-btn:active {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+/* ====================================================================== */
+/* ⬆️ The top right corner buttons code ends here  */
+
+
+/* ====================================================================== */
+/* ====================== OFFER POPUP STYLES ====================== */
+.offer-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;           /* Much higher z-index */
+    backdrop-filter: blur(8px);
+}
+.offer-popup-overlay.show {
+    display: flex;            /* This is important for centering */
+}
+.offer-popup {
+    background: #1a1a1a;
+    border: 1px solid #444;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 420px;
+    padding: 32px 28px;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    z-index: 100000;          /* Even higher for the popup itself */
+}
+/* Close Button */
+.offer-popup-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+.offer-popup-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+.offer-popup-close svg {
+    width: 20px;
+    height: 20px;
+    stroke: #aaa;
+}
+/* Rest of your styles (Badge, Icon, Title, etc.) - unchanged */
+.offer-popup-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(217, 119, 6, 0.15);
+    color: #fbbf24;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 30px;
+    margin-bottom: 20px;
+}
+.offer-popup-badge svg {
+    margin-right: 2px;
+}
+.offer-popup-icon {
+    margin: 10px 0 20px 0;
+}
+.offer-popup-icon svg {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+.offer-popup-title {
+    font-size: 28px;
+    line-height: 1.1;
+    margin: 0 0 16px 0;
+    font-weight: 700;
+}
+.offer-popup-title span {
+    color: #60a5fa;
+}
+.offer-popup-sub {
+    font-size: 15.5px;
+    line-height: 1.45;
+    color: #ccc;
+    margin: 0 0 24px 0;
+}
+.offer-popup-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 24px 0;
+}
+.offer-popup-section-label {
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    color: #888;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+.offer-popup-perks {
+    text-align: left;
+    margin-bottom: 8px;
+}
+.offer-perk {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+.offer-perk:last-child {
+    margin-bottom: 0;
+}
+.offer-perk-icon {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    margin-top: 2px;
+}
+.offer-perk-icon svg {
+    width: 100%;
+    height: 100%;
+}
+.offer-perk-body {
+    text-align: left;
+}
+.offer-perk-name {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 3px;
+    font-size: 15.5px;
+}
+.offer-perk-desc {
+    display: block;
+    font-size: 14px;
+    color: #aaa;
+    line-height: 1.4;
+}
+.offer-popup-steps {
+    text-align: left;
+    margin-bottom: 20px;
+}
+.offer-step {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+.offer-step:last-child {
+    margin-bottom: 0;
+}
+.offer-step-num {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    background: rgba(255,255,255,0.1);
+    color: #60a5fa;
+    font-weight: 700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+}
+.offer-step-text {
+    font-size: 15px;
+    color: #ddd;
+    line-height: 1.45;
+}
+.offer-popup-cta {
+    width: 100%;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+.offer-popup-cta:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+.offer-popup-cta-secondary {
+    width: 100%;
+    background: transparent;
+    color: #aaa;
+    border: 1px solid #555;
+    padding: 15px;
+    font-size: 15.5px;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+.offer-popup-cta-secondary:hover {
+    background: rgba(255,255,255,0.05);
+}
+.offer-popup-footnote {
+    font-size: 12.5px;
+    color: #666;
+    margin-top: 20px;
+    line-height: 1.4;
+}
+/* ====================================================================== */
+/* ⬆️ The offer pop up code ends here  */
+
+
+/* ====================================================================== */
+/* Elements on home page disappear when once user starts typing in input bar */
+.clive-title,
+#offersSection,
+#quickActions,
+.upgrade-plan-btn,
+.privacy-btn,
+.about-btn,
+.voice-btn,
+.features-btn,
+.help-btn {
+    transition: opacity 0.3s ease;
+}
+
+.chat-mode {
+    opacity: 0 !important;
+    pointer-events: none;
+}
+/* ====================================================================== */
+/* ⬆️the elements disapperaing code ends here*/
+
+
+
+/* ====================================================================== */
+/* Chat Actions Bar — Share + New Chat (appears after input bar goes down) */
+#chatActionsBar {
+    position: fixed !important;
+    top: 18px;
+    right: 18px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+#chatActionsBar.fade-in {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Share button — white pill, like privacy-btn/voice-btn */
+#chatActionsBar .chat-share-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #ffffff;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 50px;
+    padding: 8px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+    transition: background-color 0.2s ease, padding 0.3s ease, width 0.3s ease, border-radius 0.3s ease;
+}
+
+#chatActionsBar .chat-share-btn svg {
+    width: 17px;
+    height: 17px;
+    stroke: #1a1a1a;
+    flex-shrink: 0;
+}
+
+#chatActionsBar .chat-share-btn:hover {
+    background-color: #f0f0f0a1;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+
+/* New Chat button — blurred circular glass */
+#chatActionsBar .chat-edit-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+#chatActionsBar .chat-edit-btn svg {
+    width: 17px;
+    height: 17px;
+    stroke: #ffffff;
+    flex-shrink: 0;
+}
+
+#chatActionsBar .chat-edit-btn:hover {
+    background-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Sidebar expanded — Share button collapses to icon-only white circle */
+.sidebar.expanded ~ #chatActionsBar .chat-share-btn .share-text {
+    display: none;
+}
+
+.sidebar.expanded ~ #chatActionsBar .chat-share-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+}
+/* ====================================================================== */

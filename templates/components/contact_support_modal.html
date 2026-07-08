@@ -1,0 +1,451 @@
+<!-- ═══════════════════════════════════════════
+   CONTACT SUPPORT MODAL — Professional Light Theme
+   Trigger with: openContactSupport()
+════════════════════════════════════════════ -->
+
+<!-- Overlay -->
+<div class="cs-overlay" id="cs-overlay" onclick="closeContactSupport()"></div>
+
+<!-- Modal -->
+<div class="cs-modal" id="cs-modal" role="dialog" aria-modal="true" aria-labelledby="cs-title">
+
+  <!-- Header -->
+  <div class="cs-header">
+    <div class="cs-header-left">
+      <div class="cs-icon-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+          <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="cs-title" id="cs-title">Contact Support</h2>
+        <p class="cs-subtitle">We're here to help 24/7</p>
+      </div>
+    </div>
+    <button class="cs-close" onclick="closeContactSupport()" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="cs-body">
+
+    <!-- Email — Free -->
+    <a class="cs-row cs-row-free" onclick="openSupportGmail()">
+      <div class="cs-row-icon cs-icon-free">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/>
+        </svg>
+      </div>
+      <div class="cs-row-content">
+        <div class="cs-row-header">
+          <span class="cs-row-label">Email Support</span>
+          <span class="cs-badge cs-badge-free">FREE</span>
+        </div>
+        <span class="cs-row-value">artificialintelligentclive@gmail.com</span>
+      </div>
+      <svg class="cs-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
+
+    <!-- Phone Primary — Locked -->
+    <div class="cs-row cs-row-locked" onclick="openUpgradePrompt()">
+      <div class="cs-row-icon cs-icon-locked">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6.29 6.29l.97-.97a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+      </div>
+      <div class="cs-row-content">
+        <div class="cs-row-header">
+          <span class="cs-row-label">Phone Support</span>
+          <span class="cs-badge cs-badge-paid">PREMIUM</span>
+        </div>
+        <span class="cs-row-value cs-blurred">+91 98765 43210</span>
+        <span class="cs-row-hint">Upgrade to unlock phone support</span>
+      </div>
+      <div class="cs-lock-icon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Phone Secondary — Locked -->
+    <div class="cs-row cs-row-locked" onclick="openUpgradePrompt()">
+      <div class="cs-row-icon cs-icon-locked">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
+        </svg>
+      </div>
+      <div class="cs-row-content">
+        <div class="cs-row-header">
+          <span class="cs-row-label">Secondary Phone</span>
+          <span class="cs-badge cs-badge-paid">PREMIUM</span>
+        </div>
+        <span class="cs-row-value cs-blurred">+91 91234 56789</span>
+        <span class="cs-row-hint">Upgrade to unlock phone support</span>
+      </div>
+      <div class="cs-lock-icon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="cs-footer">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+    </svg>
+    <span>Email responses typically within 2–4 hours</span>
+  </div>
+
+</div>
+
+<!-- ═══ STYLES ═══ -->
+<style>
+/* Overlay */
+.cs-overlay {
+  display: none;
+  position: fixed; 
+  inset: 0; 
+  z-index: 9998;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+  animation: cs-fadein 0.25s ease;
+}
+.cs-overlay.cs-show { display: block; }
+
+/* Modal Container */
+.cs-modal {
+  display: none;
+  position: fixed;
+  top: 50%; 
+  left: 50%;
+  transform: translate(-50%, -48%) scale(0.96);
+  z-index: 9999;
+  width: 90%;
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.12),
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+}
+.cs-modal.cs-show {
+  display: block;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Header */
+.cs-header {
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+  padding: 1.5rem 1.5rem 1rem;
+}
+
+.cs-header-left { 
+  display: flex; 
+  align-items: center; 
+  gap: 0.875rem; 
+}
+
+.cs-icon-wrap {
+  width: 44px; 
+  height: 44px; 
+  border-radius: 12px;
+  background: #f5f5f4;
+  color: #57534e;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cs-title { 
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 1.125rem; 
+  font-weight: 600; 
+  color: #1c1917; 
+  margin: 0 0 0.125rem; 
+  letter-spacing: -0.01em;
+}
+
+.cs-subtitle { 
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 0.8125rem; 
+  color: #78716c; 
+  margin: 0;
+  font-weight: 400;
+}
+
+.cs-close {
+  width: 32px; 
+  height: 32px; 
+  border-radius: 8px;
+  background: transparent; 
+  border: none; 
+  cursor: pointer;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  color: #a8a29e; 
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.cs-close:hover { 
+  background: #f5f5f4; 
+  color: #44403c; 
+}
+
+/* Body */
+.cs-body { 
+  padding: 0.5rem 1.25rem 1rem; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 0.5rem; 
+}
+
+/* Row Base */
+.cs-row {
+  display: flex; 
+  align-items: center; 
+  gap: 0.875rem;
+  padding: 1rem;
+  background: #fafaf9;
+  border: 1px solid #e7e5e4;
+  border-radius: 12px;
+  text-decoration: none; 
+  color: inherit;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.cs-row:hover { 
+  background: #f5f5f4; 
+  border-color: #d6d3d1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* Free Row - Special styling */
+.cs-row-free {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+.cs-row-free:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.08);
+}
+
+/* Locked Row */
+.cs-row-locked {
+  background: #fafaf9;
+  border-color: #e7e5e4;
+  cursor: pointer;
+}
+.cs-row-locked:hover {
+  background: #f5f5f4;
+  border-color: #d6d3d1;
+}
+
+/* Row Icons */
+.cs-row-icon {
+  width: 36px; 
+  height: 36px; 
+  border-radius: 9px;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.cs-icon-free {
+  background: #dcfce7;
+  color: #16a34a;
+}
+.cs-row-free:hover .cs-icon-free {
+  background: #bbf7d0;
+  color: #15803d;
+}
+
+.cs-icon-locked {
+  background: #f5f5f4;
+  color: #a8a29e;
+}
+.cs-row-locked:hover .cs-icon-locked {
+  background: #e7e5e4;
+  color: #78716c;
+}
+
+/* Row Content */
+.cs-row-content { 
+  flex: 1; 
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cs-row-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.125rem;
+}
+
+.cs-row-label {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 0.75rem; 
+  font-weight: 500; 
+  letter-spacing: 0.02em;
+  color: #78716c;
+  text-transform: uppercase;
+}
+
+.cs-row-value {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  display: block; 
+  font-size: 0.9375rem; 
+  font-weight: 500;
+  color: #1c1917;
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+
+/* Blurred value for locked items */
+.cs-blurred {
+  filter: blur(4px);
+  opacity: 0.6;
+  user-select: none;
+}
+
+.cs-row-hint {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 0.75rem; 
+  color: #a8a29e;
+  margin-top: 0.125rem;
+  font-weight: 400;
+}
+
+/* Badges */
+.cs-badge {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 0.625rem; 
+  font-weight: 700; 
+  letter-spacing: 0.04em;
+  padding: 0.25rem 0.5rem; 
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.cs-badge-free {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.cs-badge-paid {
+  background: #f5f5f4;
+  color: #57534e;
+  border: 1px solid #d6d3d1;
+}
+
+/* Lock Icon */
+.cs-lock-icon {
+  color: #d6d3d1;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+.cs-row-locked:hover .cs-lock-icon {
+  color: #a8a29e;
+}
+
+/* Chevron */
+.cs-chevron { 
+  color: #d6d3d1; 
+  flex-shrink: 0;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+.cs-row:hover .cs-chevron {
+  color: #a8a29e;
+  transform: translateX(2px);
+}
+
+/* Footer */
+.cs-footer {
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 0.5rem;
+  padding: 1rem 1.5rem 1.5rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 0.8125rem; 
+  color: #a8a29e;
+  font-weight: 400;
+  border-top: 1px solid #f5f5f4;
+  margin-top: 0.5rem;
+}
+
+/* Animation */
+@keyframes cs-fadein { 
+  from { opacity: 0; } 
+  to { opacity: 1; } 
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .cs-modal {
+    width: calc(100% - 2rem);
+    max-width: none;
+  }
+  .cs-row-value { font-size: 0.875rem; }
+  .cs-header { padding: 1.25rem 1.25rem 0.875rem; }
+  .cs-body { padding: 0.5rem 1rem 0.875rem; }
+}
+</style>
+
+<!-- ═══ SCRIPT ═══ -->
+<script>
+function openContactSupport() {
+  document.getElementById('cs-modal').classList.add('cs-show');
+  document.getElementById('cs-overlay').classList.add('cs-show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeContactSupport() {
+  document.getElementById('cs-modal').classList.remove('cs-show');
+  document.getElementById('cs-overlay').classList.remove('cs-show');
+  document.body.style.overflow = '';
+}
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeContactSupport();
+});
+
+// ADD THIS — closes modal when user returns to the tab
+window.addEventListener('focus', function() {
+  closeContactSupport();
+});
+
+// Upgrade prompt
+function openUpgradePrompt() {
+  alert('Upgrade to Premium to unlock phone support!');
+}
+</script>
+

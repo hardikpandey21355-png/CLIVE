@@ -1,0 +1,688 @@
+<!--=======================================================================-->
+<!-- FIRST-TIME ONBOARDING WIZARD (6 steps, one detail per popup)            -->
+<!-- Step 1: Name  |  Step 2: Occupation  |  Step 3: How did you hear (custom dropdown) -->
+<!-- Step 4: Rules & Regulations  |  Step 5: Individual or Group  |  Step 6: Choose Plan -->
+<!-- Fires once per account: checks Firestore users/{uid}.onboarded          -->
+<!--=======================================================================-->
+<div class="onboarding-overlay" id="onboarding-overlay"></div>
+
+<div class="onboarding-modal" id="onboarding-modal">
+
+    <!-- Progress dots -->
+    <div class="ob-progress" id="ob-progress">
+        <span class="ob-dot active" data-dot="1"></span>
+        <span class="ob-dot" data-dot="2"></span>
+        <span class="ob-dot" data-dot="3"></span>
+        <span class="ob-dot" data-dot="4"></span>
+        <span class="ob-dot" data-dot="5"></span>
+        <span class="ob-dot" data-dot="6"></span>
+    </div>
+
+    <div class="ob-steps-wrap" id="ob-steps-wrap">
+
+        <!-- STEP 1 - Name -->
+        <div class="ob-step active" data-step="1">
+            <div class="ob-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/>
+                </svg>
+            </div>
+            <h2 class="ob-title">Welcome to Clive</h2>
+            <p class="ob-sub">Let's get you set up. What should Clive call you?</p>
+            <div class="ob-field">
+                <input type="text" class="ob-input" id="ob-name" placeholder="Your name" autocomplete="off">
+            </div>
+            <button type="button" class="ob-continue-btn" id="ob-continue-1" disabled onclick="goToStep(2)">Continue</button>
+        </div>
+
+        <!-- STEP 2 - Occupation -->
+        <div class="ob-step" data-step="2">
+            <div class="ob-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                </svg>
+            </div>
+            <h2 class="ob-title">Nice to meet you, <span id="ob-name-echo"></span></h2>
+            <p class="ob-sub">What do you do? This helps Clive tailor its answers to you.</p>
+            <div class="ob-field">
+                <input type="text" class="ob-input" id="ob-occupation" placeholder="Student, Developer, Founder...">
+            </div>
+            <div class="ob-btn-row">
+                <button type="button" class="ob-back-btn" onclick="goToStep(1)">Back</button>
+                <button type="button" class="ob-continue-btn" onclick="goToStep(3)">Continue</button>
+            </div>
+        </div>
+
+        <!-- STEP 3 - How did you hear (custom dropdown) -->
+        <div class="ob-step" data-step="3">
+            <div class="ob-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+            </div>
+            <h2 class="ob-title">One more thing</h2>
+            <p class="ob-sub">How did you hear about Clive?</p>
+
+            <div class="ob-dropdown" id="ob-hear-dropdown">
+                <div class="ob-dropdown-trigger" onclick="toggleObDropdown()">
+                    <span class="ob-dropdown-label" id="ob-hear-label">Select an option</span>
+                    <svg class="ob-chevron" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="ob-dropdown-menu" id="ob-hear-menu">
+                    <div class="ob-dropdown-option" data-value="friend" onclick="selectObOption(this,'Friend or family')">
+                        <span class="ob-opt-radio"></span>Friend or family
+                    </div>
+                    <div class="ob-dropdown-option" data-value="social" onclick="selectObOption(this,'Social media')">
+                        <span class="ob-opt-radio"></span>Social media
+                    </div>
+                    <div class="ob-dropdown-option" data-value="search" onclick="selectObOption(this,'Search engine')">
+                        <span class="ob-opt-radio"></span>Search engine
+                    </div>
+                    <div class="ob-dropdown-option" data-value="youtube" onclick="selectObOption(this,'YouTube')">
+                        <span class="ob-opt-radio"></span>YouTube
+                    </div>
+                    <div class="ob-dropdown-option" data-value="other" onclick="selectObOption(this,'Other')">
+                        <span class="ob-opt-radio"></span>Other
+                    </div>
+                    <div class="ob-dropdown-option" data-value="na" onclick="selectObOption(this,'Prefer not to say')">
+                        <span class="ob-opt-radio"></span>Prefer not to say
+                    </div>
+                </div>
+            </div>
+
+            <div class="ob-btn-row">
+                <button type="button" class="ob-back-btn" onclick="goToStep(2)">Back</button>
+                <button type="button" class="ob-continue-btn" id="ob-continue-3" disabled onclick="goToStep(4)">Continue</button>
+            </div>
+        </div>
+
+        <!-- STEP 4 - Rules & Regulations -->
+        <div class="ob-step" data-step="4">
+            <div class="ob-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/>
+                </svg>
+            </div>
+            <h2 class="ob-title">Just the formal part</h2>
+            <p class="ob-sub">Please review before you continue.</p>
+
+            <div class="ob-rules-box">
+                <p>By using Clive, you agree to:</p>
+                <ul>
+                    <li>Use Clive respectfully and not for illegal or harmful activity.</li>
+                    <li>Understand responses are AI-generated and may occasionally be wrong.</li>
+                    <li>Follow our data &amp; privacy practices for any information you share.</li>
+                    <li>Accept that features, limits, and plans may change over time.</li>
+                </ul>
+            </div>
+
+            <label class="ob-checkbox-row">
+                <input type="checkbox" id="ob-agree-rules" onchange="toggleRulesContinue()">
+                <span class="ob-checkbox-box"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <span class="ob-checkbox-text">I have read and agree to the <a href="/upgrade" target="_blank">Terms &amp; Conditions</a> and Privacy Policy.</span>
+            </label>
+
+            <div class="ob-btn-row">
+                <button type="button" class="ob-back-btn" onclick="goToStep(3)">Back</button>
+                <button type="button" class="ob-continue-btn" id="ob-continue-4" disabled onclick="goToStep(5)">Continue</button>
+            </div>
+        </div>
+
+        <!-- STEP 5 - Individual or Group -->
+        <div class="ob-step" data-step="5">
+            <div class="ob-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+            </div>
+            <h2 class="ob-title">How will you use Clive?</h2>
+            <p class="ob-sub">This helps us set up the right workspace for you.</p>
+
+            <div class="ob-choice-grid">
+                <div class="ob-choice-card" data-value="individual" onclick="selectUsageType(this)">
+                    <div class="ob-choice-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+                    </div>
+                    <span class="ob-choice-name">Just Myself</span>
+                    <span class="ob-choice-desc">Personal use, one account</span>
+                </div>
+                <div class="ob-choice-card" data-value="group" onclick="selectUsageType(this)">
+                    <div class="ob-choice-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <span class="ob-choice-name">A Team / Group</span>
+                    <span class="ob-choice-desc">Collaborate with others</span>
+                </div>
+            </div>
+
+            <div class="ob-btn-row">
+                <button type="button" class="ob-back-btn" onclick="goToStep(4)">Back</button>
+                <button type="button" class="ob-continue-btn" id="ob-continue-5" disabled onclick="goToStep(6)">Continue</button>
+            </div>
+        </div>
+
+        <!-- STEP 6 - Choose Plan -->
+        <div class="ob-step" data-step="6">
+            <h2 class="ob-title">Choose your plan</h2>
+            <p class="ob-sub">Start free, upgrade anytime from Settings.</p>
+
+            <div class="ob-plan-grid">
+                <div class="ob-plan-card">
+                    <span class="ob-plan-name">Free</span>
+                    <div class="ob-plan-price-row"><span class="ob-plan-price">₹0</span></div>
+                    <span class="ob-plan-tag">See what AI can do</span>
+                    <button class="ob-plan-btn" onclick="finishOnboarding('free')">Go with Free</button>
+                </div>
+
+                <div class="ob-plan-card">
+                    <span class="ob-plan-name">Go</span>
+                    <div class="ob-plan-price-row"><span class="ob-plan-price">₹29</span><span class="ob-plan-period">/7 days</span></div>
+                    <span class="ob-plan-tag">More everyday access</span>
+                    <button class="ob-plan-btn" onclick="finishOnboarding('go')">Go with Go</button>
+                </div>
+
+                <div class="ob-plan-card ob-plan-featured">
+                    <span class="ob-plan-badge">Popular</span>
+                    <span class="ob-plan-name">Plus</span>
+                    <div class="ob-plan-price-row"><span class="ob-plan-price">₹499</span><span class="ob-plan-period">/mo</span></div>
+                    <span class="ob-plan-tag">Unlock the full experience</span>
+                    <button class="ob-plan-btn ob-plan-btn-primary" onclick="finishOnboarding('plus')">Go with Plus</button>
+                </div>
+
+                <div class="ob-plan-card">
+                    <span class="ob-plan-name">Pro</span>
+                    <div class="ob-plan-price-row"><span class="ob-plan-price">₹999</span><span class="ob-plan-period">/mo</span></div>
+                    <span class="ob-plan-tag">Maximize productivity</span>
+                    <button class="ob-plan-btn" onclick="finishOnboarding('pro')">Go with Pro</button>
+                </div>
+            </div>
+
+            <div class="ob-btn-row ob-btn-row-single">
+                <button type="button" class="ob-back-btn" onclick="goToStep(5)">Back</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!--=======================================================================-->
+
+
+<style>
+.onboarding-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(6px);
+    z-index: 99998;
+    display: none;
+}
+.onboarding-overlay.show { display: block; }
+
+.onboarding-modal {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -48%) scale(0.96);
+    width: 92%; max-width: 440px;
+    background: linear-gradient(180deg, #171717 0%, #131313 100%);
+    border: 1px solid #262626;
+    border-radius: 22px;
+    padding: 30px 28px 28px;
+    z-index: 99999;
+    display: none;
+    opacity: 0;
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease, max-width 0.3s ease;
+    max-height: 85vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #333 transparent;
+}
+.onboarding-modal::-webkit-scrollbar { width: 6px; }
+.onboarding-modal::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+.onboarding-modal.show {
+    display: block;
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+.onboarding-modal.ob-wide { max-width: 520px; }
+
+.ob-progress {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+    margin-bottom: 22px;
+}
+.ob-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #333;
+    transition: all 0.25s ease;
+}
+.ob-dot.active { width: 20px; border-radius: 4px; background: #5b9bd5; }
+.ob-dot.done { background: #4a7ca8; }
+
+.ob-step { display: none; }
+.ob-step.active { display: block; animation: obFadeIn 0.35s ease forwards; }
+.ob-step.fade-out { display: block; animation: obFadeOut 0.22s ease forwards; }
+
+@keyframes obFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes obFadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(-10px); }
+}
+
+.ob-icon {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background: #232323;
+    border: 1px solid #333;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+}
+.ob-icon svg { width: 22px; height: 22px; }
+
+.ob-title { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 6px; letter-spacing: -0.01em; }
+.ob-title span#ob-name-echo { color: #5b9bd5; }
+.ob-sub { font-size: 13.5px; color: #999; text-align: center; margin-bottom: 24px; line-height: 1.5; }
+
+.ob-field { margin-bottom: 6px; }
+.ob-input {
+    width: 100%;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14.5px;
+    color: #fff;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.ob-input:focus { border-color: #5b9bd5; }
+
+.ob-continue-btn {
+    width: 100%;
+    background: #ffffff;
+    color: #111;
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background 0.2s, opacity 0.2s;
+}
+.ob-continue-btn:hover:not(:disabled) { background: #e8e8e8; }
+.ob-continue-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.ob-btn-row { display: flex; gap: 10px; margin-top: 20px; }
+.ob-btn-row.ob-btn-row-single { justify-content: flex-start; }
+.ob-btn-row .ob-continue-btn { margin-top: 0; flex: 1; }
+.ob-back-btn {
+    flex-shrink: 0;
+    background: transparent;
+    color: #999;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 13px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.ob-back-btn:hover { background: #1e1e1e; color: #ccc; }
+
+.ob-dropdown { position: relative; }
+.ob-dropdown-trigger {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 13px 14px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    user-select: none;
+}
+.ob-dropdown.open .ob-dropdown-trigger { border-color: #5b9bd5; }
+.ob-dropdown-label { font-size: 14.5px; color: #fff; }
+.ob-chevron { width: 12px; height: 12px; color: #777; transition: transform 0.25s ease; flex-shrink: 0; }
+.ob-dropdown.open .ob-chevron { transform: rotate(180deg); color: #5b9bd5; }
+
+.ob-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0; right: 0;
+    background: #1c1c1e;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 6px;
+    z-index: 20;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+}
+.ob-dropdown-menu.open {
+    display: block;
+    animation: obMenuIn 0.18s ease;
+}
+@keyframes obMenuIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.ob-dropdown-option {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #ddd;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.ob-dropdown-option:hover { background: #262626; }
+.ob-dropdown-option.selected { color: #5b9bd5; background: rgba(91,155,213,0.08); }
+
+.ob-opt-radio {
+    width: 15px; height: 15px;
+    border-radius: 50%;
+    border: 1.5px solid #444;
+    flex-shrink: 0;
+    position: relative;
+    transition: border-color 0.2s;
+}
+.ob-dropdown-option.selected .ob-opt-radio { border-color: #5b9bd5; }
+.ob-dropdown-option.selected .ob-opt-radio::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #5b9bd5;
+    transform: translate(-50%, -50%);
+}
+
+.ob-rules-box {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 16px 18px;
+    max-height: 150px;
+    overflow-y: auto;
+    font-size: 13px;
+    color: #aaa;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    scrollbar-width: thin;
+}
+.ob-rules-box p { color: #ccc; margin-bottom: 8px; font-weight: 500; }
+.ob-rules-box ul { padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+
+.ob-checkbox-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+.ob-checkbox-row input { display: none; }
+.ob-checkbox-box {
+    width: 19px; height: 19px;
+    border-radius: 5px;
+    border: 1.5px solid #444;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.18s, border-color 0.18s;
+}
+.ob-checkbox-box svg { width: 11px; height: 11px; opacity: 0; transition: opacity 0.15s; }
+.ob-checkbox-row input:checked + .ob-checkbox-box {
+    background: #5b9bd5; border-color: #5b9bd5;
+}
+.ob-checkbox-row input:checked + .ob-checkbox-box svg { opacity: 1; }
+.ob-checkbox-text { font-size: 13px; color: #999; line-height: 1.5; }
+.ob-checkbox-text a { color: #5b9bd5; text-decoration: none; }
+.ob-checkbox-text a:hover { text-decoration: underline; }
+
+.ob-choice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.ob-choice-card {
+    background: #1a1a1a;
+    border: 1.5px solid #2a2a2a;
+    border-radius: 14px;
+    padding: 20px 14px;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+}
+.ob-choice-card:hover { border-color: #444; transform: translateY(-2px); }
+.ob-choice-card.selected { border-color: #5b9bd5; background: rgba(91,155,213,0.06); }
+
+.ob-choice-icon {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: #232323;
+    display: flex; align-items: center; justify-content: center;
+    color: #999;
+    transition: color 0.2s, background 0.2s;
+}
+.ob-choice-icon svg { width: 19px; height: 19px; }
+.ob-choice-card.selected .ob-choice-icon { color: #5b9bd5; background: rgba(91,155,213,0.12); }
+
+.ob-choice-name { font-size: 14px; font-weight: 600; color: #eee; }
+.ob-choice-desc { font-size: 11.5px; color: #777; line-height: 1.4; }
+
+.ob-plan-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+.ob-plan-card {
+    position: relative;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 14px;
+    padding: 16px 14px;
+    display: flex; flex-direction: column; gap: 4px;
+}
+.ob-plan-featured {
+    background: linear-gradient(145deg, #1c1f5e 0%, #14172f 100%);
+    border-color: rgba(107,124,255,0.4);
+}
+.ob-plan-badge {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(107,124,255,0.2);
+    border: 1px solid rgba(107,124,255,0.4);
+    color: #a0aaff;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+}
+.ob-plan-name { font-size: 15px; font-weight: 700; color: #fff; }
+.ob-plan-price-row { display: flex; align-items: baseline; gap: 3px; margin: 2px 0; }
+.ob-plan-price { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; color: #fff; }
+.ob-plan-period { font-size: 11px; color: #888; }
+.ob-plan-tag { font-size: 10.5px; color: #888; line-height: 1.3; margin-bottom: 10px; min-height: 26px; }
+
+.ob-plan-btn {
+    width: 100%;
+    background: #2a2a2a;
+    color: #eee;
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    padding: 9px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s;
+    margin-top: auto;
+}
+.ob-plan-btn:hover { background: #333; }
+.ob-plan-btn-primary { background: #6b7cff; color: #fff; border-color: #6b7cff; }
+.ob-plan-btn-primary:hover { background: #5a6bf0; }
+</style>
+
+
+<script type="module">
+import {
+    auth,
+    onAuthStateChanged,
+    db,
+    doc,
+    getDoc,
+    setDoc,
+    serverTimestamp
+} from "{{ url_for('static', filename='js/firebase-init.js') }}";
+
+let currentUser  = null;
+let currentStep  = 1;
+let obHearValue  = '';
+let obUsageType  = '';
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+
+    try {
+        const userRef  = doc(db, 'users', user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists() || !userSnap.data().onboarded) {
+            currentUser = user;
+            openOnboardingModal();
+        }
+    } catch (err) {
+        console.error('Onboarding check failed:', err);
+    }
+});
+
+function openOnboardingModal() {
+    document.getElementById('onboarding-overlay').classList.add('show');
+    document.getElementById('onboarding-modal').classList.add('show');
+
+    const nameInput = document.getElementById('ob-name');
+    nameInput.addEventListener('input', () => {
+        document.getElementById('ob-continue-1').disabled = nameInput.value.trim().length === 0;
+    });
+}
+
+function closeOnboardingModal() {
+    document.getElementById('onboarding-overlay').classList.remove('show');
+    document.getElementById('onboarding-modal').classList.remove('show');
+}
+
+function goToStep(n) {
+    if (n === currentStep) return;
+    const currentEl = document.querySelector(`.ob-step[data-step="${currentStep}"]`);
+    const nextEl    = document.querySelector(`.ob-step[data-step="${n}"]`);
+
+    if (n === 2) {
+        document.getElementById('ob-name-echo').textContent = document.getElementById('ob-name').value.trim();
+    }
+
+    currentEl.classList.remove('active');
+    currentEl.classList.add('fade-out');
+
+    setTimeout(() => {
+        currentEl.classList.remove('fade-out');
+        currentEl.style.display = 'none';
+
+        nextEl.style.display = '';
+        void nextEl.offsetWidth;
+        nextEl.classList.add('active');
+
+        currentStep = n;
+        updateProgress();
+
+        const modal = document.getElementById('onboarding-modal');
+        modal.classList.toggle('ob-wide', n === 6);
+        modal.scrollTop = 0;
+    }, 220);
+}
+
+function updateProgress() {
+    document.querySelectorAll('.ob-dot').forEach(dot => {
+        const step = parseInt(dot.dataset.dot, 10);
+        dot.classList.toggle('active', step === currentStep);
+        dot.classList.toggle('done', step < currentStep);
+    });
+}
+
+function toggleObDropdown() {
+    document.getElementById('ob-hear-dropdown').classList.toggle('open');
+    document.getElementById('ob-hear-menu').classList.toggle('open');
+}
+function selectObOption(el, label) {
+    document.querySelectorAll('#ob-hear-menu .ob-dropdown-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('ob-hear-label').textContent = label;
+    obHearValue = el.dataset.value;
+    document.getElementById('ob-hear-dropdown').classList.remove('open');
+    document.getElementById('ob-hear-menu').classList.remove('open');
+    document.getElementById('ob-continue-3').disabled = false;
+}
+document.addEventListener('click', (e) => {
+    const dd = document.getElementById('ob-hear-dropdown');
+    if (dd && !dd.contains(e.target)) {
+        dd.classList.remove('open');
+        document.getElementById('ob-hear-menu').classList.remove('open');
+    }
+});
+
+function toggleRulesContinue() {
+    document.getElementById('ob-continue-4').disabled = !document.getElementById('ob-agree-rules').checked;
+}
+
+function selectUsageType(el) {
+    document.querySelectorAll('.ob-choice-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    obUsageType = el.dataset.value;
+    document.getElementById('ob-continue-5').disabled = false;
+}
+
+async function finishOnboarding(plan) {
+    if (!currentUser) return;
+
+    const name        = document.getElementById('ob-name').value.trim();
+    const occupation  = document.getElementById('ob-occupation').value.trim();
+    const agreedRules = document.getElementById('ob-agree-rules').checked;
+
+    try {
+        const userRef = doc(db, 'users', currentUser.uid);
+        await setDoc(userRef, {
+            name,
+            occupation,
+            hearAbout:    obHearValue,
+            usageType:    obUsageType,
+            agreedRules,
+            selectedPlan: plan,
+            email:        currentUser.email,
+            onboarded:    true,
+            onboardedAt:  serverTimestamp()
+        }, { merge: true });
+    } catch (err) {
+        console.error('Saving onboarding failed:', err);
+    }
+
+    closeOnboardingModal();
+
+    if (plan !== 'free') {
+        window.location.href = '/upgrade';
+    }
+}
+
+window.goToStep          = goToStep;
+window.toggleObDropdown  = toggleObDropdown;
+window.selectObOption    = selectObOption;
+window.toggleRulesContinue = toggleRulesContinue;
+window.selectUsageType   = selectUsageType;
+window.finishOnboarding  = finishOnboarding;
+</script>

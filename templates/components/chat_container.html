@@ -1,0 +1,303 @@
+<!-- ============================== HTML STRUCTURE ============================== -->
+<!-- Blurred fade banner sitting above the chat, messages scroll under it -->
+<div class="chat-top-blur"></div>
+<!-- The container where all chat messages appear once a conversation starts -->
+<div class="chat-messages-area" id="chatMessagesArea">
+    <div id="chatSpacer"></div>
+</div>
+<!-- ============================================================================= -->
+
+
+<!-- ============================== CSS STYLES ============================== -->
+<style>
+/* Blurred fade banner at the top of the chat area */
+.chat-top-blur {
+    position: fixed;
+    top: 0;
+    left: 4%;
+    right: 0;
+    height: 100px;
+    z-index: 2;               /* sits above messages so they visually pass under it */
+    pointer-events: none;     /* clicks pass through to whatever's beneath */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    background: linear-gradient(to bottom, rgb(0, 0, 0) 0%, rgb(0, 0, 0) 100%);
+
+    /* This mask creates the soft "dissolving" edge instead of a hard line */
+    mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 100%);
+
+    transition: left 0.35s ease;
+}
+
+/* Shift right along with the chat area when sidebar expands */
+.sidebar.expanded ~ .chat-top-blur {
+    left: 15%;
+}
+
+.chat-messages-area {
+    position: fixed;
+    top: 0;
+    left: 4%;
+    right: 0;
+    bottom: 70px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
+    scroll-behavior: smooth;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 90px 20px 20px;
+    z-index: 1;
+    scrollbar-width: thin;
+    scrollbar-color: #333 transparent;
+    transition: left 0.35s ease;
+}
+
+.chat-messages-area::-webkit-scrollbar { width: 4px; }
+.chat-messages-area::-webkit-scrollbar-track { background: transparent; }
+.chat-messages-area::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+.chat-messages-area::-webkit-scrollbar-thumb:hover { background: #666; }
+
+/* Shift right when sidebar expands, same as input bar */
+.sidebar.expanded ~ .chat-messages-area {
+    left: 15%;
+}
+
+/* Invisible spacer that always sits at the bottom, giving room to scroll
+   the newest message all the way to the top even in short conversations */
+#chatSpacer {
+    flex-shrink: 0;
+    width: 100%;
+}
+
+/* Ensures messages always stop right below the blur banner when scrolled
+   into view, instead of drifting underneath/behind it */
+.msg-user,
+.msg-ai {
+    scroll-margin-top: 75px; /* matches .chat-top-blur height */
+}
+
+/* User message bubble */
+.msg-user {
+    width: 100%;
+    max-width: 750px;
+    margin: 0 275px 4px auto;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Column wrapper holding the bubble + the hover-only copy icon,
+   so the icon can sit right below the bubble, aligned to the right */
+.msg-user-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    width: 100%;
+}
+
+.msg-user-bubble {
+    background: #2a2a2ad1;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    padding: 12px 18px;
+    border-radius: 20px 20px 4px 20px;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+    word-wrap: break-word;
+    display: inline-block;
+    max-width: 75%;
+}
+
+/* AI response text */
+.msg-ai {
+    width: 100%;
+    max-width: 750px;
+    margin: 0 272px 4px auto;
+    color: #ffffff;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    word-wrap: break-word;
+    padding: 0 4px;
+}
+
+.msg-ai p {
+    margin: 0 0 8px 0;
+}
+
+/* Shared style for every action icon button (copy/like/dislike/redo) */
+.msg-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #8a8a8a;
+    padding: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+}
+
+.msg-icon-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.msg-icon-btn:active {
+    transform: scale(0.9);
+}
+
+.msg-icon-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;   /* removes sharp 90-degree line ends */
+    stroke-linejoin: round;  /* removes sharp 90-degree corners */
+}
+
+/* Icon row below every AI response — always visible */
+.msg-ai-actions {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+    padding: 0 4px;
+}
+
+/* Copy icon below user messages — visibility now controlled via JS
+   (mouseenter/mouseleave on the bubble itself), not this CSS hover rule,
+   since .msg-user spans the full row width and would trigger on empty space */
+.msg-user-actions {
+    display: flex;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+</style>
+<!-- ========================================================================== -->
+
+
+<!-- ============================== JS BEHAVIOR ============================== -->
+<script>
+// Reusable smooth-curve SVG icons (rounded caps/joins, no sharp corners)
+const ICONS = {
+    copy: `<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`,
+    thumbsUp: `<svg viewBox="0 0 24 24"><path d="M7 10v12"></path><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"></path></svg>`,
+    thumbsDown: `<svg viewBox="0 0 24 24"><path d="M17 14V2"></path><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"></path></svg>`,
+    redo: `<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg>`
+};
+
+// Copies plain text to the clipboard
+function copyToClipboard(text, btn) {
+    navigator.clipboard.writeText(text).catch(() => {});
+}
+
+// Builds a single icon button
+function makeIconBtn(iconKey, onClick) {
+    const btn = document.createElement('button');
+    btn.className = 'msg-icon-btn';
+    btn.innerHTML = ICONS[iconKey];
+    btn.addEventListener('click', onClick);
+    return btn;
+}
+
+// Appends a user message bubble to the chat area, and smoothly scrolls
+// so this new message lands consistently just below the blur banner
+function appendUserMessage(text) {
+    const area = document.getElementById('chatMessagesArea');
+    const spacer = document.getElementById('chatSpacer');
+    if (!area || !spacer) return;
+
+    const div = document.createElement('div');
+    div.className = 'msg-user';
+
+    // Column wrapper: bubble on top, hover-only copy icon below it
+    const col = document.createElement('div');
+    col.className = 'msg-user-col';
+
+    const bubble = document.createElement('span');
+    bubble.className = 'msg-user-bubble';
+    bubble.textContent = text;
+
+    const actions = document.createElement('div');
+    actions.className = 'msg-user-actions';
+    actions.appendChild(makeIconBtn('copy', () => copyToClipboard(text)));
+
+    // Show the copy icon only when the cursor is over the bubble itself
+    // (or the icon while moving toward it), not the full-width row
+    const showActions = () => { actions.style.opacity = '1'; };
+    const hideActions = () => { actions.style.opacity = '0'; };
+    bubble.addEventListener('mouseenter', showActions);
+    bubble.addEventListener('mouseleave', hideActions);
+    actions.addEventListener('mouseenter', showActions);
+    actions.addEventListener('mouseleave', hideActions);
+
+    col.appendChild(bubble);
+    col.appendChild(actions);
+    div.appendChild(col);
+
+    // Insert the new message BEFORE the spacer, so spacer always stays last
+    area.insertBefore(div, spacer);
+
+    // Resize spacer so there's always enough scroll room to push
+    // this new message all the way to the top, even in short chats
+    spacer.style.height = area.clientHeight + 'px';
+
+    // Wait for the DOM to paint, then smoothly scroll this message into view.
+    // scroll-margin-top (set in CSS) ensures it stops right below the blur band,
+    // never underneath it and never overshooting.
+    requestAnimationFrame(() => {
+        div.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+}
+
+// Appends an AI message to the chat area (plain text, line-by-line),
+// followed by a permanent row of action icons (copy, like, dislike, redo)
+function appendAIMessage(text) {
+    const area = document.getElementById('chatMessagesArea');
+    const spacer = document.getElementById('chatSpacer');
+    if (!area || !spacer) return;
+
+    const div = document.createElement('div');
+    div.className = 'msg-ai';
+
+    const lines = text.split('\n').filter(l => l.trim());
+    if (lines.length === 0) lines.push(text);
+
+    lines.forEach(line => {
+        const p = document.createElement('p');
+        p.textContent = line;
+        div.appendChild(p);
+    });
+
+    // Icon row: copy / thumbs-up / thumbs-down / redo
+    const actions = document.createElement('div');
+    actions.className = 'msg-ai-actions';
+
+    actions.appendChild(makeIconBtn('copy', () => copyToClipboard(text)));
+
+    const likeBtn = makeIconBtn('thumbsUp', () => {
+        likeBtn.style.color = likeBtn.style.color === 'rgb(255, 255, 255)' ? '' : '#ffffff';
+    });
+    const dislikeBtn = makeIconBtn('thumbsDown', () => {
+        dislikeBtn.style.color = dislikeBtn.style.color === 'rgb(255, 255, 255)' ? '' : '#ffffff';
+    });
+    actions.appendChild(likeBtn);
+    actions.appendChild(dislikeBtn);
+
+    actions.appendChild(makeIconBtn('redo', () => {
+        // Placeholder: hook up "regenerate response" logic here
+    }));
+
+    div.appendChild(actions);
+
+    // Insert AI response before the spacer too, so spacer stays at the bottom
+    area.insertBefore(div, spacer);
+}
+</script>
+<!-- ========================================================================== -->

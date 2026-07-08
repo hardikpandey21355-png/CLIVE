@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects - Clive-V1</title>
+    <style>
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3a3a3a;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a4a4a;
+        }
+
+        /* Main Container */
+        .projects-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 80px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 40px;
+            text-align: center;
+        }
+
+        /* Empty State Icon */
+        .empty-icon {
+            position: relative;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-icon svg:first-child {
+            width: 80px;
+            height: 80px;
+            color: #ffffff;
+            stroke-width: 1.5;
+        }
+
+        .hand-icon {
+            position: absolute;
+            bottom: -8px;
+            right: -38px;
+            width: 48px;
+            height: 48px;
+            color: #ffffff;
+            animation: wave 2s ease-in-out infinite;
+        }
+
+        /* Empty State Text */
+        .empty-title {
+            font-size: 24px;
+            font-weight: 400;
+            color: #e5e5e5;
+            margin-bottom: 24px;
+            letter-spacing: -0.3px;
+        }
+
+        /* Guide Box */
+        .guide-box {
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 36px;
+            max-width: 600px;
+            text-align: left;
+        }
+
+        .guide-box h3 {
+            font-size: 18px;
+            font-weight: 500;
+            color: #e5e5e5;
+            margin-bottom: 20px;
+        }
+
+        .guide-step {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .guide-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            background-color: #3a3a3a;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #e5e5e5;
+            font-size: 14px;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: #e5e5e5;
+            margin-bottom: 4px;
+        }
+
+        .step-description {
+            font-size: 14px;
+            color: #a0a0a0;
+            line-height: 1.5;
+        }
+
+        /* Buttons Container */
+        .buttons-container {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* New Project Button */
+        .new-project-btn-center {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background-color: #ffffff;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .new-project-btn-center:hover {
+            background-color: #e5e5e5;
+            transform: translateY(-1px);
+        }
+
+        .new-project-btn-center .plus-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Cancel Button */
+        .cancel-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background-color: #ffffff;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .cancel-btn:hover {
+            background-color: #e5e5e5;
+            transform: translateY(-1px);
+        }
+
+        /* ── Projects Section Wrapper ── */
+        .projects-section {
+            display: none;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 40px;
+            background-color: #222222;
+            border: 1px solid #333333;
+            border-radius: 20px;
+            padding: 28px 28px 24px;
+        }
+
+        .projects-section.visible {
+            display: block;
+        }
+
+        .projects-section-header {
+            font-size: 22px;
+            font-weight: 400;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-style: italic;
+            color: #b0b0b0;
+            letter-spacing: -0.3px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        /* ── Project Cards Grid ── */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            width: 100%;
+        }
+
+        .project-card {
+            background-color: #242424;
+            border: 1px solid #333333;
+            border-radius: 12px;
+            padding: 24px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            min-height: 160px;
+            animation: cardFadeIn 0.3s ease;
+        }
+
+        @keyframes cardFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .project-card:hover {
+            background-color: #2c2c2c;
+            border-color: #444444;
+        }
+
+        .project-card-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f0f0f0;
+            letter-spacing: -0.2px;
+        }
+
+        .project-card-updated {
+            font-size: 14px;
+            color: #6b6b6b;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a1a1a;
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        /* Modal Container */
+        .modal-container {
+            background-color: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 28px 32px;
+            animation: modalSlideIn 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Close Button */
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .close-btn svg {
+            width: 20px;
+            height: 20px;
+            color: #9ca3af;
+        }
+
+        /* Modal Title */
+        .modal-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: #e5e5e5;
+            margin-bottom: 20px;
+            letter-spacing: -0.3px;
+        }
+
+        /* Form Section */
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 400;
+            color: #b0b0b0;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: transparent;
+            border: 1px solid #4a4a4a;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #e5e5e5;
+            outline: none;
+            transition: all 0.2s ease;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        .form-input::placeholder {
+            color: #6b6b6b;
+        }
+
+        .form-input:focus {
+            border-color: #6a6a6a;
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Modal Buttons Container */
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        /* Back Button */
+        .back-btn {
+            padding: 10px 24px;
+            background-color: transparent;
+            color: #e5e5e5;
+            border: 1px solid #4a4a4a;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background-color: #2a2a2a;
+            border-color: #5a5a5a;
+        }
+
+        /* Create Button */
+        .create-btn {
+            padding: 10px 24px;
+            background-color: #ffffff;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .create-btn:hover {
+            background-color: #e5e5e5;
+            transform: translateY(-1px);
+        }
+
+        /* File Upload Modal Styles */
+        .modal-subtitle {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 24px;
+            line-height: 1.4;
+        }
+
+        /* Files Section Header */
+        .files-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .files-icon {
+            width: 18px;
+            height: 18px;
+            color: #e5e5e5;
+        }
+
+        .files-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: #e5e5e5;
+        }
+
+        .info-icon {
+            width: 16px;
+            height: 16px;
+            color: #6b6b6b;
+            cursor: pointer;
+        }
+
+        .file-count {
+            background-color: #3a3a3a;
+            color: #e5e5e5;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .add-file-btn {
+            margin-left: auto;
+            width: 32px;
+            height: 32px;
+            background-color: transparent;
+            border: 1px solid #4a4a4a;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .add-file-btn:hover {
+            background-color: #2a2a2a;
+            border-color: #5a5a5a;
+        }
+
+        .add-file-btn svg {
+            width: 16px;
+            height: 16px;
+            color: #e5e5e5;
+        }
+
+        /* Drop Zone */
+        .drop-zone {
+            border: 2px dashed #3a3a3a;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #6a6a6a;
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .drop-zone-icon {
+            width: 36px;
+            height: 36px;
+            color: #9ca3af;
+            margin: 0 auto 12px;
+        }
+
+        .drop-zone-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #e5e5e5;
+            margin-bottom: 4px;
+        }
+
+        .drop-zone-subtitle {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        /* File List */
+        .file-list {
+            margin-bottom: 20px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background-color: transparent;
+            border: 1px solid #3a3a3a;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .file-item:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+            border-color: #4a4a4a;
+        }
+
+        .file-item-icon {
+            width: 32px;
+            height: 32px;
+            color: #e5e5e5;
+            flex-shrink: 0;
+        }
+
+        .file-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .file-item-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #e5e5e5;
+            margin-bottom: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-item-size {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .file-item-remove {
+            width: 28px;
+            height: 28px;
+            background-color: transparent;
+            border: none;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .file-item-remove:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        .file-item-remove svg {
+            width: 16px;
+            height: 16px;
+            color: #9ca3af;
+        }
+
+        .file-item-remove:hover svg {
+            color: #ef4444;
+        }
+
+        /* Hidden file input */
+        #fileInput {
+            display: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .projects-container {
+                padding: 32px 24px;
+            }
+
+            .empty-state {
+                padding: 60px 20px;
+            }
+
+            .empty-title {
+                font-size: 20px;
+            }
+
+            .guide-box {
+                padding: 24px;
+            }
+
+            .guide-box h3 {
+                font-size: 16px;
+            }
+
+            .step-title {
+                font-size: 14px;
+            }
+
+            .step-description {
+                font-size: 13px;
+            }
+
+            .buttons-container {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .new-project-btn-center,
+            .cancel-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .modal-container {
+                padding: 24px;
+            }
+
+            .modal-title {
+                font-size: 18px;
+                margin-bottom: 16px;
+            }
+
+            .form-label {
+                font-size: 13px;
+            }
+
+            .form-input {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+
+            .modal-buttons {
+                flex-direction: column-reverse;
+                gap: 10px;
+            }
+
+            .back-btn,
+            .create-btn {
+                width: 100%;
+            }
+
+            .drop-zone {
+                padding: 30px 20px;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }        }
+    </style>
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="projects-container">
+
+        <!-- Empty State -->
+        <div class="empty-state">
+            <!-- Icon -->
+            <div class="empty-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="hand-icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.05 4.575a1.575 1.575 0 1 0-3.15 0v3m3.15-3v-1.5a1.575 1.575 0 0 1 3.15 0v1.5m-3.15 0 .075 5.925m3.075.75V4.575m0 0a1.575 1.575 0 0 1 3.15 0V15M6.9 7.575a1.575 1.575 0 1 0-3.15 0v8.175a6.75 6.75 0 0 0 6.75 6.75h2.018a5.25 5.25 0 0 0 3.712-1.538l1.732-1.732a5.25 5.25 0 0 0 1.538-3.712l.003-2.024a.668.668 0 0 1 .198-.471 1.575 1.575 0 1 0-2.228-2.228 3.818 3.818 0 0 0-1.12 2.687M6.9 7.575V12m6.27 4.318A4.49 4.49 0 0 1 16.35 15m.002 0h-.002" />
+                </svg>
+            </div>
+
+            <!-- Empty State Text -->
+            <h2 class="empty-title">Let's Start a Project.</h2>
+
+            <!-- Guide Box -->
+            <div class="guide-box">
+                <h3>How to Use Projects</h3>
+                
+                <div class="guide-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">Upload Your Files</div>
+                        <div class="step-description">Add documents, images, and files to your project workspace</div>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">Set Custom Instructions</div>
+                        <div class="step-description">Guide your AI assistant with specific instructions for your project</div>
+                    </div>
+                </div>
+
+                <div class="guide-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">Collaborate Seamlessly</div>
+                        <div class="step-description">Keep all conversations organized in one centralized location</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons Container -->
+            <div class="buttons-container">
+                <button class="new-project-btn-center" onclick="openModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="plus-icon">
+                        <path fill-rule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
+                    </svg>
+                    New project
+                </button>
+
+                <button class="cancel-btn" onclick="window.history.back()">
+                    Cancel
+                </button>
+            </div>
+
+            <!-- Projects Section (appears after creating a project) -->
+            <div class="projects-section" id="projectsSection">
+                <div class="projects-section-header">Created By You</div>
+                <div class="projects-grid" id="projectsGrid"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- First Modal - Project Details -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOutsideClick(event)">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <!-- Close Button -->
+            <button class="close-btn" onclick="closeModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <!-- Modal Title -->
+            <h1 class="modal-title">Let's Gooo</h1>
+
+            <!-- Form -->
+            <form id="projectForm">
+                <!-- Project Name -->
+                <div class="form-section">
+                    <label class="form-label">Lest's call your idea by a name.</label>
+                    <input 
+                        type="text" 
+                        id="projectName"
+                        class="form-input" 
+                        placeholder="So What is it?"
+                        required
+                    >
+                </div>
+
+                <!-- Project Description -->
+                <div class="form-section">
+                    <label class="form-label">Leave it Broo</label>
+                    <textarea 
+                        id="projectDescription"
+                        class="form-input form-textarea" 
+                        placeholder="But If You Want, Describe your project, goals, subject, etc..."
+                    ></textarea>
+                </div>
+
+                <!-- Buttons -->
+                <div class="modal-buttons">
+                    <button type="button" class="back-btn" onclick="closeModal()">
+                        Back
+                    </button>
+                    <button type="submit" class="create-btn">
+                        Create project
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Second Modal - File Upload -->
+    <div class="modal-overlay" id="fileModalOverlay" onclick="closeFileModalOnOutsideClick(event)">
+        <div class="modal-container" onclick="event.stopPropagation()">
+            <!-- Close Button -->
+            <button class="close-btn" onclick="closeFileModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <!-- Modal Title -->
+            <h1 class="modal-title">Project Sources</h1>
+            <p class="modal-subtitle">Manually upload files to provide context for your project.</p>
+
+            <!-- Files Section Header -->
+            <div class="files-header">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="files-icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+                </svg>
+                <span class="files-title">Files</span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="info-icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                </svg>
+                <span class="file-count" id="fileCount">0</span>
+                <button type="button" class="add-file-btn" onclick="document.getElementById('fileInput').click()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- File List (shown when files are uploaded) -->
+            <div class="file-list" id="fileList"></div>
+
+            <!-- Drop Zone (shown when no files) -->
+            <div class="drop-zone" id="dropZone">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="drop-zone-icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />
+                </svg>
+                <div class="drop-zone-title">Drag & drop files here</div>
+                <div class="drop-zone-subtitle">or use the button above</div>
+            </div>
+
+            <!-- Hidden File Input -->
+            <input type="file" id="fileInput" multiple>
+
+            <!-- Buttons -->
+            <div class="modal-buttons">
+                <button type="button" class="back-btn" onclick="goBackToFirstModal()">
+                    Back
+                </button>
+                <button type="button" class="create-btn" onclick="finalizeProject()">
+                    Create
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedFiles = [];
+        let projects = [];
+
+        // ── Time formatting helper ──
+        function timeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 60) return 'Updated ' + seconds + ' seconds ago';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return 'Updated ' + minutes + ' minute' + (minutes !== 1 ? 's' : '') + ' ago';
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return 'Updated ' + hours + ' hour' + (hours !== 1 ? 's' : '') + ' ago';
+            const days = Math.floor(hours / 24);
+            return 'Updated ' + days + ' day' + (days !== 1 ? 's' : '') + ' ago';
+        }
+
+        // ── Render project cards ──
+        function renderProjects() {
+            const section = document.getElementById('projectsSection');
+            const grid = document.getElementById('projectsGrid');
+
+            if (projects.length === 0) {
+                section.classList.remove('visible');
+                return;
+            }
+
+            section.classList.add('visible');
+            grid.innerHTML = projects.map((p) => `
+                <div class="project-card">
+                    <div class="project-card-name">${escapeHtml(p.name)}</div>
+                    <div class="project-card-updated">${timeAgo(p.createdAt)}</div>
+                </div>
+            `).join('');
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+
+        // Open First Modal
+        function openModal() {
+            document.getElementById('modalOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close First Modal
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        function closeModalOnOutsideClick(event) {
+            if (event.target.id === 'modalOverlay') {
+                closeModal();
+            }
+        }
+
+        // Open File Upload Modal
+        function openFileModal() {
+            document.getElementById('fileModalOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close File Upload Modal
+        function closeFileModal() {
+            document.getElementById('fileModalOverlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close file modal when clicking outside
+        function closeFileModalOnOutsideClick(event) {
+            if (event.target.id === 'fileModalOverlay') {
+                closeFileModal();
+            }
+        }
+
+        // Go back to first modal
+        function goBackToFirstModal() {
+            closeFileModal();
+            openModal();
+        }
+
+        // Handle first form submission
+        document.getElementById('projectForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            closeModal();
+            openFileModal();
+        });
+
+        // File Upload Handling
+        const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
+        const fileList = document.getElementById('fileList');
+        const fileCount = document.getElementById('fileCount');
+
+        // File input change
+        fileInput.addEventListener('change', function(e) {
+            handleFiles(e.target.files);
+        });
+
+        // Drag and drop
+        dropZone.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        function handleFiles(files) {
+            for (let file of files) {
+                uploadedFiles.push(file);
+            }
+            updateFileList();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function updateFileList() {
+            fileCount.textContent = uploadedFiles.length;
+            
+            if (uploadedFiles.length > 0) {
+                dropZone.style.display = 'none';
+                fileList.style.display = 'block';
+                
+                fileList.innerHTML = uploadedFiles.map((file, index) => `
+                    <div class="file-item">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="file-item-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                        </svg>
+                        <div class="file-item-info">
+                            <div class="file-item-name">${file.name}</div>
+                            <div class="file-item-size">${formatFileSize(file.size)}</div>
+                        </div>
+                        <button type="button" class="file-item-remove" onclick="removeFile(${index})">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                `).join('');
+            } else {
+                dropZone.style.display = 'block';
+                fileList.style.display = 'none';
+            }
+        }
+
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            updateFileList();
+        }
+
+        function finalizeProject() {
+            const projectName = document.getElementById('projectName').value;
+            const projectDescription = document.getElementById('projectDescription').value;
+            
+            console.log('Project Name:', projectName);
+            console.log('Project Description:', projectDescription);
+            console.log('Files:', uploadedFiles);
+
+            // ── Add to projects list and render card ──
+            projects.push({
+                name: projectName,
+                description: projectDescription,
+                files: [...uploadedFiles],
+                createdAt: new Date()
+            });
+
+            renderProjects();
+            
+            closeFileModal();
+            
+            // Reset form
+            document.getElementById('projectForm').reset();
+            uploadedFiles = [];
+            updateFileList();
+        }
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (document.getElementById('fileModalOverlay').classList.contains('active')) {
+                    closeFileModal();
+                } else if (document.getElementById('modalOverlay').classList.contains('active')) {
+                    closeModal();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

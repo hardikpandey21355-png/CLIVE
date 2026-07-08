@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voice Interface</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #111;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .canvas-container {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    overflow: visible;
+    transition: bottom 0.75s cubic-bezier(0.65,0,0.35,1),
+                width  0.75s cubic-bezier(0.65,0,0.35,1),
+                height 0.75s cubic-bezier(0.65,0,0.35,1),
+                top    0.75s cubic-bezier(0.65,0,0.35,1),
+                margin 0.75s cubic-bezier(0.65,0,0.35,1);
+    top: 50%;
+    margin-top: -130px;
+    width: 260px;
+    height: 260px;
+  }
+  .canvas-container.mic-active {
+    top: auto;
+    margin-top: 0;
+    bottom: 120px;
+    width: 96px;
+    height: 96px;
+  }
+  canvas { width: 100%; height: 100%; display: block; }
+
+  .speech-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 58vw;
+    max-width: 500px;
+    text-align: center;
+    color: rgba(255,255,255,0.85);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 300;
+    font-size: 1.12rem;
+    line-height: 1.75;
+    letter-spacing: 0.005em;
+    pointer-events: none;
+    word-break: break-word;
+  }
+  .speech-text .cursor {
+    display: inline-block;
+    width: 1.5px;
+    height: 0.9em;
+    background: rgba(255,255,255,0.6);
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .bottom-controls {
+    position: absolute;
+    bottom: 34px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 16px;
+    z-index: 10;
+  }
+  .control-btn {
+    width: 54px; height: 54px;
+    border-radius: 50%; border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.3s ease, transform 0.2s ease;
+    background: rgba(255,255,255,0.09);
+    backdrop-filter: blur(12px);
+  }
+  .control-btn:hover { background: rgba(255,255,255,0.16); transform: scale(1.07); }
+  .mic-btn.active { background: rgba(239,68,68,0.22); }
+  .mic-btn.active .mic-icon { fill: #ef4444; }
+  .mic-icon { width: 21px; height: 21px; fill: rgba(255,255,255,0.9); transition: fill 0.3s ease; }
+  .close-icon { width: 17px; height: 17px; stroke: rgba(255,255,255,0.7); stroke-width: 2; fill: none; stroke-linecap: round; }
+</style>
+</head>
+<body>
+
+<div class="speech-text" id="speechText"></div>
+
+<div class="canvas-container" id="canvasContainer">
+  <canvas id="c"></canvas>
+</div>
+
+<!-- mic LEFT, cancel RIGHT -->
+<div class="bottom-controls">
+  <button class="control-btn mic-btn" id="micBtn" onclick="toggleMic()">
+    <svg class="mic-icon" id="micIcon" viewBox="0 0 24 24">
+      <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+      <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+    </svg>
+  </button>
+  <button class="control-btn" onclick="window.history.back()">
+    <svg class="close-icon" viewBox="0 0 24 24">
+      <line x1="18" y1="6" x2="6" y2="18"/>
+      <line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  </button>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   CANVAS
+══════════════════════════════════════ */
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const SIZE   = 640;
+canvas.width = canvas.height = SIZE;
+const CX = SIZE / 2, CY = SIZE / 2;
+const BALL_R       = 265;   // visual ball radius
+const REPEL_R      = 140;   // cursor repulsion radius (canvas px)
+const REPEL_FORCE  = 22;    // push strength
+
+let smoothEnergy = 0;
+let isMicActive  = false;
+let globalAngle  = 0;       // master rotation angle — drives circular motion
+
+/* Mouse in canvas-space */
+const mouse = { x: -9999, y: -9999 };
+const cont  = document.getElementById('canvasContainer');
+
+function toCanvasMouse(ex, ey) {
+  const r = cont.getBoundingClientRect();
+  mouse.x = (ex - r.left) * (SIZE / r.width);
+  mouse.y = (ey - r.top)  * (SIZE / r.height);
+}
+window.addEventListener('mousemove', e => toCanvasMouse(e.clientX, e.clientY));
+window.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+
+/* ── Dot field ──
+   Each dot sits at a fixed polar position (angle0, radius) inside the ball.
+   Every frame globalAngle increments → all dots revolve together.
+   Each dot also has a slight individual speed offset for organic feel.
+   Repulsion offset (ox,oy) springs back when cursor moves away.
+*/
+const NUM_DOTS = 2600;
+
+const dots = Array.from({ length: NUM_DOTS }, () => {
+  const r  = Math.sqrt(Math.random()) * BALL_R * 0.95; // uniform disk
+  const a0 = Math.random() * Math.PI * 2;               // starting angle
+  return {
+    r,                                    // fixed radius from centre
+    a0,                                   // base angle
+    speedMul: 0.85 + Math.random() * 0.3, // individual speed ×
+    /* small wobble so the ball looks "alive" not rigid */
+    wobbleR:  1.5 + Math.random() * 4,
+    wobbleS:  0.4 + Math.random() * 0.8,
+    wobbleP:  Math.random() * Math.PI * 2,
+    /* visual */
+    size:  0.6 + Math.random() * 1.0,
+    alpha: 0.72 + Math.random() * 0.28,  // very bright baseline
+    /* repulsion offsets */
+    ox: 0, oy: 0,
+    /* computed each frame */
+    x: 0, y: 0,
+  };
+});
+
+function updateDots(energy) {
+  const t = performance.now() * 0.001;
+
+  for (const d of dots) {
+    /* ── circular revolution ── */
+    const angle = d.a0 + globalAngle * d.speedMul;
+
+    /* tiny wobble on top */
+    const wx = Math.cos(d.wobbleP + t * d.wobbleS) * d.wobbleR * (1 + energy * 3);
+    const wy = Math.sin(d.wobbleP + t * d.wobbleS * 1.3) * d.wobbleR * (1 + energy * 3);
+
+    /* base position */
+    const bx = CX + d.r * Math.cos(angle) + wx;
+    const by = CY + d.r * Math.sin(angle) + wy;
+
+    /* ── cursor repulsion ── */
+    const dx = bx + d.ox - mouse.x;
+    const dy = by + d.oy - mouse.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < REPEL_R && dist > 0) {
+      const force = (1 - dist / REPEL_R) * REPEL_FORCE;
+      d.ox += (dx / dist) * force;
+      d.oy += (dy / dist) * force;
+    }
+    /* spring back */
+    d.ox *= 0.87;
+    d.oy *= 0.87;
+
+    d.x = bx + d.ox;
+    d.y = by + d.oy;
+  }
+}
+
+function drawDots(energy) {
+  ctx.clearRect(0, 0, SIZE, SIZE);
+
+  /* soft circular clip */
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(CX, CY, BALL_R, 0, Math.PI * 2);
+  ctx.clip();
+
+  for (const d of dots) {
+    const dist = Math.sqrt((d.x - CX) ** 2 + (d.y - CY) ** 2);
+
+    /* edge vignette — very gentle */
+    const edgeFade = Math.max(0, 1 - dist / (BALL_R * 0.97));
+    const fade = Math.pow(edgeFade, 0.35);
+
+    /* energy pulse: inner dots react strongly */
+    const centerProx = 1 - (d.r / BALL_R);
+    const pulse = 1 + energy * centerProx * 3.5;
+
+    const sz = d.size * (0.9 + pulse * 0.3);
+    const al = Math.min(1, d.alpha * fade * (0.9 + energy * 0.4));
+
+    /* pure bright white */
+    ctx.beginPath();
+    ctx.arc(d.x, d.y, sz, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${al})`;
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+/* ══════════════════════════════════════
+   METEOR DOTS — spawn outside, travel inward
+══════════════════════════════════════ */
+const MAX_METEORS  = 18;
+const meteors = [];
+
+function spawnMeteor() {
+  // Pick a random angle on the outer edge, spawn beyond BALL_R
+  const angle   = Math.random() * Math.PI * 2;
+  const startR  = BALL_R * (1.15 + Math.random() * 0.35);  // spawn outside
+  const targetR = BALL_R * (0.05 + Math.random() * 0.55);  // land somewhere inside
+  meteors.push({
+    angle,
+    r:       startR,
+    targetR,
+    speed:   0.4 + Math.random() * 0.9,   // px per frame inward
+    size:    0.5 + Math.random() * 0.8,
+    alpha:   0,                             // fade in as it enters
+    done:    false,
+  });
+}
+
+// Seed initial meteors at staggered progress
+for (let i = 0; i < MAX_METEORS; i++) spawnMeteor();
+
+function updateMeteors() {
+  for (let i = meteors.length - 1; i >= 0; i--) {
+    const m = meteors[i];
+    m.r -= m.speed;
+
+    // Fade in when crossing BALL_R boundary
+    if (m.r < BALL_R) {
+      m.alpha = Math.min(0.85, m.alpha + 0.04);
+    }
+
+    // Once it reaches target, mark done and respawn
+    if (m.r <= m.targetR) {
+      meteors.splice(i, 1);
+      spawnMeteor();
+    }
+  }
+
+  // Keep pool topped up
+  while (meteors.length < MAX_METEORS) spawnMeteor();
+}
+
+function drawMeteors() {
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(CX, CY, BALL_R, 0, Math.PI * 2);
+  ctx.clip();
+
+  for (const m of meteors) {
+    if (m.r >= BALL_R) continue; // not entered yet
+    const x = CX + m.r * Math.cos(m.angle);
+    const y = CY + m.r * Math.sin(m.angle);
+    ctx.beginPath();
+    ctx.arc(x, y, m.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${m.alpha})`;
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+/* ══════════════════════════════════════
+   AUDIO (mic → analyser)
+══════════════════════════════════════ */
+let audioCtx, analyser, micStream, dataArr;
+
+
+async function startMic() {
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
+    const src = audioCtx.createMediaStreamSource(micStream);
+    analyser  = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    dataArr   = new Uint8Array(analyser.frequencyBinCount);
+    src.connect(analyser);
+    startSpeechRecognition();
+  } catch(e) {
+    isMicActive = false;
+    resetMicUI();
+  }
+}
+
+function stopMic() {
+  if (micStream) micStream.getTracks().forEach(t => t.stop());
+  if (audioCtx)  audioCtx.close();
+  analyser = null;
+  stopSpeechRecognition();
+}
+
+function getRawEnergy() {
+  if (!analyser) return 0;
+  analyser.getByteFrequencyData(dataArr);
+  let s = 0;
+  for (let i = 0; i < dataArr.length; i++) s += dataArr[i];
+  return Math.min(1, (s / dataArr.length) / 75);
+}
+
+/* ══════════════════════════════════════
+   AI STATE
+══════════════════════════════════════ */
+let isAISpeaking    = false;   // true while Cartesia audio is playing
+let currentAudio    = null;    // the Audio object Clive is speaking through
+let aiEnergy        = 0;       // fake energy for ball while AI speaks
+
+/* Fake pulsing energy while AI is talking so the ball looks alive */
+function getAIEnergy() {
+  return 0.25
+    + Math.sin(performance.now() * 0.003) * 0.15
+    + Math.sin(performance.now() * 0.007) * 0.08;
+}
+
+/* Stop AI mid-sentence — called when user starts speaking */
+function interruptAI() {
+  if (!isAISpeaking) return;
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.src = '';
+    currentAudio = null;
+  }
+  isAISpeaking = false;
+  document.getElementById('speechText').innerHTML = '';
+}
+
+/* ══════════════════════════════════════
+   DRAW LOOP  (patched to use AI energy when speaking)
+══════════════════════════════════════ */
+/* ══════════════════════════════════════
+   DRAW LOOP
+══════════════════════════════════════ */
+function draw() {
+  requestAnimationFrame(draw);
+
+  let energy;
+  if (isAISpeaking) {
+    const target = getAIEnergy();
+    smoothEnergy += (target - smoothEnergy) * 0.08;
+    energy = smoothEnergy;
+  } else {
+    const raw = getRawEnergy();
+    smoothEnergy += raw > smoothEnergy
+      ? (raw - smoothEnergy) * 0.22
+      : (raw - smoothEnergy) * 0.06;
+    energy = smoothEnergy;
+  }
+
+  globalAngle += 0.00028 + energy * 0.0018;
+  updateDots(energy);
+  drawDots(energy);
+  updateMeteors();
+  drawMeteors();
+}
+draw();
+
+/* ══════════════════════════════════════
+   SOUND + AI TRIGGER
+══════════════════════════════════════ */
+let isWaitingForAI = false;
+
+async function triggerAI(userText) {
+  if (isWaitingForAI || !userText.trim()) return;
+  isWaitingForAI = true;
+
+  const el = document.getElementById('speechText');
+
+  /* 1 — Play soft notice sound */
+  try {
+    const notify = new Audio('/static/sounds/soft_notice.mp3');
+    await new Promise(res => { notify.onended = res; notify.onerror = res; notify.play(); });
+  } catch(_) {}
+
+  /* 2 — Show thinking indicator */
+  el.innerHTML = '<span style="opacity:0.38;font-size:0.9rem;font-weight:300;">Thinking…</span>';
+
+  try {
+    /* 3 — Get AI text reply */
+    const res  = await fetch('/voice/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userText })
+    });
+    const data  = await res.json();
+    const reply = data.reply || "Sorry, I didn't catch that.";
+
+    /* 4 — Show reply text */
+    el.innerHTML = esc(reply) + '<span class="cursor"></span>';
+    isAISpeaking = true;
+
+    /* 5 — Fetch and play Cartesia audio */
+    const audioRes = await fetch('/voice/speak', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: reply })
+    });
+    const blob     = await audioRes.blob();
+    const url      = URL.createObjectURL(blob);
+    const audio    = new Audio(url);
+    currentAudio   = audio;
+
+    audio.onended = () => {
+      isAISpeaking  = false;
+      currentAudio  = null;
+      el.innerHTML  = '';
+      URL.revokeObjectURL(url);
+    };
+
+    audio.onerror = () => {
+      isAISpeaking  = false;
+      currentAudio  = null;
+      el.innerHTML  = '';
+    };
+
+    audio.play();
+
+  } catch(err) {
+    console.error('[AI]', err);
+    el.innerHTML = '';
+    isAISpeaking = false;
+  } finally {
+    isWaitingForAI = false;
+  }
+}
+
+/* ══════════════════════════════════════
+   SPEECH RECOGNITION
+══════════════════════════════════════ */
+let recognition  = null;
+let silenceTimer = null;
+const SILENCE_MS = 2000;   // 2s pause → trigger AI
+
+function startSpeechRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+
+  recognition = new SR();
+  recognition.continuous     = true;
+  recognition.interimResults = true;
+  recognition.lang           = 'en-US';
+
+  const el = document.getElementById('speechText');
+  let finalTranscript = '';
+
+  recognition.onresult = (event) => {
+    /* User spoke — interrupt AI if it was talking */
+    if (isAISpeaking) interruptAI();
+
+    clearTimeout(silenceTimer);
+
+    let interim = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) {
+        finalTranscript += event.results[i][0].transcript + ' ';
+      } else {
+        interim += event.results[i][0].transcript;
+      }
+    }
+
+    /* Show live text with blinking cursor */
+    const display = (finalTranscript + interim).trim();
+    if (display) {
+      el.innerHTML = esc(display) + '<span class="cursor"></span>';
+    }
+
+    /* After 2s silence → send to AI, clear user text */
+    silenceTimer = setTimeout(() => {
+      const toSend = finalTranscript.trim() || interim.trim();
+      finalTranscript = '';
+      el.innerHTML = '';
+      if (toSend) triggerAI(toSend);
+    }, SILENCE_MS);
+  };
+
+  recognition.onerror = (e) => {
+    if (e.error !== 'no-speech' && e.error !== 'aborted') {
+      el.innerHTML = '';
+      finalTranscript = '';
+    }
+  };
+
+  recognition.onend = () => {
+    clearTimeout(silenceTimer);
+    if (isMicActive) {
+      try { recognition.start(); } catch(_) {}
+    }
+  };
+
+  recognition.start();
+}
+
+function stopSpeechRecognition() {
+  clearTimeout(silenceTimer);
+  interruptAI();
+  if (recognition) { recognition.onend = null; recognition.stop(); recognition = null; }
+  document.getElementById('speechText').innerHTML = '';
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ══════════════════════════════════════
+   MIC TOGGLE
+══════════════════════════════════════ */
+function resetMicUI() {
+  document.getElementById('micBtn').classList.remove('active');
+  document.getElementById('micIcon').innerHTML = `
+    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>`;
+  document.getElementById('canvasContainer').classList.remove('mic-active');
+}
+
+function toggleMic() {
+  isMicActive = !isMicActive;
+  const btn  = document.getElementById('micBtn');
+  const icon = document.getElementById('micIcon');
+  const wrap = document.getElementById('canvasContainer');
+
+  if (isMicActive) {
+    btn.classList.add('active');
+    icon.innerHTML = `<path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.08c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"/>`;
+    wrap.classList.add('mic-active');
+    startMic();
+  } else {
+    resetMicUI();
+    stopMic();
+  }
+}
+</script>
+
+
+</body>
+</html>

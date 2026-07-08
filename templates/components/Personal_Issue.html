@@ -1,0 +1,348 @@
+<!-- Overlay -->
+<div class="pi-overlay" id="pi-overlay" onclick="closePersonalIssuePopup()"></div>
+
+<!-- Popup Modal -->
+<div class="pi-popup" id="pi-popup">
+    <button class="pi-close-btn" onclick="closePersonalIssuePopup()">✕</button>
+    
+    <div class="pi-chat-container" id="pi-chat-container">
+        <!-- Welcome Message -->
+        <div class="pi-welcome">
+            <h2>Hi, Which Problem<br>Brings You Here?</h2>
+        </div>
+        
+        <!-- Messages Area -->
+        <div class="pi-messages" id="pi-messages"></div>
+    </div>
+
+    <!-- Input bar -->
+    <div class="pi-input-wrap">
+        <textarea
+            class="pi-input"
+            id="pi-input"
+            placeholder="Ask a support question..."
+            rows="1"
+        ></textarea>
+        <button class="pi-send-btn" onclick="piSendMessage()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75 12 3m0 0 3.75 3.75M12 3v18" />
+            </svg>
+        </button>
+    </div>
+    
+    <p class="pi-footer">AI support can make mistakes</p>
+</div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+
+.pi-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px);
+    z-index: 10000;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.pi-overlay.show { 
+    display: block; 
+    opacity: 1;
+}
+
+.pi-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    background: #fafafa;
+    border-radius: 24px;
+    width: 520px;
+    max-width: 92vw;
+    height: 640px;
+    max-height: 85vh;
+    z-index: 10001;
+    display: none;
+    flex-direction: column;
+    color: #1a1a1a;
+    font-family: 'DM Sans', sans-serif;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.18);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+.pi-popup.show { 
+    display: flex; 
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.pi-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 20px;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+.pi-close-btn:hover { 
+    background: rgba(0,0,0,0.05);
+    color: #1a1a1a;
+}
+
+.pi-chat-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 60px 24px 20px;
+    display: flex;
+    flex-direction: column;
+    scrollbar-width: thin;
+    scrollbar-color: #d0d0d0 transparent;
+}
+.pi-chat-container::-webkit-scrollbar {
+    width: 6px;
+}
+.pi-chat-container::-webkit-scrollbar-thumb {
+    background: #d0d0d0;
+    border-radius: 3px;
+}
+
+.pi-welcome {
+    text-align: center;
+    margin-bottom: 32px;
+    flex-shrink: 0;
+}
+
+.pi-welcome h2 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: #1a1a1a;
+    letter-spacing: -0.3px;
+}
+
+.pi-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+}
+
+.pi-message {
+    max-width: 85%;
+    padding: 14px 18px;
+    border-radius: 18px;
+    font-size: 14.5px;
+    line-height: 1.5;
+    animation: messageSlide 0.3s ease;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.pi-message.user {
+    align-self: flex-end;
+    background: #1a1a1a;
+    color: #fff;
+    border-bottom-right-radius: 6px;
+}
+
+.pi-message.ai {
+    align-self: flex-start;
+    background: #fff;
+    color: #1a1a1a;
+    border: 1px solid #e8e5e0;
+    border-bottom-left-radius: 6px;
+}
+
+/* Input bar */
+.pi-input-wrap {
+    margin: 6px 14px 4px;
+    background: #fff;
+    border-radius: 18px;
+    border: 1.5px solid #e0ddd8;
+    display: flex;
+    align-items: flex-end;
+    padding: 10px 10px 10px 16px;
+    gap: 8px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.pi-input-wrap:focus-within {
+    border-color: #c8c4bc;
+    box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
+}
+
+.pi-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    resize: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14.5px;
+    color: #1a1a1a;
+    line-height: 1.45;
+    max-height: 90px;
+    scrollbar-width: none;
+}
+.pi-input::placeholder { color: #aaa; }
+.pi-input::-webkit-scrollbar { display: none; }
+
+.pi-send-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    align-self: flex-end;
+    transition: background 0.18s, transform 0.15s;
+}
+.pi-send-btn:hover { background: #333; transform: scale(1.06); }
+.pi-send-btn:active { transform: scale(0.95); }
+.pi-send-btn svg { width: 16px; height: 16px; }
+
+.pi-footer {
+    text-align: center;
+    margin: 8px 0 12px;
+    font-size: 12px;
+    color: #999;
+    flex-shrink: 0;
+}
+
+
+</style>
+
+<script>
+// Global variables
+let piInput;
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    piInput = document.getElementById('pi-input');
+    
+    // Auto-resize textarea
+    piInput.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 90) + 'px';
+    });
+
+    // Enter to send, Shift+Enter for new line
+    piInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            piSendMessage();
+        }
+    });
+});
+
+function openPersonalIssuePopup() {
+    // Reset to fresh state
+    resetChat();
+    
+    // Show popup
+    document.getElementById('pi-popup').classList.add('show');
+    document.getElementById('pi-overlay').classList.add('show');
+    
+    // Focus input after animation
+    setTimeout(() => {
+        if (piInput) piInput.focus();
+    }, 100);
+}
+
+function closePersonalIssuePopup() {
+    document.getElementById('pi-popup').classList.remove('show');
+    document.getElementById('pi-overlay').classList.remove('show');
+}
+
+function resetChat() {
+    // Clear messages
+    const messagesContainer = document.getElementById('pi-messages');
+    if (messagesContainer) {
+        messagesContainer.innerHTML = '';
+    }
+    
+    // Reset input
+    if (piInput) {
+        piInput.value = '';
+        piInput.style.height = 'auto';
+    }
+    
+    // Show welcome message
+    const welcomeDiv = document.querySelector('.pi-welcome');
+    if (welcomeDiv) {
+        welcomeDiv.style.display = 'block';
+    }
+}
+
+function piSendMessage() {
+    const message = piInput.value.trim();
+    if (!message) return;
+    
+    // Hide welcome message on first message
+    const welcomeDiv = document.querySelector('.pi-welcome');
+    if (welcomeDiv) {
+        welcomeDiv.style.display = 'none';
+    }
+    
+    // Add user message
+    addMessage(message, 'user');
+    
+    // Clear input and reset height
+    piInput.value = '';
+    piInput.style.height = 'auto';
+    
+    // Simulate AI response after short delay
+    setTimeout(() => {
+        const defaultResponse = "Thanks for reaching out! I'm here to help. Our support team will review your issue and get back to you shortly. Is there anything specific you'd like me to clarify in the meantime?";
+        addMessage(defaultResponse, 'ai');
+    }, 800);
+}
+
+function addMessage(text, sender) {
+    const messagesContainer = document.getElementById('pi-messages');
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `pi-message ${sender}`;
+    messageDiv.textContent = text;
+    
+    messagesContainer.appendChild(messageDiv);
+    
+    // Scroll to bottom
+    const chatContainer = document.getElementById('pi-chat-container');
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePersonalIssuePopup();
+});
+</script>

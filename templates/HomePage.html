@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clive-V1</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style.css') }}">
+</head>
+
+<body>
+    <!--=======================================================================-->
+    <!-- Vertical line on the left side -->
+    <div class="vertical-line"></div>
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
+    <!-- it is at the very bottom of the sidebar -->
+    <!-- Sidebar/Toggle button which is in the very end of sidebar to expand and collapse the sidebar -->
+    <div class="sidebar" id="sidebar">
+        <!-- Toggle button at bottom -->
+        <div class="sidebar-toggle" onclick="toggleSidebar()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M14.447 3.026a.75.75 0 0 1 .527.921l-4.5 16.5a.75.75 0 0 1-1.448-.394l4.5-16.5a.75.75 0 0 1 .921-.527ZM16.72 6.22a.75.75 0 0 1 1.06 0l5.25 5.25a.75.75 0 0 1 0 1.06l-5.25 5.25a.75.75 0 1 1-1.06-1.06L21.44 12l-4.72-4.72a.75.75 0 0 1 0-1.06Zm-9.44 0a.75.75 0 0 1 0 1.06L2.56 12l4.72 4.72a.75.75 0 0 1-1.06 1.06L.97 12.53a.75.75 0 0 1 0-1.06l5.25-5.25a.75.75 0 0 1 1.06 0Z"
+                    clip-rule="evenodd" />
+            </svg>
+        </div>
+    </div>
+    <!-- work of toggle button(expand and collapse the sidebar vertical line/area ) -->
+    <script>
+    let isChatModeActive = false; // NEW: tracks whether chat mode has started
+
+    function toggleSidebar() {
+        if (isChatModeActive) return; // NEW: sidebar is locked once chat starts
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("expanded");
+        document.getElementById("cliveTitle").classList.toggle("sidebar-shifted");
+        document.getElementById("inputWrapper").classList.toggle("sidebar-shifted");
+        document.getElementById("quickActions").classList.toggle("sidebar-shifted");
+    }
+    </script>
+    <!-- we add the work of toggle button in this home page file because it's work is very small just to epand and collapse the sidebar -->
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
+    <!-- Profile circle button -->
+    <div class="sidebar-circle" onclick="toggleProfilePopup()">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+        <circle cx="12" cy="8" r="3.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.6" />
+        <path d="M5 20c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="rgba(255,255,255,0.7)" stroke-width="1.6"
+            stroke-linecap="round" />
+    </svg>
+    </div>
+     
+    <div id="overlay" class="overlay hidden"></div>
+    <!-- Ok form here the pop up of profile icon starts and the above code was just showing the icon of profile icon -->
+    <div id="profile-popup" class="profile-popup hidden">
+    <div class="profile-email" id="profile-email-display">hardik.pandey@gmail.com</div>
+    <div class="popup-divider"></div>
+    <button type="button" class="profile-option" onclick="window.location.href='/setting'; toggleProfilePopup();">
+        <span class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path
+                    d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z">
+                </path>
+                <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+        </span>
+        <span class="label">Settings</span>
+        <span class="shortcut">⇧+Ctrl+,</span>
+    </button>
+    <button type="button" class="profile-option language-option" onmouseenter="openLanguagePopup()" onmouseleave="scheduleLanguageClose()">
+        <span class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                <path d="M2 12h20"></path>
+            </svg>
+        </span>
+        <span class="label">Language</span>
+        <span class="arrow-right">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="m9 18 6-6-6-6" />
+            </svg>
+        </span>
+    </button>
+    <!-- Language Submenu -->
+    <div class="language-popup" id="language-popup" onmouseenter="clearTimeout(languageCloseTimer)" onmouseleave="scheduleLanguageClose()">
+        <div class="language-item active" onclick="selectLanguage('English (United States)', this)">English (United States) <span class="lang-check">✓</span></div>
+        <div class="language-item" onclick="selectLanguage('Français (France)', this)">Français (France)</div>
+        <div class="language-item" onclick="selectLanguage('Deutsch (Deutschland)', this)">Deutsch (Deutschland)</div>
+        <div class="language-item" onclick="selectLanguage('हिन्दी (भारत)', this)">हिन्दी (भारत)</div>
+        <div class="language-item" onclick="selectLanguage('Indonesia (Indonesia)', this)">Indonesia (Indonesia)</div>
+        <div class="language-item" onclick="selectLanguage('Italiano (Italia)', this)">Italiano (Italia)</div>
+        <div class="language-item" onclick="selectLanguage('日本語 (日本)', this)">日本語 (日本)</div>
+        <div class="language-item" onclick="selectLanguage('한국어(대한민국)', this)">한국어(대한민국)</div>
+        <div class="language-item" onclick="selectLanguage('Português (Brasil)', this)">Português (Brasil)</div>
+        <div class="language-item" onclick="selectLanguage('Español (Latinoamérica)', this)">Español (Latinoamérica)</div>
+        <div class="language-item" onclick="selectLanguage('Español (España)', this)">Español (España)</div>
+    </div>
+    <script>
+        let languageCloseTimer;
+        function openLanguagePopup() {
+            clearTimeout(languageCloseTimer);
+            document.getElementById('language-popup').classList.add('show');
+        }
+        function scheduleLanguageClose() {
+            languageCloseTimer = setTimeout(() => {
+                document.getElementById('language-popup').classList.remove('show');
+            }, 200);
+        }
+        function selectLanguage(lang, el) {
+            document.querySelectorAll('.language-item').forEach(i => {
+                i.classList.remove('active');
+                const check = i.querySelector('.lang-check');
+                if (check) check.remove();
+            });
+            el.classList.add('active');
+            el.insertAdjacentHTML('beforeend', '<span class="lang-check">✓</span>');
+        }
+    </script>
+    <!-- Customize Privacy -->
+    <button type="button" class="profile-option privacy-option"
+            onmouseenter="openPrivacyPopup()"
+            onmouseleave="schedulePrivacyClose()">
+        <span class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <path d="M12 17h.01"></path>
+            </svg>
+        </span>
+        <span class="label">Customize Privacy</span>
+        <span class="arrow-right">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 18 6-6-6-6" />
+            </svg>
+        </span>
+    </button>
+    <div class="prv-popup" id="privacy-popup"
+         onmouseenter="clearTimeout(privacyCloseTimer)"
+         onmouseleave="schedulePrivacyClose()"> 
+        <div class="prv-popup-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                 stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Privacy Controls
+        </div>
+        <div class="prv-row" id="prv-item-messages">
+            <div class="prv-row-info">
+                <span class="prv-row-title">Save Private Messages</span>
+                <span class="prv-row-sub">Let Clive store your chats to personalise your experience</span>
+            </div>
+            <label class="prv-toggle" onclick="event.stopPropagation()">
+                <input type="checkbox" id="prv-toggle-messages"
+                       onchange="handlePrivacyToggle('messages', this.checked)">
+                <span class="prv-slider"></span>
+            </label>
+        </div>
+        <div class="prv-reward" id="prv-reward-messages">
+            ★ <strong>50 tokens</strong> earned — redeem for Premium!
+        </div>
+        <div class="prv-row" id="prv-item-analytics">
+            <div class="prv-row-info">
+                <span class="prv-row-title">Usage Analytics</span>
+                <span class="prv-row-sub">Share anonymous data to help improve Clive</span>
+            </div>
+            <label class="prv-toggle" onclick="event.stopPropagation()">
+                <input type="checkbox" id="prv-toggle-analytics"
+                       onchange="handlePrivacyToggle('analytics', this.checked)">
+                <span class="prv-slider"></span>
+            </label>
+        </div>
+        <div class="prv-reward" id="prv-reward-analytics">
+            ★ <strong>25 tokens</strong> earned — redeem for Premium!
+        </div>
+        <div class="prv-popup-footer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                 stroke-linecap="round" stroke-linejoin="round" width="10" height="10">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            Encrypted &amp; never sold
+        </div>
+    </div>
+    <script>
+        let privacyCloseTimer;
+        function openPrivacyPopup() {
+            clearTimeout(privacyCloseTimer);
+            loadPrivacyPopupSettings();
+            document.getElementById('privacy-popup').classList.add('show');
+        }
+        function schedulePrivacyClose() {
+            privacyCloseTimer = setTimeout(() => {
+                document.getElementById('privacy-popup').classList.remove('show');
+            }, 200);
+        }
+        function handlePrivacyToggle(key, isOn) {
+            const saved = JSON.parse(localStorage.getItem('clive_privacy_popup') || '{}');
+            saved[key] = isOn;
+            localStorage.setItem('clive_privacy_popup', JSON.stringify(saved));
+            document.getElementById('prv-reward-' + key).style.display = isOn ? 'block' : 'none';
+            const itemEl = document.getElementById('prv-item-' + key);
+            if (isOn) itemEl.classList.add('active');
+            else      itemEl.classList.remove('active');
+        }
+        function loadPrivacyPopupSettings() {
+            const saved = JSON.parse(localStorage.getItem('clive_privacy_popup') || '{}');
+            ['messages', 'analytics'].forEach(key => {
+                const isOn = !!saved[key];
+                document.getElementById('prv-toggle-' + key).checked = isOn;
+                document.getElementById('prv-reward-' + key).style.display = isOn ? 'block' : 'none';
+                const itemEl = document.getElementById('prv-item-' + key);
+                if (isOn) itemEl.classList.add('active');
+                else      itemEl.classList.remove('active');
+            });
+        }
+    </script>
+    <div class="popup-divider"></div>
+    <button type="button" class="profile-option" onclick="window.location.href='/upgrade'; toggleProfilePopup();">
+        <span class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="m16 12-4-4-4 4"></path>
+                <path d="M12 16V8"></path>
+            </svg>
+        </span>
+        <span class="label">Upgrade plan</span>
+    </button>
+    <!-- Gift Clive -->
+    <button type="button" class="profile-option gift-option"
+            onmouseenter="openGiftPopup()"
+            onmouseleave="scheduleGiftClose()">
+        <span class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="20 12 20 22 4 22 4 12"></polyline>
+                <rect width="20" height="5" x="2" y="7"></rect>
+                <line x1="12" y1="22" x2="12" y2="7"></line>
+                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+            </svg>
+        </span>
+        <span class="label">Gift Clive</span>
+        <span class="arrow-right">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="m9 18 6-6-6-6" />
+            </svg>
+        </span>
+    </button>
+    <div class="gift-popup" id="gift-popup"
+         onmouseenter="clearTimeout(giftCloseTimer)"
+         onmouseleave="scheduleGiftClose()">
+        <div class="prv-popup-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                 stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+                <polyline points="20 12 20 22 4 22 4 12"></polyline>
+                <rect width="20" height="5" x="2" y="7"></rect>
+                <line x1="12" y1="22" x2="12" y2="7"></line>
+                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path>
+                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path>
+            </svg>
+            Share Your Experience
+        </div>
+        <div class="gift-rating-row">
+            <span class="gift-rating-label">How would you rate Clive?</span>
+            <div class="gift-stars" id="gift-stars">
+                <span class="gift-star" data-val="1" onclick="setRating(1)">★</span>
+                <span class="gift-star" data-val="2" onclick="setRating(2)">★</span>
+                <span class="gift-star" data-val="3" onclick="setRating(3)">★</span>
+                <span class="gift-star" data-val="4" onclick="setRating(4)">★</span>
+                <span class="gift-star" data-val="5" onclick="setRating(5)">★</span>
+            </div>
+        </div>
+        <div class="gift-tags-row">
+            <span class="gift-tag" onclick="toggleTag(this)">Smart responses</span>
+            <span class="gift-tag" onclick="toggleTag(this)">Fast & reliable</span>
+            <span class="gift-tag" onclick="toggleTag(this)">Great design</span>
+            <span class="gift-tag" onclick="toggleTag(this)">Needs improvement</span>
+        </div>
+        <textarea class="gift-textarea" id="gift-textarea"
+                  placeholder="Tell us what you think — we read every word."
+                  maxlength="300"
+                  oninput="updateCharCount(this)"></textarea>
+        <div class="gift-charcount" id="gift-charcount">0 / 300</div>
+        <button class="gift-submit-btn" id="gift-submit-btn" onclick="submitGiftFeedback()">
+            Send Feedback
+        </button>
+        <div class="gift-success" id="gift-success">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                <path d="M20 6 9 17l-5-5"/>
+            </svg>
+            Thank you — your feedback means a lot.
+        </div>
+        <div class="prv-popup-footer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                 stroke-linecap="round" stroke-linejoin="round" width="10" height="10">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Anonymous &amp; never shared
+        </div>
+    </div>
+    <script>
+        let giftCloseTimer;
+        let selectedRating = 0;
+        function openGiftPopup() {
+            clearTimeout(giftCloseTimer);
+            document.getElementById('gift-popup').classList.add('show');
+        }
+        function scheduleGiftClose() {
+            giftCloseTimer = setTimeout(() => {
+                document.getElementById('gift-popup').classList.remove('show');
+            }, 200);
+        }
+        function setRating(val) {
+            selectedRating = val;
+            document.querySelectorAll('.gift-star').forEach(s => {
+                s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+            });
+        }
+        function toggleTag(el) {
+            el.classList.toggle('selected');
+        }
+        function updateCharCount(el) {
+            document.getElementById('gift-charcount').textContent = el.value.length + ' / 300';
+        }
+        function submitGiftFeedback() {
+            const text = document.getElementById('gift-textarea').value.trim();
+            const tags = [...document.querySelectorAll('.gift-tag.selected')].map(t => t.textContent);
+            console.log({ rating: selectedRating, tags, feedback: text });
+            document.getElementById('gift-submit-btn').style.display = 'none';
+            document.getElementById('gift-success').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('gift-popup').classList.remove('show');
+                setTimeout(() => {
+                    document.getElementById('gift-submit-btn').style.display = 'block';
+                    document.getElementById('gift-success').style.display = 'none';
+                    document.getElementById('gift-textarea').value = '';
+                    document.getElementById('gift-charcount').textContent = '0 / 300';
+                    selectedRating = 0;
+                    document.querySelectorAll('.gift-star').forEach(s => s.classList.remove('active'));
+                    document.querySelectorAll('.gift-tag').forEach(t => t.classList.remove('selected'));
+                }, 400);
+            }, 2000);
+        }
+    </script>
+    <button type="button" class="profile-option">
+        <span class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 16v-4"></path>
+                <path d="M12 8h.01"></path>
+            </svg>
+        </span>
+        <span class="label">Learn more (Soon)</span>
+        <span class="arrow-right">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="m9 18 6-6-6-6" />
+            </svg>
+        </span>
+    </button>
+    <div class="popup-divider"></div>
+    <button type="button" class="profile-option logout-btn" onclick="firebaseLogout()">
+        <span class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+        </span>
+        <span class="label">Log out</span>
+    </button>
+    </div>
+    <script type="module">
+    import { auth, signOut, onAuthStateChanged } from "{{ url_for('static', filename='js/firebase-init.js') }}";
+
+    // ── Logout ──
+    window.firebaseLogout = async function() {
+        try {
+            await signOut(auth);
+            window.location.href = '/login';
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
+    };
+
+    // ── Auth Guard: redirect to /login if not logged in ──
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            window.location.href = '/login';
+        } else {
+            // Show the real logged-in email instead of the hardcoded placeholder
+            const emailDisplay = document.getElementById('profile-email-display');
+            if (emailDisplay) emailDisplay.textContent = user.email;
+        }
+    });
+    </script>
+    <!-- Profile popup toggle script -->
+    <script>
+    function toggleProfilePopup() {
+        const popup = document.getElementById("profile-popup");
+        const overlay = document.getElementById("overlay");
+        popup.classList.toggle("hidden");
+        overlay.classList.toggle("hidden");
+    }
+    document.getElementById("overlay").addEventListener("click", toggleProfilePopup);
+    </script>
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
+    <!--LOGO of Clive which appears at the top of sidebar -->
+    <div class="sidebar-logo">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+    </div>
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
+    <!-- so this is the voice button which is inside the sidbar -->
+    <div class="sidebar-voice-btn" onclick="window.location.href='/voice';">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path fill-rule="evenodd"
+                d="M12.963 2.286a.75.75 0 0 0-1.071-.136 9.742 9.742 0 0 0-3.539 6.176 7.547 7.547 0 0 1-1.705-1.715.75.75 0 0 0-1.152-.082A9 9 0 1 0 15.68 4.534a7.46 7.46 0 0 1-2.717-2.248ZM15.75 14.25a3.75 3.75 0 1 1-7.313-1.172c.628.465 1.35.81 2.133 1a5.99 5.99 0 0 1 1.925-3.546 3.75 3.75 0 0 1 3.255 3.718Z"
+                clip-rule="evenodd" />
+        </svg>
+        <span class="voice-text">Voice</span>
+    </div>
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
+    <!-- so this is the projects button which is inside the sidbar -->
+    <div class="sidebar-projects-btn" onclick="window.location.href='/projects';">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
+        </svg>
+        <span class="projects-text">Projects</span>
+    </div>
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
+    <!-- so this is the Groups button which is inside the sidbar -->
+    <div class="sidebar-MergeChats-btn" onclick="openGroupingModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z" />
+        </svg>
+        <span class="MergeChats-text">Groups <span class="exp-badge">und</span></span>
+    </div>
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
+    <!-- so this is the personalize button which is inside the sidbar -->
+    <div class="sidebar-personalize-btn" onclick="window.location.href='/personalize';">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />
+        </svg>
+            <span class="personalize-text">Personalize</span>
+        </div>
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
+    <!-- so this is the background button which is inside the sidbar -->
+    <div class="sidebar-BackgroundVideo-btn" onclick="window.location.href='/Background';">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M15 8.25v-1.5m-6 1.5v-1.5m12 9.75-1.5.75a3.354 3.354 0 0 1-3 0 3.354 3.354 0 0 0-3 0 3.354 3.354 0 0 1-3 0 3.354 3.354 0 0 0-3 0 3.354 3.354 0 0 1-3 0L3 16.5m15-3.379a48.474 48.474 0 0 0-6-.371c-2.032 0-4.034.126-6 .371m12 0c.39.049.777.102 1.163.16 1.07.16 1.837 1.094 1.837 2.175v5.169c0 .621-.504 1.125-1.125 1.125H4.125A1.125 1.125 0 0 1 3 20.625v-5.17c0-1.08.768-2.014 1.837-2.174A47.78 47.78 0 0 1 6 13.12M12.265 3.11a.375.375 0 1 1-.53 0L12 2.845l.265.265Zm-3 0a.375.375 0 1 1-.53 0L9 2.845l.265.265Zm6 0a.375.375 0 1 1-.53 0L15 2.845l.265.265Z" />
+        </svg>
+        <span class="BackgroundVideo-text">Background</span>
+    </div>
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
+    <!-- so this is the Image button which is inside the sidbar -->
+    <div class="sidebar-CreateImage-btn" onclick="openImagineMode()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
+        </svg>
+        <span class="CreateImage-text">Imagine <span class="beta-badge">Beta</span></span>
+    </div>
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
+    <!-- so this is the History button which is inside the sidbar -->
+    <div class="sidebar-History-btn">
+    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.5" />
+        <path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+            stroke-linejoin="round" />
+    </svg>
+    <span class="History-text">History</span>
+    <svg class="history-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none">
+        <path d="M8 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    </div>
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
+    <!-- So this line is very interesting because it is getting the input bar from it's file to that file 
+     mean showing the input bar on home page without writing the code of it hereeeee -->
+    {% include "components/chat_container.html" %}
+    {% include "components/input_bar.html" %}
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
+    <!-- The greeting text CLIVE which we are showing above input bar when it is in mid of the screen -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@800&display=swap" rel="stylesheet">
+    <div class="clive-title" id="cliveTitle">CLIVE</div>
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
+    <!-- This is "offer to gain" sec code in which we are showing three images  -->
+    <div class="offers-section" id="offersSection">
+    <div class="offers-header">
+        <span class="offers-title">Offers To Gain</span>
+        <span class="offers-more" onclick="window.location.href='/about';" style="cursor:pointer;">More ›</span>
+    </div>
+    <div class="offers-cards">
+        <!-- Card 1 -->
+        <div class="offer-card" onclick="openOfferPopup()">
+            <img src="{{ url_for('static', filename='images/card1.jpg') }}" alt="Offer 1">
+            <p class="offer-caption">Discover our latest offer</p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="offer-card" onclick="openFeatPopup()">
+            <img src="{{ url_for('static', filename='images/card2.jpg') }}" alt="Offer 2">
+            <p class="offer-caption">Explore new features</p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="offer-card" onclick="openSuggestionMail()">
+                <img src="{{ url_for('static', filename='images/card3.jpg') }}" alt="Offer 3">
+                <p class="offer-caption">Suggest your Suggestion</p>
+            </div>
+        </div>
+    </div>
+    <!-- this include is responsible to open offer_1.html when clicking on first card -->
+    {% include "components/offer_1.html" %}
+    <!-- this include is responsible to open offer_2.html when clicking on first card -->
+    {% include "components/offer_2.html" %}
+    <!-- this is the script of third card which is responsible to open gmail for suggestion -->
+    <script>
+    function openSuggestionMail() {
+    const to = 'artificialintelligentclive@gmail.com';
+    const subject = 'Suggestion for Clive';
+    const body = `Hi Clive Team,\n\nHere is my suggestion:\n\n[Write your suggestion here]\n\n---\nApp: Clive-V1`;
+    
+    const gmailUrl = 'https://mail.google.com/mail/?view=cm&fs=1' +
+        '&to=' + encodeURIComponent(to) +
+        '&su=' + encodeURIComponent(subject) +
+        '&body=' + encodeURIComponent(body);
+    
+    window.open(gmailUrl, '_blank');
+    }
+    </script>
+    
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
+    <!-- Upgrade your Plan Button - Top Left Corner  -->
+    <button class="upgrade-plan-btn" onclick="window.location.href='/upgrade';">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path
+            d="M19.952 1.651a.75.75 0 0 1 .298.599V16.303a3 3 0 0 1-2.176 2.884l-1.32.377a2.553 2.553 0 1 1-1.403-4.909l2.311-.66a1.5 1.5 0 0 0 1.088-1.442V6.994l-9 2.572V19.2a3 3 0 0 1-2.176 2.884l-1.32.377a2.553 2.553 0 1 1-1.402-4.909l2.31-.66A1.5 1.5 0 0 0 8.25 15.45V5.134a.75.75 0 0 1 .544-.721l10.5-3a.75.75 0 0 1 .658.238Z" />
+    </svg>
+    Upgrade your plan
+    </button>
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
+    <!-- All buttons code which are below the input bar (create image, grouping , project , version) -->
+    <div class="quick-actions" id="quickActions">
+    <button class="quick-btn" onclick="openImagineMode()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
+        </svg>
+        Create Image
+    </button>
+
+    <button class="quick-btn" onclick="openGroupingModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+        </svg>
+        Grouping <span class="und-badge">UND</span>
+    </button>
+
+    <button class="quick-btn" onclick="window.location.href='/projects'">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+        </svg>
+        Project
+    </button>
+
+    <button class="quick-btn" onclick="console.log('Layout')">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+        </svg>
+        Version <span class="soon-badge">Soon</span>
+    </button>
+    </div>
+    <!-- this line of code is responsible to open grouping_modal.html file -->
+    {% include "components/grouping_modal.html" %}
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
+    <!-- So this is the code of those buttons which are at the top right corner 
+     (Privacy , About , Features , Privacy Mode , Voice mode) -->
+    <!-- Privacy Button - Top Right Corner -->
+    {% include "components/privacy_mode.html" %}
+
+    <!-- About Button -->
+    <button class="about-btn" onclick="window.location.href='/about';">
+        About
+    </button>
+
+    <!-- Voice Button -->
+    <button class="voice-btn" onclick="window.location.href='/voice';">
+        Voice Mode
+    </button>
+
+    <!-- Features Button -->
+    <button class="features-btn" onmouseenter="openFeaturesPopup()" onmouseleave="scheduleFeatureClose()">
+        Features
+    </button>
+    {% include "components/features_popup.html" %}
+
+    <!-- Help Button -->
+    <button class="help-btn" onmouseenter="openHelpPopup()" onmouseleave="scheduleHelpClose()">
+        Help
+    </button>
+    {% include "components/help_popup.html" %}
+
+    <!-- ====================================================================== -->
+    <!-- FINALLY HERE THE CODE HELP BUTTON ENDS HERE -->
+
+
+    <!-- Ok this line of code is responsible to show pop up of details when a new user come on our ai for a firts time  -->
+    {% include "components/onboarding_modal.html" %}
+    <!-- what broo her it ends because it code is in real file  -->
+
+
+<!-- ================================================================================= -->
+<!-- Chat Share Button -->
+<div class="chat-actions-bar" id="chatActionsBar">
+    <button class="chat-share-btn" onclick="console.log('Share clicked')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+            <polyline points="16 6 12 2 8 6" />
+            <line x1="12" y1="2" x2="12" y2="15" />
+        </svg>
+        <span class="share-text">Share</span>
+    </button>
+    <button class="chat-edit-btn" title="New chat" onclick="location.reload()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+    </button>
+</div>
+<!-- ==================================================================================== -->
+
+
+</body>
+
+</html>

@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings — UI Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-card: #141414;
+            --bg-elevated: #1a1a1a;
+            --bg-hover: #222222;
+            --border: #2a2a2a;
+            --border-light: #333333;
+            --text-primary: #f0f0f0;
+            --text-secondary: #7a7a7a;
+            --text-tertiary: #4a4a4a;
+            --accent: #5b9bd5;
+            --accent-hover: #7ab0e8;
+            --danger: #e53e3e;
+            --danger-hover: #dc2626;
+            --radius-card: 20px;
+            --radius-sm: 12px;
+            --radius-pill: 50px;
+        }
+
+        body {
+            background: #000000;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===========================================
+           FULL-PAGE LAYOUT (no boxed overlay/card)
+           =========================================== */
+        .page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-header {
+            padding: 28px 48px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .page-header h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .header-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 8px 14px;
+            border-radius: var(--radius-pill);
+            transition: background 0.2s, color 0.2s;
+        }
+        .header-back:hover { background: var(--bg-elevated); color: var(--text-primary); }
+        .header-back svg { width: 16px; height: 16px; }
+
+        .settings-shell {
+            flex: 1;
+            display: flex;
+            max-width: 1180px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 32px 32px 60px;
+            gap: 8px;
+        }
+
+        /* ===========================================
+           LEFT SIDEBAR
+           =========================================== */
+        .sidebar {
+            width: 240px;
+            padding: 8px 8px 0 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 32px;
+            align-self: flex-start;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .sidebar-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .sidebar-item.active { background: var(--bg-elevated); color: var(--text-primary); }
+        .sidebar-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+        /* ===========================================
+           RIGHT CONTENT PANEL
+           =========================================== */
+        .content-panel {
+            flex: 1;
+            padding: 8px 0 8px 36px;
+            border-left: 1px solid var(--border);
+            min-width: 0;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .setting-row:last-child { border-bottom: none; }
+        .setting-label { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+        .setting-value {
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .setting-value:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+        .btn-primary {
+            padding: 10px 20px;
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-primary:hover { background: var(--bg-hover); border-color: #444; }
+
+        .btn-danger {
+            padding: 10px 20px;
+            background: transparent;
+            color: var(--danger);
+            border: 2px solid var(--danger);
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-danger:hover { background: var(--danger); color: white; }
+
+        .plan-box {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 24px;
+            margin: 24px 0;
+            max-width: 400px;
+        }
+        .plan-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+        .plan-features { list-style: none; padding: 0; }
+        .plan-features li {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            padding-left: 20px;
+            position: relative;
+            margin: 6px 0;
+        }
+        .plan-features li::before { content: '•'; position: absolute; left: 6px; color: var(--accent); }
+
+        .delete-section {
+            margin-top: 24px;
+            background: linear-gradient(135deg, rgba(229, 62, 62, 0.08), rgba(220, 38, 38, 0.12));
+            border: 1px solid rgba(229, 62, 62, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .delete-text { font-size: 15px; font-weight: 600; color: var(--danger); }
+
+        .clive-info {
+            margin-top: 28px;
+            padding: 20px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            max-width: 600px;
+        }
+        .clive-info h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .clive-info p { font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; }
+
+        .notif-row {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .notif-row:last-child { border-bottom: none; }
+        .notif-left { flex: 1; padding-right: 24px; }
+        .notif-title { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+        .notif-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+        .notif-link { color: var(--accent); text-decoration: none; font-size: 13px; }
+        .notif-link:hover { text-decoration: underline; }
+        .notif-right { position: relative; flex-shrink: 0; }
+        .notif-trigger {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            user-select: none;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .notif-trigger:hover { background: var(--bg-hover); }
+        .notif-trigger-label { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+        .notif-trigger svg { color: var(--text-tertiary); transition: transform 0.2s; }
+        .notif-right.open .notif-trigger svg { transform: rotate(180deg); }
+        .notif-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            min-width: 160px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            z-index: 100;
+        }
+        .notif-right.open .notif-dropdown { display: flex; flex-direction: column; gap: 8px; }
+        .notif-toggle-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .notif-toggle-row span { font-size: 14px; color: var(--text-primary); }
+
+        .ios-toggle {
+            width: 42px;
+            height: 24px;
+            background: #444;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.25s;
+            flex-shrink: 0;
+        }
+        .ios-toggle.active { background: #3a86f5; }
+        .ios-thumb {
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: left 0.25s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+        .ios-toggle.active .ios-thumb { left: 20px; }
+
+        .delete-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .delete-modal.hidden { display: none; }
+        .delete-modal-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+            padding: 32px;
+            max-width: 440px;
+            width: 90%;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+            animation: modalIn 0.3s cubic-bezier(.22, 1, .36, 1) both;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.94); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .delete-modal-box h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+        .warning-text { color: var(--danger); font-size: 14px; margin: 10px 0; }
+        .warning-text strong { font-weight: 700; }
+        .warning-list { list-style: none; padding: 0; margin: 14px 0; }
+        .warning-list li { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin: 6px 0; }
+        .note-text { font-size: 12.5px; color: var(--text-tertiary); line-height: 1.5; margin-top: 14px; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+        .cancel-btn {
+            padding: 10px 20px;
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.2s;
+        }
+        .cancel-btn:hover { background: var(--bg-hover); }
+        .confirm-btn {
+            padding: 10px 20px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.2s;
+        }
+        .confirm-btn:hover { background: var(--danger-hover); }
+
+        /* THEME TAB */
+        .theme-boxes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        .theme-box {
+            background: var(--bg-elevated);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 24px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            text-align: center;
+        }
+        .theme-box:hover { border-color: var(--border-light); background: var(--bg-hover); }
+        .theme-box.selected { border-color: var(--accent); background: rgba(91, 155, 213, 0.08); }
+        .theme-icon { width: 54px; height: 54px; display: flex; align-items: center; justify-content: center; }
+        .theme-icon svg { width: 36px; height: 36px; color: var(--text-primary); }
+        .theme-name { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+        .theme-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+
+        /* COLOR MESSAGES TAB */
+        .cm-preview-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .cm-preview-label {
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .cm-preview-bubble {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 16px;
+            border-radius: 18px 18px 4px 18px;
+            font-size: 14px;
+            color: white;
+            font-weight: 500;
+            transition: background 0.35s ease, border-color 0.35s ease;
+            max-width: 240px;
+        }
+        .cm-preview-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .cm-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .cm-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+            border: 1px solid transparent;
+            position: relative;
+        }
+        .cm-row:hover {
+            background: rgba(255,255,255,0.04);
+            border-color: var(--border);
+        }
+        .cm-row.selected {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.12);
+        }
+
+        .cm-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .cm-swatch {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+            border: 1px solid rgba(255,255,255,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cm-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+        .cm-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+        .cm-row.selected .cm-name { color: #fff; }
+        .cm-desc {
+            font-size: 11.5px;
+            color: var(--text-tertiary);
+        }
+
+        .cm-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .cm-active-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #4ade80;
+            box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+            display: none;
+            flex-shrink: 0;
+        }
+
+        .cm-apply-btn {
+            padding: 6px 14px;
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.18s ease;
+            white-space: nowrap;
+            letter-spacing: 0.01em;
+        }
+        .cm-apply-btn:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.25);
+            color: var(--text-primary);
+        }
+        .cm-row.selected .cm-apply-btn {
+            background: rgba(74, 222, 128, 0.1);
+            border-color: rgba(74, 222, 128, 0.3);
+            color: #4ade80;
+        }
+
+        .cm-section-header {
+            font-size: 10.5px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            font-weight: 600;
+            padding: 16px 14px 6px;
+        }
+        .cm-section-header:first-child { padding-top: 0; }
+
+        /* Toast (UI-only feedback, no real save) */
+        #applied-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: #1e1e1e;
+            color: #f0f0f0;
+            border: 1px solid #333;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            z-index: 9999;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+
+        @media (max-width: 860px) {
+            .settings-shell { flex-direction: column; padding: 20px; }
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                position: static;
+            }
+            .content-panel { border-left: none; padding-left: 0; margin-top: 20px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="page">
+
+        <div class="page-header">
+            <h1>Settings</h1>
+            <div class="header-back" id="back-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Back
+            </div>
+        </div>
+
+        <div class="settings-shell">
+
+            <!-- LEFT SIDEBAR -->
+            <div class="sidebar">
+                <div class="sidebar-item active" id="btn-general">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3" />
+                        <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m6.36 6.36l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m6.36-6.36l4.24-4.24" />
+                    </svg>
+                    General
+                </div>
+
+                <div class="sidebar-item" id="btn-account">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="8" r="5" />
+                        <path d="M20 21a8 8 0 1 0-16 0" />
+                    </svg>
+                    Account
+                </div>
+
+                <div class="sidebar-item" id="btn-data">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <ellipse cx="12" cy="5" rx="9" ry="3" />
+                        <path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5" />
+                        <path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3" />
+                    </svg>
+                    Data Manage
+                </div>
+
+                <div class="sidebar-item" id="btn-notifications">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                    </svg>
+                    Notifications
+                </div>
+
+                <div class="sidebar-item" id="btn-theme">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4" />
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+                    </svg>
+                    Theme
+                </div>
+
+                <div class="sidebar-item" id="btn-color-messages">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" />
+                    </svg>
+                    Color Messages
+                </div>
+            </div>
+
+            <!-- RIGHT CONTENT PANEL -->
+            <div class="content-panel" id="content-area">
+
+                <!-- GENERAL TAB -->
+                <div id="general-tab">
+                    <div class="section-title">General</div>
+                    <div class="setting-row"><div class="setting-label">Appearance</div><div class="setting-value">System</div></div>
+                    <div class="setting-row"><div class="setting-label">Accent color</div><div class="setting-value">Default</div></div>
+                    <div class="setting-row"><div class="setting-label">Language</div><div class="setting-value">Auto-detect</div></div>
+                    <div class="setting-row"><div class="setting-label">Spoken language</div><div class="setting-value">Auto-detect</div></div>
+                    <div class="setting-row"><div class="setting-label">Location</div><div class="setting-value">Auto-detect</div></div>
+                    <div class="setting-row"><div class="setting-label">Privacy</div><div class="setting-value">On Clive Firebox Server</div></div>
+                    <div class="setting-row"><div class="setting-label">Thinking & Response</div><div class="setting-value">10+ Search Engines</div></div>
+                    <div class="setting-row"><div class="setting-label">Image Generation</div><div class="setting-value">Enabled</div></div>
+                    <div class="setting-row"><div class="setting-label">File Management</div><div class="setting-value">Enabled</div></div>
+                    <div class="setting-row"><div class="setting-label">Critical Thinking</div><div class="setting-value">Allow</div></div>
+                    <div class="setting-row"><div class="setting-label">Voice Input</div><div class="setting-value">Acceptable</div></div>
+                    <div class="setting-row"><div class="setting-label">While response</div><div class="setting-value">Stop Messages</div></div>
+                    <div class="setting-row"><div class="setting-label">Data Privacy</div><div class="setting-value">Default</div></div>
+                    <div class="setting-row"><div class="setting-label">Links</div><div class="setting-value">Trusted</div></div>
+                </div>
+
+                <!-- ACCOUNT TAB -->
+                <div id="account-tab" style="display:none;">
+                    <div class="section-title">Account</div>
+                    <div class="plan-box">
+                        <h2 class="plan-title">Free</h2>
+                        <ul class="plan-features">
+                            <li>Get simple explanations</li>
+                            <li>Have short chats for common questions</li>
+                            <li>Save limited memory and context</li>
+                            <li>Normal chat behaviour</li>
+                            <li>Simple answers for study-related questions</li>
+                        </ul>
+                    </div>
+                    <div class="delete-section">
+                        <span class="delete-text">Delete Account</span>
+                        <button class="btn-danger" id="delete-account-btn">Delete</button>
+                    </div>
+                    <div class="clive-info">
+                        <h3>About Clive_V1</h3>
+                        <p>Clive is an advanced AI assistant designed to think critically, act logically, and communicate with precision. It combines deep technical knowledge with practical problem-solving ability, making it ideal for students, developers, and professionals.<br><br>Clive challenges assumptions, provides counter-arguments, and focuses on truth rather than agreement. It can write code, debug, analyze complex topics, guide projects, and assist with research — all while adapting to the user's style and goals.<br><br>Clive is reliable, fast, and built for real-world productivity.</p>
+                    </div>
+                </div>
+
+                <!-- DATA MANAGE TAB -->
+                <div id="data-tab" style="display:none;">
+                    <div class="section-title">Data controls</div>
+                    <div class="setting-row"><div class="setting-label">Improve the model for everyone</div><div class="setting-value">On ›</div></div>
+                    <div class="setting-row"><div class="setting-label">Shared links</div><button class="btn-primary">Manage</button></div>
+                    <div class="setting-row"><div class="setting-label">Archived chats</div><button class="btn-primary">Manage</button></div>
+                    <div class="setting-row"><div class="setting-label">Archive all chats</div><button class="btn-primary">Archive all</button></div>
+                    <div class="setting-row"><div class="setting-label">Delete all chats</div><button class="btn-danger" id="delete-all-chats-btn">Delete all</button></div>
+                    <div class="setting-row"><div class="setting-label">Export data</div><button class="btn-primary">Export</button></div>
+                </div>
+
+                <!-- NOTIFICATIONS TAB -->
+                <div id="notifications-tab" style="display:none;">
+                    <div class="section-title">Notifications</div>
+
+                    <div class="notif-row">
+                        <div class="notif-left"><div class="notif-title">Responses</div><div class="notif-desc">Get notified when Clive responds to requests that take time, like research or image generation.</div></div>
+                        <div class="notif-right">
+                            <div class="notif-trigger" onclick="toggleDropdown(this)"><span class="notif-trigger-label">Push</span><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                            <div class="notif-dropdown"><div class="notif-toggle-row"><span>Push</span><div class="ios-toggle active" onclick="toggleSwitch(this)"><div class="ios-thumb"></div></div></div></div>
+                        </div>
+                    </div>
+
+                    <div class="notif-row">
+                        <div class="notif-left"><div class="notif-title">Group chats</div><div class="notif-desc">You'll receive notifications for new messages from group chats.</div></div>
+                        <div class="notif-right">
+                            <div class="notif-trigger" onclick="toggleDropdown(this)"><span class="notif-trigger-label">Push</span><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                            <div class="notif-dropdown"><div class="notif-toggle-row"><span>Push</span><div class="ios-toggle active" onclick="toggleSwitch(this)"><div class="ios-thumb"></div></div></div></div>
+                        </div>
+                    </div>
+
+                    <div class="notif-row">
+                        <div class="notif-left"><div class="notif-title">Tasks</div><div class="notif-desc">Get notified when tasks you've created have updates.<br><a href="#" class="notif-link" onclick="return false;">Manage tasks</a></div></div>
+                        <div class="notif-right">
+                            <div class="notif-trigger" onclick="toggleDropdown(this)"><span class="notif-trigger-label">Push, Email</span><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                            <div class="notif-dropdown">
+                                <div class="notif-toggle-row"><span>Push</span><div class="ios-toggle active" onclick="toggleSwitch(this)"><div class="ios-thumb"></div></div></div>
+                                <div class="notif-toggle-row"><span>Email</span><div class="ios-toggle active" onclick="toggleSwitch(this)"><div class="ios-thumb"></div></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="notif-row">
+                        <div class="notif-left"><div class="notif-title">Projects</div><div class="notif-desc">Get notified when you receive an email invitation to a shared project.</div></div>
+                        <div class="notif-right">
+                            <div class="notif-trigger" onclick="toggleDropdown(this)"><span class="notif-trigger-label">Email</span><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                            <div class="notif-dropdown"><div class="notif-toggle-row"><span>Email</span><div class="ios-toggle active" onclick="toggleSwitch(this)"><div class="ios-thumb"></div></div></div></div>
+                        </div>
+                    </div>
+
+                    <div class="notif-row">
+                        <div class="notif-left"><div class="notif-title">Recommendations</div><div class="notif-desc">Stay in the loop on new tools, tips, and features from Clive.</div></div>
+                        <div class="notif-right">
+                            <div class="notif-trigger" onclick="toggleDropdown(this)"><span class="notif-trigger-label">Push, Email</span><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                            <div class="notif-dropdown">
+                                <div class="notif-toggle-row"><span>Push</span><div class="ios-toggle active" onclick="toggleSwitch(this)"><div class="ios-thumb"></div></div></div>
+                                <div class="notif-toggle-row"><span>Email</span><div class="ios-toggle active" onclick="toggleSwitch(this)"><div class="ios-thumb"></div></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="notif-row">
+                        <div class="notif-left"><div class="notif-title">Usage</div><div class="notif-desc">We'll notify you when limits reset for features like image creation.</div></div>
+                        <div class="notif-right">
+                            <div class="notif-trigger" onclick="toggleDropdown(this)"><span class="notif-trigger-label">Push, Email</span><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                            <div class="notif-dropdown">
+                                <div class="notif-toggle-row"><span>Push</span><div class="ios-toggle active" onclick="toggleSwitch(this)"><div class="ios-thumb"></div></div></div>
+                                <div class="notif-toggle-row"><span>Email</span><div class="ios-toggle active" onclick="toggleSwitch(this)"><div class="ios-thumb"></div></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- THEME TAB -->
+                <div id="theme-tab" style="display:none;">
+                    <div class="section-title">Theme</div>
+                    <div class="theme-boxes">
+                        <div class="theme-box" onclick="selectTheme(this)">
+                            <div class="theme-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>
+                            <div class="theme-name">Light</div>
+                            <div class="theme-desc">Bright backgrounds with dark text for daytime use</div>
+                        </div>
+                        <div class="theme-box selected" onclick="selectTheme(this)">
+                            <div class="theme-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+                            <div class="theme-name">Dark</div>
+                            <div class="theme-desc">Dark backgrounds with light text for reduced eye strain</div>
+                        </div>
+                        <div class="theme-box" onclick="selectTheme(this)">
+                            <div class="theme-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+                            <div class="theme-name">System</div>
+                            <div class="theme-desc">Automatically matches your device's theme settings</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLOR MESSAGES TAB -->
+                <div id="color-messages-tab" style="display:none;">
+                    <div class="section-title">Color Messages</div>
+
+                    <div class="cm-preview-card">
+                        <span class="cm-preview-label">Preview</span>
+                        <span class="cm-preview-bubble" id="preview-bubble" style="background:#2a2a2a; border: 1px solid rgba(255,255,255,0.15);">Hey, how are you?</span>
+                        <span class="cm-preview-name" id="preview-color-name">Default</span>
+                    </div>
+
+                    <div class="cm-list" id="cm-list">
+
+                        <div class="cm-section-header">Solid Colors</div>
+
+                        <div class="cm-row selected" data-color="#2a2a2a" data-name="Default" data-desc="Original dark bubble" onclick="applyColor(this)">
+                            <div class="cm-left">
+                                <div class="cm-swatch" style="background:#2a2a2a; border: 1px solid rgba(255,255,255,0.18);"></div>
+                                <div class="cm-info"><span class="cm-name">Default</span><span class="cm-desc">Original dark bubble</span></div>
+                            </div>
+                            <div class="cm-right"><div class="cm-active-dot"></div><button class="cm-apply-btn" onclick="applyColor(this.closest('.cm-row'))">Applied</button></div>
+                        </div>
+
+                        <div class="cm-row" data-color="#e8640c" data-name="Orange" data-desc="Warm, energetic tone" onclick="applyColor(this)">
+                            <div class="cm-left">
+                                <div class="cm-swatch" style="background:#e8640c;"></div>
+                                <div class="cm-info"><span class="cm-name">Orange</span><span class="cm-desc">Warm, energetic tone</span></div>
+                            </div>
+                            <div class="cm-right"><div class="cm-active-dot"></div><button class="cm-apply-btn" onclick="applyColor(this.closest('.cm-row'))">Apply</button></div>
+                        </div>
+
+                        <div class="cm-row" data-color="#7c3aed" data-name="Purple" data-desc="Bold, creative accent" onclick="applyColor(this)">
+                            <div class="cm-left">
+                                <div class="cm-swatch" style="background:#7c3aed;"></div>
+                                <div class="cm-info"><span class="cm-name">Purple</span><span class="cm-desc">Bold, creative accent</span></div>
+                            </div>
+                            <div class="cm-right"><div class="cm-active-dot"></div><button class="cm-apply-btn" onclick="applyColor(this.closest('.cm-row'))">Apply</button></div>
+                        </div>
+
+                        <div class="cm-row" data-color="#db2777" data-name="Pink" data-desc="Vibrant, playful feel" onclick="applyColor(this)">
+                            <div class="cm-left">
+                                <div class="cm-swatch" style="background:#db2777;"></div>
+                                <div class="cm-info"><span class="cm-name">Pink</span><span class="cm-desc">Vibrant, playful feel</span></div>
+                            </div>
+                            <div class="cm-right"><div class="cm-active-dot"></div><button class="cm-apply-btn" onclick="applyColor(this.closest('.cm-row'))">Apply</button></div>
+                        </div>
+
+                        <div class="cm-row" data-color="#dc2626" data-name="Red" data-desc="Intense, high-contrast" onclick="applyColor(this)">
+                            <div class="cm-left">
+                                <div class="cm-swatch" style="background:#dc2626;"></div>
+                                <div class="cm-info"><span class="cm-name">Red</span><span class="cm-desc">Intense, high-contrast</span></div>
+                            </div>
+                            <div class="cm-right"><div class="cm-active-dot"></div><button class="cm-apply-btn" onclick="applyColor(this.closest('.cm-row'))">Apply</button></div>
+                        </div>
+
+                        <div class="cm-row" data-color="#ca8a04" data-name="Yellow" data-desc="Bright, attention-grabbing" onclick="applyColor(this)">
+                            <div class="cm-left">
+                                <div class="cm-swatch" style="background:#ca8a04;"></div>
+                                <div class="cm-info"><span class="cm-name">Yellow</span><span class="cm-desc">Bright, attention-grabbing</span></div>
+                            </div>
+                            <div class="cm-right"><div class="cm-active-dot"></div><button class="cm-apply-btn" onclick="applyColor(this.closest('.cm-row'))">Apply</button></div>
+                        </div>
+
+                        <div class="cm-row" data-color="#059669" data-name="Green" data-desc="Fresh, natural feel" onclick="applyColor(this)">
+                            <div class="cm-left">
+                                <div class="cm-swatch" style="background:#059669;"></div>
+                                <div class="cm-info"><span class="cm-name">Green</span><span class="cm-desc">Fresh, natural feel</span></div>
+                            </div>
+                            <div class="cm-right"><div class="cm-active-dot"></div><button class="cm-apply-btn" onclick="applyColor(this.closest('.cm-row'))">Apply</button></div>
+                        </div>
+
+                        <div class="cm-row" data-color="#0891b2" data-name="Cyan" data-desc="Cool, technical edge" onclick="applyColor(this)">
+                            <div class="cm-left">
+                                <div class="cm-swatch" style="background:#0891b2;"></div>
+                                <div class="cm-info"><span class="cm-name">Cyan</span><span class="cm-desc">Cool, technical edge</span></div>
+                            </div>
+                            <div class="cm-right"><div class="cm-active-dot"></div><button class="cm-apply-btn" onclick="applyColor(this.closest('.cm-row'))">Apply</button></div>
+                        </div>
+
+                        <div class="cm-row" data-color="#475569" data-name="Slate" data-desc="Subtle, professional grey" onclick="applyColor(this)">
+                            <div class="cm-left">
+                                <div class="cm-swatch" style="background:#475569;"></div>
+                                <div class="cm-info"><span class="cm-name">Slate</span><span class="cm-desc">Subtle, professional grey</span></div>
+                            </div>
+                            <div class="cm-right"><div class="cm-active-dot"></div><button class="cm-apply-btn" onclick="applyColor(this.closest('.cm-row'))">Apply</button></div>
+                        </div>
+
+                        <div class="cm-section-header">Gradients</div>
+
+                        <div class="cm-row" data-color="linear-gradient(135deg,#f093fb,#f5576c)" data-name="Rose Glow" data-desc="Pink to red fade" onclick="applyColor(this)">
+                            <div class="cm-left">
+                                <div class="cm-swatch" style="background:linear-gradient(135deg,#f093fb,#f5576c);"></div>
+                                <div class="cm-info"><span class="cm-name">Rose Glow</span><span class="cm-desc">Pink to red fade</span></div>
+                            </div>
+                            <div class="cm-right"><div class="cm-active-dot"></div><button class="cm-apply-btn" onclick="applyColor(this.closest('.cm-row'))">Apply</button></div>
+                        </div>
+
+                        <div class="cm-row" data-color="linear-gradient(135deg,#4facfe,#00f2fe)" data-name="Ocean" data-desc="Deep blue to aqua" onclick="applyColor(this)">
+                            <div class="cm-left">
+                                <div class="cm-swatch" style="background:linear-gradient(135deg,#4facfe,#00f2fe);"></div>
+                                <div class="cm-info"><span class="cm-name">Ocean</span><span class="cm-desc">Deep blue to aqua</span></div>
+                            </div>
+                            <div class="cm-right"><div class="cm-active-dot"></div><button class="cm-apply-btn" onclick="applyColor(this.closest('.cm-row'))">Apply</button></div>
+                        </div>
+
+                        <div class="cm-row" data-color="linear-gradient(135deg,#43e97b,#38f9d7)" data-name="Mint" data-desc="Green to teal glow" onclick="applyColor(this)">
+                            <div class="cm-left">
+                                <div class="cm-swatch" style="background:linear-gradient(135deg,#43e97b,#38f9d7);"></div>
+                                <div class="cm-info"><span class="cm-name">Mint</span><span class="cm-desc">Green to teal glow</span></div>
+                            </div>
+                            <div class="cm-right"><div class="cm-active-dot"></div><button class="cm-apply-btn" onclick="applyColor(this.closest('.cm-row'))">Apply</button></div>
+                        </div>
+
+                        <div class="cm-row" data-color="linear-gradient(135deg,#fa709a,#fee140)" data-name="Sunset" data-desc="Pink to golden yellow" onclick="applyColor(this)">
+                            <div class="cm-left">
+                                <div class="cm-swatch" style="background:linear-gradient(135deg,#fa709a,#fee140);"></div>
+                                <div class="cm-info"><span class="cm-name">Sunset</span><span class="cm-desc">Pink to golden yellow</span></div>
+                            </div>
+                            <div class="cm-right"><div class="cm-active-dot"></div><button class="cm-apply-btn" onclick="applyColor(this.closest('.cm-row'))">Apply</button></div>
+                        </div>
+
+                        <div class="cm-row" data-color="linear-gradient(135deg,#a18cd1,#fbc2eb)" data-name="Lavender" data-desc="Soft purple to blush" onclick="applyColor(this)">
+                            <div class="cm-left">
+                                <div class="cm-swatch" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb);"></div>
+                                <div class="cm-info"><span class="cm-name">Lavender</span><span class="cm-desc">Soft purple to blush</span></div>
+                            </div>
+                            <div class="cm-right"><div class="cm-active-dot"></div><button class="cm-apply-btn" onclick="applyColor(this.closest('.cm-row'))">Apply</button></div>
+                        </div>
+
+                        <div class="cm-row" data-color="linear-gradient(135deg,#f7971e,#ffd200)" data-name="Gold" data-desc="Amber to bright gold" onclick="applyColor(this)">
+                            <div class="cm-left">
+                                <div class="cm-swatch" style="background:linear-gradient(135deg,#f7971e,#ffd200);"></div>
+                                <div class="cm-info"><span class="cm-name">Gold</span><span class="cm-desc">Amber to bright gold</span></div>
+                            </div>
+                            <div class="cm-right"><div class="cm-active-dot"></div><button class="cm-apply-btn" onclick="applyColor(this.closest('.cm-row'))">Apply</button></div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div><!-- end content-panel -->
+        </div><!-- end settings-shell -->
+    </div><!-- end page -->
+
+    <!-- DELETE ACCOUNT MODAL (UI only — closes on confirm, no real deletion) -->
+    <div id="delete-modal" class="delete-modal hidden">
+        <div class="delete-modal-box">
+            <h2>Delete Account</h2>
+            <p class="warning-text">This action is <strong>permanent</strong>.</p>
+            <ul class="warning-list">
+                <li>• All your chats will be deleted forever</li>
+                <li>• Your account will be removed from our servers</li>
+                <li>• Logging in again will create a fresh empty account</li>
+            </ul>
+            <p class="note-text">If deletion requires re-login, sign in again and click delete once more.</p>
+            <div class="modal-actions">
+                <button class="cancel-btn" id="cancel-delete">Cancel</button>
+                <button class="confirm-btn" id="confirm-delete">Go ahead</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE ALL CHATS MODAL (UI only) -->
+    <div id="delete-chats-modal" class="delete-modal hidden">
+        <div class="delete-modal-box">
+            <h2>Delete All Chats</h2>
+            <p class="warning-text">This action is <strong>permanent</strong>.</p>
+            <ul class="warning-list">
+                <li>• Every chat you have ever created will be removed</li>
+                <li>• This cannot be undone or recovered</li>
+                <li>• Your account will remain active</li>
+            </ul>
+            <p class="note-text">Only your chats will be deleted. Your account and settings will stay intact.</p>
+            <div class="modal-actions">
+                <button class="cancel-btn" id="cancel-delete-chats">Cancel</button>
+                <button class="confirm-btn" id="confirm-delete-chats">Go ahead</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* =========================================================
+           UI-ONLY BEHAVIOR
+           Everything below only changes what's on screen right now.
+           Nothing here calls a server, deletes real data, saves to
+           storage, or persists across a page reload.
+           ========================================================= */
+
+        /* ---------- SIDEBAR NAVIGATION ---------- */
+        const buttons = {
+            general: document.getElementById("btn-general"),
+            account: document.getElementById("btn-account"),
+            data: document.getElementById("btn-data"),
+            notifications: document.getElementById("btn-notifications"),
+            theme: document.getElementById("btn-theme"),
+            "color-messages": document.getElementById("btn-color-messages"),
+        };
+        const tabs = {
+            general: document.getElementById("general-tab"),
+            account: document.getElementById("account-tab"),
+            data: document.getElementById("data-tab"),
+            notifications: document.getElementById("notifications-tab"),
+            theme: document.getElementById("theme-tab"),
+            "color-messages": document.getElementById("color-messages-tab"),
+        };
+
+        function switchTab(key) {
+            Object.values(buttons).forEach(btn => btn.classList.remove("active"));
+            Object.values(tabs).forEach(tab => tab.style.display = "none");
+            buttons[key].classList.add("active");
+            tabs[key].style.display = "block";
+        }
+        Object.keys(buttons).forEach(key => {
+            buttons[key].addEventListener("click", () => switchTab(key));
+        });
+
+        /* ---------- DELETE ACCOUNT MODAL (display only) ---------- */
+        document.getElementById("delete-account-btn").addEventListener("click", () => {
+            document.getElementById("delete-modal").classList.remove("hidden");
+        });
+        document.getElementById("cancel-delete").addEventListener("click", () => {
+            document.getElementById("delete-modal").classList.add("hidden");
+        });
+        
+
+        /* ---------- DELETE ALL CHATS MODAL (display only) ---------- */
+        document.getElementById("delete-all-chats-btn").addEventListener("click", () => {
+            document.getElementById("delete-chats-modal").classList.remove("hidden");
+        });
+        document.getElementById("cancel-delete-chats").addEventListener("click", () => {
+            document.getElementById("delete-chats-modal").classList.add("hidden");
+        });
+        document.getElementById("confirm-delete-chats").addEventListener("click", () => {
+            document.getElementById("delete-chats-modal").classList.add("hidden");
+            // No real deletion happens here — UI preview only.
+        });
+
+        /* ---------- NOTIFICATIONS DROPDOWN + TOGGLE ---------- */
+        function toggleDropdown(triggerEl) {
+            const right = triggerEl.closest(".notif-right");
+            document.querySelectorAll(".notif-right.open").forEach(el => {
+                if (el !== right) el.classList.remove("open");
+            });
+            right.classList.toggle("open");
+        }
+        document.addEventListener("click", function (e) {
+            if (!e.target.closest(".notif-right")) {
+                document.querySelectorAll(".notif-right.open").forEach(el => el.classList.remove("open"));
+            }
+        });
+        function toggleSwitch(toggleEl) {
+            toggleEl.classList.toggle("active");
+            updateTriggerLabel(toggleEl.closest(".notif-row"));
+        }
+        function updateTriggerLabel(row) {
+            const active = [];
+            row.querySelectorAll(".notif-toggle-row").forEach(r => {
+                const name = r.querySelector("span").textContent.trim();
+                if (r.querySelector(".ios-toggle").classList.contains("active")) active.push(name);
+            });
+            row.querySelector(".notif-trigger-label").textContent = active.length ? active.join(", ") : "None";
+        }
+
+        /* ---------- THEME SELECTION (visual only) ---------- */
+        function selectTheme(boxEl) {
+            document.querySelectorAll(".theme-box").forEach(box => box.classList.remove("selected"));
+            boxEl.classList.add("selected");
+        }
+
+        /* ---------- COLOR MESSAGES (visual preview only, nothing saved) ---------- */
+        function applyColor(rowEl) {
+            const colorValue = rowEl.dataset.color;
+            const colorName = rowEl.dataset.name;
+
+            document.querySelectorAll(".cm-row").forEach(r => {
+                r.classList.remove("selected");
+                const btn = r.querySelector(".cm-apply-btn");
+                if (btn) btn.textContent = "Apply";
+            });
+
+            rowEl.classList.add("selected");
+            const btn = rowEl.querySelector(".cm-apply-btn");
+            if (btn) btn.textContent = "Applied";
+
+            const bubble = document.getElementById("preview-bubble");
+            bubble.style.background = colorValue;
+            bubble.style.border = (colorValue === '#2a2a2a')
+                ? '1px solid rgba(255,255,255,0.15)'
+                : 'none';
+
+            document.getElementById("preview-color-name").textContent = colorName;
+
+            showAppliedToast(colorName);
+        }
+
+        function showAppliedToast(name) {
+            let toast = document.getElementById("applied-toast");
+            if (!toast) {
+                toast = document.createElement("div");
+                toast.id = "applied-toast";
+                document.body.appendChild(toast);
+            }
+            toast.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>&nbsp;${name} selected`;
+            requestAnimationFrame(() => {
+                toast.style.opacity = "1";
+                toast.style.transform = "translateX(-50%) translateY(0)";
+            });
+            clearTimeout(toast._hideTimer);
+            toast._hideTimer = setTimeout(() => {
+                toast.style.opacity = "0";
+                toast.style.transform = "translateX(-50%) translateY(10px)";
+            }, 2000);
+        }
+    </script>
+
+    <script type="module">
+import {
+    auth, db, doc, deleteDoc, onAuthStateChanged,
+    deleteUser, EmailAuthProvider, reauthenticateWithCredential,
+    GoogleAuthProvider, reauthenticateWithPopup
+} from "{{ url_for('static', filename='js/firebase-init.js') }}";
+
+let currentUser = null;
+onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (!user) window.location.href = '/login';
+});
+
+const confirmBtn = document.getElementById('confirm-delete');
+
+confirmBtn.addEventListener('click', async () => {
+    if (!currentUser) return;
+
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Deleting...';
+
+    try {
+        await performDeletion();
+    } catch (err) {
+        if (err.code === 'auth/requires-recent-login') {
+            const ok = await reauthenticate();
+            if (ok) {
+                try {
+                    await performDeletion();
+                } catch (err2) {
+                    alert('Deletion failed after verification. Please try again.');
+                    console.error(err2);
+                }
+            } else {
+                alert('We could not verify your identity, so the account was not deleted.');
+            }
+        } else {
+            alert('Something went wrong. Please try again.');
+            console.error(err);
+        }
+    } finally {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Go ahead';
+        document.getElementById('delete-modal').classList.add('hidden');
+    }
+});
+
+async function performDeletion() {
+    // 1. Remove Firestore profile doc
+    await deleteDoc(doc(db, 'users', currentUser.uid));
+    // 2. Remove the Auth account itself
+    await deleteUser(currentUser);
+    // 3. Send them somewhere safe
+    window.location.href = '/signup';
+}
+
+async function reauthenticate() {
+    const providerId = currentUser.providerData[0]?.providerId;
+    try {
+        if (providerId === 'google.com') {
+            await reauthenticateWithPopup(currentUser, new GoogleAuthProvider());
+        } else {
+            const password = prompt('For security, please re-enter your password to confirm account deletion:');
+            if (!password) return false;
+            const cred = EmailAuthProvider.credential(currentUser.email, password);
+            await reauthenticateWithCredential(currentUser, cred);
+        }
+        return true;
+    } catch (e) {
+        console.error(e);
+        return false;
+    }
+}
+</script>
+
+</body>
+</html>

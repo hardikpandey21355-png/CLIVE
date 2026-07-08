@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plans - Upgrade Your Experience</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222222;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0f0f0;
+    --muted: rgba(255,255,255,0.5);
+    --accent-plus: #6b7cff;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    min-height: 100vh;
+    padding: 48px 20px 80px;
+  }
+
+  /* Toggle */
+  .toggle-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 48px;
+  }
+
+  .toggle {
+    background: #1e1e1e;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px;
+    display: flex;
+    gap: 2px;
+  }
+
+  .toggle button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 24px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .toggle button.active {
+    background: #2e2e2e;
+    color: var(--text);
+  }
+
+  /* Cards grid */
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: start;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 24px 32px;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+  }
+
+  /* Plus card — colorful but soft */
+  .card.plus {
+    background: linear-gradient(145deg, #1c1f5e 0%, #111430 60%, #0d0f28 100%);
+    border-color: rgba(107,124,255,0.35);
+    box-shadow: 0 0 0 1px rgba(107,124,255,0.15), 0 12px 40px rgba(107,124,255,0.12);
+  }
+
+  .badge {
+    position: absolute;
+    top: 24px;
+    right: 20px;
+    background: rgba(107,124,255,0.2);
+    border: 1px solid rgba(107,124,255,0.4);
+    color: #a0aaff;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 4px 10px;
+    border-radius: 999px;
+    text-transform: uppercase;
+  }
+
+  .plan-name {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+  }
+
+  .price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin: 12px 0 4px;
+  }
+
+  .currency {
+    font-size: 18px;
+    font-weight: 500;
+    opacity: 0.6;
+    margin-top: 4px;
+  }
+
+  .price {
+    font-size: 46px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .price-strike {
+    font-size: 22px;
+    font-weight: 500;
+    opacity: 0.35;
+    text-decoration: line-through;
+  }
+
+  .period {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    min-height: 16px;
+  }
+
+  .tagline {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  .card.plus .tagline { color: #8891e8; }
+
+  /* CTA Buttons */
+  .btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 12px 0;
+    border-radius: 999px;
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    margin-bottom: 24px;
+  }
+
+  .btn-free {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: default;
+  }
+
+  .btn-go {
+    background: #6b7cff;
+    color: #fff;
+  }
+
+  .btn-go:hover { background: #5a6bf0; }
+
+  .btn-plus {
+    background: #fff;
+    color: #111;
+  }
+
+  .btn-plus:hover { background: #e8e8e8; }
+
+  .btn-pro {
+    background: #fff;
+    color: #111;
+  }
+
+  .btn-pro:hover { background: #e8e8e8; }
+
+  .promo-note {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: -16px;
+    margin-bottom: 20px;
+  }
+
+  .promo-note a {
+    color: var(--muted);
+    text-decoration: underline;
+  }
+
+  /* Features */
+  .features-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .card.plus .features-label { color: #6b7cff; }
+
+  .feature-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+
+  .feature-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13.5px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.45;
+  }
+
+  .feature-list li::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    margin-top: 1px;
+    position: relative;
+  }
+
+  /* Checkmark via pseudo after */
+  .feature-list li {
+    position: relative;
+  }
+
+  .feature-icon {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    margin-top: 2px;
+    opacity: 0.5;
+  }
+
+  .card.plus .feature-icon { opacity: 0.9; }
+
+  /* Terms */
+  .terms-wrap {
+    max-width: 1200px;
+    margin: 56px auto 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 40px;
+  }
+
+  .terms-heading {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .terms-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 40px;
+  }
+
+  .term-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.55;
+  }
+
+  .term-dot {
+    width: 5px;
+    height: 5px;
+    min-width: 5px;
+    background: rgba(107,124,255,0.6);
+    border-radius: 50%;
+    margin-top: 7px;
+  }
+
+  .terms-footer {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .terms-contact a {
+    color: #6b7cff;
+    text-decoration: none;
+  }
+
+  .back-btn {
+    display: block;
+    margin: 36px auto 0;
+    padding: 12px 36px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: fit-content;
+  }
+
+  .back-btn:hover {
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  .modal-footnote { display:none; }
+
+  /* Divider in feature list */
+  .features-divider {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin: 8px 0 4px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .card.plus .features-divider { color: #6b7cff; }
+
+  @media (max-width: 1100px) {
+    .plans-grid { grid-template-columns: 1fr 1fr; }
+    .terms-cols { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 640px) {
+    .plans-grid { grid-template-columns: 1fr; }
+    .terms-wrap { padding: 24px 20px; }
+  }
+
+  /* Fade-in on load */
+  .plans-grid .card {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeUp 0.4s ease forwards;
+  }
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.12s; }
+  .card:nth-child(3) { animation-delay: 0.19s; }
+  .card:nth-child(4) { animation-delay: 0.26s; }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="toggle-wrap">
+  <div class="toggle">
+    <button class="active" id="btn-personal">Personal</button>
+    <button id="btn-token">Token</button>
+  </div>
+</div>
+
+<!-- ===== PERSONAL VIEW ===== -->
+<div id="view-personal">
+<div class="plans-grid">
+
+  <!-- FREE -->
+  <div class="card">
+    <p class="plan-name">Free</p>
+    <div class="price-row">
+      <span class="currency">₹</span>
+      <span class="price">0</span>
+    </div>
+    <p class="period">INR / month</p>
+    <p class="tagline">See what AI can do</p>
+    <button class="btn btn-free">Your current plan</button>
+    <p class="features-label">Includes</p>
+    <ul class="feature-list">
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Core AI model</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Limited messages and uploads</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Limited image creation</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Limited memory</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Basic study Q&A</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Chat history for 7 days</li>
+    </ul>
+  </div>
+
+  <!-- GO -->
+  <div class="card">
+    <div class="badge">Special Offer</div>
+    <p class="plan-name">Go</p>
+    <div class="price-row">
+      <span class="currency">₹</span>
+      <span class="price-strike">199</span>
+      <span class="price">29</span>
+    </div>
+    <p class="period">INR for the first 7 days</p>
+    <p class="tagline">More access to popular features</p>
+    <button class="btn btn-go" onclick="alert('Payment coming soon!')">Claim Special Offer</button>
+    <p class="promo-note"><u>Promo terms apply.</u> Promo pricing for first 7 days. Plan continues at ₹199/month. Cancel anytime. This plan may include ads.</p>
+    <p class="features-label">Includes</p>
+    <ul class="feature-list">
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>More messages per day</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>More file uploads</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>More image creation</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Longer memory</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Expanded voice mode</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>500MB storage</li>
+    </ul>
+  </div>
+
+  <!-- PLUS -->
+  <div class="card plus">
+    <p class="plan-name">Plus</p>
+    <div class="price-row">
+      <span class="currency">₹</span>
+      <span class="price">499</span>
+    </div>
+    <p class="period">INR / month (inclusive of GST)</p>
+    <p class="tagline">Unlock the full experience</p>
+    <button class="btn btn-plus" onclick="alert('Payment coming soon!')">Upgrade to Plus</button>
+    <p class="features-label">Everything in Go, and:</p>
+    <ul class="feature-list">
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Advanced AI model</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Even more messages & uploads</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Even more image creation</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Expanded memory across chats</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Deep research & agent mode</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Projects & smart context</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Image upload in chat</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Human-like chat behaviour</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>1GB storage · Valid 30 days</li>
+    </ul>
+  </div>
+
+  <!-- PRO -->
+  <div class="card">
+    <p class="plan-name">Pro</p>
+    <div class="price-row">
+      <span class="currency">₹</span>
+      <span class="price">999</span>
+    </div>
+    <p class="period">INR / month (inclusive of GST)</p>
+    <p class="tagline">Maximize your productivity</p>
+    <button class="btn btn-pro" onclick="alert('Payment coming soon!')">Upgrade to Pro</button>
+    <p class="features-label">Everything in Plus, and:</p>
+    <ul class="feature-list">
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Maximum accuracy & speed</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Unlimited messages</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Unlimited & faster image creation</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Maximum memory and context</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Expanded projects & tasks</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Early access to new features</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Priority support</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>2GB storage · Valid 30 days</li>
+    </ul>
+  </div>
+
+</div><!-- end plans-grid -->
+
+<!-- Terms -->
+<div class="terms-wrap">
+  <p class="terms-heading">Terms & Conditions</p>
+  <div class="terms-cols">
+    <div class="term-item"><div class="term-dot"></div>All plans are non-refundable once payment is confirmed and processed.</div>
+    <div class="term-item"><div class="term-dot"></div>Plan validity begins immediately upon successful payment confirmation.</div>
+    <div class="term-item"><div class="term-dot"></div>Storage limits are enforced; files exceeding your quota may be automatically deleted.</div>
+    <div class="term-item"><div class="term-dot"></div>Free plan users have chat history retention limited to 7 days from the date of conversation.</div>
+    <div class="term-item"><div class="term-dot"></div>Features, pricing, and plan specifications are subject to change without prior notice.</div>
+    <div class="term-item"><div class="term-dot"></div>All payments are processed securely through our certified payment gateway partners.</div>
+    <div class="term-item"><div class="term-dot"></div>Users are responsible for maintaining account security and password confidentiality.</div>
+    <div class="term-item"><div class="term-dot"></div>Unused plan days or storage cannot be carried forward or transferred to another account.</div>
+    <div class="term-item"><div class="term-dot"></div>Service availability is subject to our uptime policy; temporary outages may occur during maintenance.</div>
+    <div class="term-item"><div class="term-dot"></div>Abuse of service will result in immediate account suspension.</div>
+    <div class="term-item"><div class="term-dot"></div>By upgrading, you agree to our Privacy Policy and Data Processing Agreement.</div>
+    <div class="term-item"><div class="term-dot"></div>We reserve the right to modify or discontinue plans at any time without liability.</div>
+  </div>
+  <div class="terms-footer">
+    <span>By clicking "Upgrade" you agree to these terms. · Last updated: February 2026</span>
+    <span class="terms-contact">Support: <a href="tel:8218384624">82183 84624</a> · <a href="mailto:artificialintelligentclive@gmail.com">artificialintelligentclive@gmail.com</a></span>
+  </div>
+</div>
+</div><!-- end view-personal -->
+
+
+<!-- ===== TOKEN VIEW ===== -->
+<div id="view-token" style="display:none;">
+<div class="plans-grid">
+
+  <!-- FREE (same) -->
+  <div class="card">
+    <p class="plan-name">Free</p>
+    <div class="price-row">
+      <span class="currency">₹</span>
+      <span class="price">0</span>
+    </div>
+    <p class="period">INR / month</p>
+    <p class="tagline">See what AI can do</p>
+    <button class="btn btn-free">Your current plan</button>
+    <p class="features-label">Includes</p>
+    <ul class="feature-list">
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Core AI model</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Limited messages and uploads</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Limited image creation</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Limited memory</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Basic study Q&A</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Chat history for 7 days</li>
+    </ul>
+  </div>
+
+  <!-- TOKEN STARTER -->
+  <div class="card">
+    <p class="plan-name">Token</p>
+    <div class="price-row">
+      <span class="price" style="font-size:30px;">Earn it</span>
+    </div>
+    <p class="period">No payment needed</p>
+    <p class="tagline">Start collecting tokens today</p>
+    <button class="btn btn-go" onclick="alert('Referral link copied!')">Copy Referral Link</button>
+    <p class="features-label">How to earn tokens</p>
+    <ul class="feature-list">
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Refer a friend — earn <strong>50 tokens</strong> per signup</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Friend uses Clive for 1 day — earn <strong>100 bonus tokens</strong></li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>More friends = more tokens, no limit</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Track your token balance in your profile</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Tokens expire after 90 days if unused</li>
+    </ul>
+  </div>
+
+  <!-- TOKEN PLUS -->
+  <div class="card plus">
+    <p class="plan-name">Token</p>
+    <div class="price-row">
+      <span class="price" style="font-size:30px;">Earn it</span>
+    </div>
+    <p class="period">500 tokens required</p>
+    <p class="tagline">Unlock Plus for free</p>
+    <button class="btn btn-plus" onclick="alert('Redeem 500 tokens for Plus access!')">Redeem 500 Tokens</button>
+    <p class="features-label">Plus access unlocked:</p>
+    <ul class="feature-list">
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Refer 5 friends to collect 500 tokens</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Advanced AI model access</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>More messages & file uploads</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Image upload in chat</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Expanded memory across chats</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Deep research & agent mode</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>1GB storage · Valid 30 days</li>
+    </ul>
+  </div>
+
+  <!-- TOKEN PRO -->
+  <div class="card">
+    <p class="plan-name">Token</p>
+    <div class="price-row">
+      <span class="price" style="font-size:30px;">Earn it</span>
+    </div>
+    <p class="period">900 tokens required</p>
+    <p class="tagline">Unlock Pro for free</p>
+    <button class="btn btn-pro" onclick="alert('Redeem 900 tokens for Pro access!')">Redeem 900 Tokens</button>
+    <p class="features-label">Pro access unlocked:</p>
+    <ul class="feature-list">
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Refer 6+ friends to collect 900 tokens</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Maximum accuracy & speed</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Unlimited messages</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Unlimited & faster image creation</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Maximum memory and context</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Priority support</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>2GB storage · Valid 30 days</li>
+    </ul>
+  </div>
+
+</div><!-- end token plans-grid -->
+
+<!-- Token Terms -->
+<div class="terms-wrap">
+  <p class="terms-heading">Token Program Terms</p>
+  <div class="terms-cols">
+    <div class="term-item"><div class="term-dot"></div>Each referral earns 50 tokens when your friend creates a verified account.</div>
+    <div class="term-item"><div class="term-dot"></div>Earn an additional 100 tokens when your referred friend uses Clive for at least 1 full day.</div>
+    <div class="term-item"><div class="term-dot"></div>500 tokens can be redeemed for 30 days of Plus plan access.</div>
+    <div class="term-item"><div class="term-dot"></div>900 tokens can be redeemed for 30 days of Pro plan access.</div>
+    <div class="term-item"><div class="term-dot"></div>Tokens are non-transferable and hold no monetary value.</div>
+    <div class="term-item"><div class="term-dot"></div>Tokens expire 90 days after they are earned if not redeemed.</div>
+    <div class="term-item"><div class="term-dot"></div>Abuse of the referral system (fake accounts, bots) will result in token forfeiture and account suspension.</div>
+    <div class="term-item"><div class="term-dot"></div>We reserve the right to modify the token program or redemption rates at any time.</div>
+  </div>
+  <div class="terms-footer">
+    <span>Tokens are a reward program, not a currency. Clive reserves all rights. · Last updated: February 2026</span>
+    <span class="terms-contact">Support: <a href="tel:8218384624">82183 84624</a> · <a href="mailto:artificialintelligentclive@gmail.com">artificialintelligentclive@gmail.com</a></span>
+  </div>
+</div>
+</div><!-- end view-token -->
+
+
+<button class="back-btn" onclick="window.history.back()">← Back</button>
+
+<script>
+  const btnPersonal = document.getElementById('btn-personal');
+  const btnToken = document.getElementById('btn-token');
+  const viewPersonal = document.getElementById('view-personal');
+  const viewToken = document.getElementById('view-token');
+
+  btnPersonal.addEventListener('click', function() {
+    btnPersonal.classList.add('active');
+    btnToken.classList.remove('active');
+    viewPersonal.style.display = 'block';
+    viewToken.style.display = 'none';
+  });
+
+  btnToken.addEventListener('click', function() {
+    btnToken.classList.add('active');
+    btnPersonal.classList.remove('active');
+    viewToken.style.display = 'block';
+    viewPersonal.style.display = 'none';
+  });
+</script>
+</body>
+</html>
