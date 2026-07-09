@@ -27,7 +27,12 @@
     mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, black 0%, black 40%, transparent 100%);
 
-    transition: left 0.35s ease;
+transition: left 0.35s ease;
+    display: none; /* hidden until chat mode actually starts */
+}
+
+.chat-top-blur.chat-active {
+    display: block;
 }
 
 /* Shift right along with the chat area when sidebar expands */
@@ -51,8 +56,13 @@
     padding: 90px 20px 20px;
     z-index: 1;
     scrollbar-width: thin;
-    scrollbar-color: #333 transparent;
+scrollbar-color: #333 transparent;
     transition: left 0.35s ease;
+    display: none; /* hidden until chat mode actually starts */
+}
+
+.chat-messages-area.chat-active {
+    display: flex;
 }
 
 .chat-messages-area::-webkit-scrollbar { width: 4px; }

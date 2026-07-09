@@ -13,6 +13,12 @@
             d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
         </svg>
       </button>
+
+      <!-- Active input feature badge — e.g. "Create image" when Imagine mode is active -->
+      <span class="input-feature-badge" id="inputFeatureBadge">
+        <span class="input-feature-badge-icon" id="inputFeatureBadgeIcon"></span>
+        <span class="input-feature-badge-text" id="inputFeatureBadgeText"></span>
+      </span>
       <!-- IT'S SCRIPT START'S FROM LINE 305 I DON'T KNOW WHY BECAUSE WHEN I PASTE THAT I HERE IT WAS NOT WORKING -->
       <!--=======================================================================-->
 
@@ -229,6 +235,33 @@ messageInput.addEventListener('keydown', function(e) {
 .input-field::-webkit-scrollbar-thumb:hover { background: #555; }
 .input-field::placeholder { color: #888; }
 
+/* Active input feature badge (e.g. "Create image") */
+.input-feature-badge {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    color: #5b9bd5;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    flex-shrink: 0;
+    align-self: center;
+    padding: 0 6px 0 8px;
+    white-space: nowrap;
+}
+.input-feature-badge.active {
+    display: inline-flex;
+}
+.input-feature-badge-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.input-feature-badge-icon svg {
+    width: 17px;
+    height: 17px;
+}
+
 /* Right side group (mic + send) */
 .right-icons {
     display: flex;
@@ -312,10 +345,43 @@ messageInput.addEventListener('keydown', function(e) {
 <!-- ============================== JS BEHAVIOR ============================== -->
 <!--=======================================================================-->
 <script>
+/* --- Active input feature (e.g. Imagine's "Create image" badge) --- */
+let activeInputFeature = null;
+
+function activateInputFeature(key, label, iconSVG) {
+    activeInputFeature = key;
+    const badge = document.getElementById('inputFeatureBadge');
+    document.getElementById('inputFeatureBadgeIcon').innerHTML = iconSVG;
+    document.getElementById('inputFeatureBadgeText').textContent = label;
+    badge.classList.add('active');
+    messageInput.focus();
+}
+
+function clearInputFeature() {
+    const previous = activeInputFeature;
+    activeInputFeature = null;
+    document.getElementById('inputFeatureBadge').classList.remove('active');
+    return previous;
+}
+
+window.activateInputFeature = activateInputFeature;
+window.clearInputFeature = clearInputFeature;
+
 /* Auto-grow the textarea height as the user types multi-line text */
 const messageInput = document.getElementById('messageInput');
 const inputWrapper  = document.getElementById('inputWrapper');
 let hasMovedToBottom = false;
+
+messageInput.addEventListener('focus', function() {
+    if (window.fadeOutBackgroundVideo) window.fadeOutBackgroundVideo();
+});
+
+messageInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Backspace' && messageInput.value === '' && activeInputFeature) {
+        const feature = clearInputFeature();
+        if (feature === 'imagine' && window.closeImagineMode) window.closeImagineMode();
+    }
+});
 
 messageInput.addEventListener('input', function() {
     this.style.height = 'auto';
@@ -330,6 +396,13 @@ messageInput.addEventListener('input', function() {
 
 // Hides the landing-state elements and reveals the chat actions bar
 function enterChatMode() {
+    if (window.closeImagineMode) window.closeImagineMode();
+
+    const chatTopBlur     = document.querySelector('.chat-top-blur');
+    const chatMessagesArea = document.getElementById('chatMessagesArea');
+    if (chatTopBlur)      chatTopBlur.classList.add('chat-active');
+    if (chatMessagesArea) chatMessagesArea.classList.add('chat-active');
+
     const cliveTitle    = document.getElementById('cliveTitle');
     const quickActions  = document.getElementById('quickActions');
     const offersSection = document.getElementById('offersSection');

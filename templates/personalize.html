@@ -31,8 +31,16 @@
     }
 
     /* ===========================================
-       BACK BUTTON — TOP LEFT
+       TOP BAR — back button + save status
        =========================================== */
+    .top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 28px;
+        gap: 12px;
+    }
+
     .top-back {
         display: flex;
         align-items: center;
@@ -40,10 +48,10 @@
         color: #5b9bd5;
         font-size: 14px;
         cursor: pointer;
-        margin-bottom: 28px;
         width: fit-content;
         background: none;
         border: none;
+        transition: color 0.2s;
     }
 
     .top-back:hover {
@@ -53,6 +61,57 @@
     .top-back svg {
         width: 16px;
         height: 16px;
+        transition: transform 0.2s;
+    }
+
+    .top-back:hover svg {
+        transform: translateX(-2px);
+    }
+
+    /* Save status pill */
+    .save-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12.5px;
+        color: #555;
+        opacity: 0;
+        transform: translateY(-2px);
+        transition: opacity 0.25s ease, transform 0.25s ease, color 0.25s ease;
+        white-space: nowrap;
+    }
+
+    .save-status.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .save-status .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #444;
+        flex-shrink: 0;
+        transition: background 0.25s ease;
+    }
+
+    .save-status.saving .dot {
+        background: #e0a52b;
+        animation: pulseDot 0.9s ease-in-out infinite;
+    }
+
+    .save-status.saved {
+        color: #4fae6b;
+    }
+
+    .save-status.saved .dot {
+        background: #4fae6b;
+        animation: none;
+    }
+
+    @keyframes pulseDot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(0.75); }
     }
 
     /* ===========================================
@@ -64,6 +123,7 @@
         color: #fff;
         margin-top: 32px;
         margin-bottom: 6px;
+        letter-spacing: -0.01em;
     }
 
     .section-head:first-of-type {
@@ -91,9 +151,16 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 14px 0;
+        padding: 14px 10px;
+        margin: 0 -10px;
         border-bottom: 1px solid #222;
+        border-radius: 8px;
         position: relative;
+        transition: background 0.15s ease;
+    }
+
+    .dropdown-row:hover {
+        background: rgba(255,255,255,0.02);
     }
 
     .dropdown-row-label {
@@ -107,6 +174,13 @@
         gap: 6px;
         cursor: pointer;
         user-select: none;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: background 0.15s ease;
+    }
+
+    .dropdown-trigger:hover {
+        background: rgba(255,255,255,0.05);
     }
 
     .dropdown-trigger span {
@@ -130,7 +204,7 @@
         display: none;
         position: absolute;
         top: calc(100% + 4px);
-        right: 0;
+        right: 10px;
         background: #1e1e1e;
         border: 1px solid #333;
         border-radius: 10px;
@@ -138,6 +212,12 @@
         z-index: 100;
         overflow: hidden;
         box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+        animation: menuIn 0.15s ease;
+    }
+
+    @keyframes menuIn {
+        from { opacity: 0; transform: translateY(-4px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 
     .dropdown-row.open .dropdown-menu {
@@ -180,7 +260,7 @@
         color: #fff;
         font-family: Arial, sans-serif;
         outline: none;
-        transition: border-color 0.2s;
+        transition: border-color 0.2s, box-shadow 0.2s;
         margin-bottom: 20px;
     }
 
@@ -190,6 +270,7 @@
 
     .input-field:focus {
         border-color: #5b9bd5;
+        box-shadow: 0 0 0 3px rgba(91, 155, 213, 0.12);
     }
 
     textarea.input-field {
@@ -216,6 +297,7 @@
     .memory-header-left h3 {
         font-size: 18px;
         font-weight: 600;
+        letter-spacing: -0.01em;
     }
 
     .info-icon {
@@ -229,6 +311,12 @@
         font-size: 11px;
         color: #555;
         cursor: pointer;
+        transition: border-color 0.2s, color 0.2s;
+    }
+
+    .info-icon:hover {
+        border-color: #888;
+        color: #aaa;
     }
 
     .manage-btn {
@@ -239,11 +327,12 @@
         border-radius: 50px;
         font-size: 14px;
         cursor: pointer;
-        transition: background 0.2s;
+        transition: background 0.2s, border-color 0.2s;
     }
 
     .manage-btn:hover {
         background: #3a3a3a;
+        border-color: #4a4a4a;
     }
 
     /* ===========================================
@@ -253,8 +342,15 @@
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        padding: 14px 0;
+        padding: 14px 10px;
+        margin: 0 -10px;
         border-bottom: 1px solid #222;
+        border-radius: 8px;
+        transition: background 0.15s ease;
+    }
+
+    .toggle-row:hover {
+        background: rgba(255,255,255,0.02);
     }
 
     .toggle-row-left {
@@ -323,27 +419,47 @@
     .advanced-header {
         display: flex;
         align-items: center;
-        gap: 8px;
+        justify-content: space-between;
         cursor: pointer;
         user-select: none;
-        padding: 8px 0;
+        padding: 8px 4px;
+        border-radius: 8px;
+        transition: background 0.15s ease;
+    }
+
+    .advanced-header:hover {
+        background: rgba(255,255,255,0.02);
     }
 
     .advanced-header h3 {
         font-size: 18px;
         font-weight: 600;
         color: #fff;
+        letter-spacing: -0.01em;
     }
 
-    .advanced-header svg {
-        width: 16px;
-        height: 16px;
-        color: #777;
-        transition: transform 0.25s;
+    .advanced-header-icon {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #1a1a1a;
+        border: 1px solid #2e2e2e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
     }
 
-    .advanced-header.open svg {
+    .advanced-header-icon svg {
+        width: 13px;
+        height: 13px;
+        color: #888;
+        transition: transform 0.25s ease;
+    }
+
+    .advanced-header.open .advanced-header-icon svg {
         transform: rotate(180deg);
+        color: #5b9bd5;
     }
 
     .advanced-body {
@@ -352,6 +468,12 @@
 
     .advanced-body.open {
         display: block;
+        animation: fadeDown 0.2s ease;
+    }
+
+    @keyframes fadeDown {
+        from { opacity: 0; transform: translateY(-4px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
 
     /* ===========================================
@@ -384,12 +506,13 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        transition: background 0.2s ease;
+        transition: background 0.2s ease, transform 0.15s ease;
         box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
     .back-btn:hover {
         background: #2664d7a8;
+        transform: translateY(-1px);
     }
 
     .back-btn svg {
@@ -403,13 +526,19 @@
 
 <div class="page">
 
-    <!-- TOP BACK -->
-    <button class="top-back" onclick="window.location.href='/';">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-        </svg>
-        Back to Home Page
-    </button>
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <button class="top-back" onclick="window.location.href='/';">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back to Home Page
+        </button>
+        <div class="save-status" id="saveStatus">
+            <span class="dot"></span>
+            <span id="saveStatusText">Saved</span>
+        </div>
+    </div>
 
     <!-- =====================
          BASE STYLE AND TONE
@@ -420,7 +549,7 @@
     <div class="dropdown-row" id="style-row">
         <div class="dropdown-row-label">Style</div>
         <div class="dropdown-trigger" onclick="openDropdown('style-row')">
-            <span class="dropdown-val">Default</span>
+            <span class="dropdown-val" id="style-val">Default</span>
             <svg viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </div>
         <div class="dropdown-menu">
@@ -440,7 +569,7 @@
     <div class="dropdown-row" id="warm-row">
         <div class="dropdown-row-label">Warm</div>
         <div class="dropdown-trigger" onclick="openDropdown('warm-row')">
-            <span class="dropdown-val">Default</span>
+            <span class="dropdown-val" id="warm-val">Default</span>
             <svg viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </div>
         <div class="dropdown-menu">
@@ -453,7 +582,7 @@
     <div class="dropdown-row" id="enthusiastic-row">
         <div class="dropdown-row-label">Enthusiastic</div>
         <div class="dropdown-trigger" onclick="openDropdown('enthusiastic-row')">
-            <span class="dropdown-val">Default</span>
+            <span class="dropdown-val" id="enthusiastic-val">Default</span>
             <svg viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </div>
         <div class="dropdown-menu">
@@ -466,7 +595,7 @@
     <div class="dropdown-row" id="headers-row">
         <div class="dropdown-row-label">Headers & Lists</div>
         <div class="dropdown-trigger" onclick="openDropdown('headers-row')">
-            <span class="dropdown-val">Default</span>
+            <span class="dropdown-val" id="headers-val">Default</span>
             <svg viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </div>
         <div class="dropdown-menu">
@@ -479,7 +608,7 @@
     <div class="dropdown-row" id="emoji-row">
         <div class="dropdown-row-label">Emoji</div>
         <div class="dropdown-trigger" onclick="openDropdown('emoji-row')">
-            <span class="dropdown-val">Default</span>
+            <span class="dropdown-val" id="emoji-val">Default</span>
             <svg viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </div>
         <div class="dropdown-menu">
@@ -493,7 +622,7 @@
          CUSTOM INSTRUCTIONS
          ===================== -->
     <div class="section-head" style="margin-top:28px;">Custom instructions</div>
-    <textarea class="input-field" placeholder="Tell Clive how you'd like it to behave, its tone, or any other preferences…"></textarea>
+    <textarea class="input-field" id="customInstructions" placeholder="Tell Clive how you'd like it to behave, its tone, or any other preferences…"></textarea>
 
     <!-- =====================
          ABOUT YOU
@@ -503,13 +632,13 @@
     <hr class="divider" style="margin-top:0; margin-bottom:20px;">
 
     <label class="input-label">Nickname</label>
-    <input type="text" class="input-field" placeholder="What should Clive call you?">
+    <input type="text" class="input-field" id="nickname" placeholder="What should Clive call you?">
 
     <label class="input-label">Occupation</label>
-    <input type="text" class="input-field" placeholder="What do you do for a living?">
+    <input type="text" class="input-field" id="occupation" placeholder="What do you do for a living?">
 
     <label class="input-label">More about you</label>
-    <textarea class="input-field" placeholder="Anything else Clive should keep in mind about you…"></textarea>
+    <textarea class="input-field" id="aboutMore" placeholder="Anything else Clive should keep in mind about you…"></textarea>
 
     <!-- =====================
          MEMORY
@@ -529,7 +658,7 @@
             <div class="toggle-row-title">Remember past conversations</div>
             <div class="toggle-row-desc">Let Clive hold onto memories so it can learn and improve over time.</div>
         </div>
-        <div class="big-toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+        <div class="big-toggle active" id="toggle-rememberPast" onclick="toggleSetting(this, 'rememberPast')"><div class="thumb"></div></div>
     </div>
 
     <div class="toggle-row">
@@ -537,7 +666,7 @@
             <div class="toggle-row-title">Use recent chat context</div>
             <div class="toggle-row-desc">Allow Clive to look back at your recent chats while answering.</div>
         </div>
-        <div class="big-toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+        <div class="big-toggle active" id="toggle-recentContext" onclick="toggleSetting(this, 'recentContext')"><div class="thumb"></div></div>
     </div>
 
     <p style="font-size:13px; color:#555; margin-top:14px; line-height:1.5;">
@@ -545,26 +674,28 @@
     </p>
 
     <!-- =====================
-         ADVANCED (collapsible)
+         ADVANCED (collapsible — closed by default)
          ===================== -->
     <hr class="divider">
 
     <div class="advanced-header" id="advHeader" onclick="toggleAdvanced()">
         <h3>Advanced</h3>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 9l6 6 6-6"/>
-        </svg>
+        <div class="advanced-header-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6"/>
+            </svg>
+        </div>
     </div>
     <hr class="divider" style="margin-top:0;">
 
-    <div class="advanced-body open" id="advBody">
+    <div class="advanced-body" id="advBody">
 
         <div class="toggle-row">
             <div class="toggle-row-left">
                 <div class="toggle-row-title">Web search</div>
                 <div class="toggle-row-desc">Let Clive browse the internet to find up-to-date answers for you.</div>
             </div>
-            <div class="big-toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+            <div class="big-toggle active" id="toggle-webSearch" onclick="toggleSetting(this, 'webSearch')"><div class="thumb"></div></div>
         </div>
 
         <div class="toggle-row">
@@ -572,7 +703,7 @@
                 <div class="toggle-row-title">Code</div>
                 <div class="toggle-row-desc">Allow Clive to write and run code when needed.</div>
             </div>
-            <div class="big-toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+            <div class="big-toggle active" id="toggle-code" onclick="toggleSetting(this, 'code')"><div class="thumb"></div></div>
         </div>
 
         <div class="toggle-row">
@@ -580,7 +711,7 @@
                 <div class="toggle-row-title">Canvas</div>
                 <div class="toggle-row-desc">Work together with Clive on documents, text, and code in real time.</div>
             </div>
-            <div class="big-toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+            <div class="big-toggle active" id="toggle-canvas" onclick="toggleSetting(this, 'canvas')"><div class="thumb"></div></div>
         </div>
 
         <div class="toggle-row">
@@ -588,7 +719,7 @@
                 <div class="toggle-row-title">Clive Voice</div>
                 <div class="toggle-row-desc">Turn on voice mode so you can talk to Clive out loud.</div>
             </div>
-            <div class="big-toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+            <div class="big-toggle active" id="toggle-voiceMode" onclick="toggleSetting(this, 'voiceMode')"><div class="thumb"></div></div>
         </div>
 
         <div class="toggle-row">
@@ -596,7 +727,7 @@
                 <div class="toggle-row-title">Advanced voice</div>
                 <div class="toggle-row-desc">Make conversations with Clive sound more natural and fluid.</div>
             </div>
-            <div class="big-toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+            <div class="big-toggle active" id="toggle-advancedVoice" onclick="toggleSetting(this, 'advancedVoice')"><div class="thumb"></div></div>
         </div>
 
         <div class="toggle-row" style="border-bottom:none;">
@@ -604,7 +735,7 @@
                 <div class="toggle-row-title">Connector search</div>
                 <div class="toggle-row-desc">Let Clive pull answers from your connected apps and sources.</div>
             </div>
-            <div class="big-toggle active" onclick="this.classList.toggle('active')"><div class="thumb"></div></div>
+            <div class="big-toggle active" id="toggle-connectorSearch" onclick="toggleSetting(this, 'connectorSearch')"><div class="thumb"></div></div>
         </div>
 
     </div><!-- end advanced-body -->
@@ -625,50 +756,139 @@
 <!-- ===========================================
      SCRIPTS
      =========================================== -->
-<script>
-    /* --- DROPDOWN OPEN/CLOSE --- */
-    function openDropdown(rowId) {
-        const row = document.getElementById(rowId);
-        // Close all others
-        document.querySelectorAll(".dropdown-row.open").forEach(el => {
-            if (el.id !== rowId) el.classList.remove("open");
+<script type="module">
+import { auth, onAuthStateChanged, db, doc, getDoc, setDoc } from "{{ url_for('static', filename='js/firebase-init.js') }}";
+
+let currentUser = null;
+let saveTimer = null;
+let statusHideTimer = null;
+
+const DROPDOWN_KEYS = ['style', 'warm', 'enthusiastic', 'headers', 'emoji'];
+const TOGGLE_KEYS = ['rememberPast', 'recentContext', 'webSearch', 'code', 'canvas', 'voiceMode', 'advancedVoice', 'connectorSearch'];
+
+/* --- LOAD saved settings on auth --- */
+onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    currentUser = user;
+    try {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        if (!snap.exists()) return;
+        const data = snap.data();
+        const p = data.personalize || {};
+
+        DROPDOWN_KEYS.forEach(key => setDropdownDisplay(key, p[key] || 'Default'));
+
+        document.getElementById('customInstructions').value = p.customInstructions || '';
+        document.getElementById('nickname').value   = p.nickname   || data.name       || '';
+        document.getElementById('occupation').value = p.occupation || data.occupation || '';
+        document.getElementById('aboutMore').value   = p.aboutMore || '';
+
+        TOGGLE_KEYS.forEach(key => {
+            const el = document.getElementById('toggle-' + key);
+            if (!el) return;
+            el.classList.toggle('active', p[key] !== undefined ? p[key] : true);
         });
-        row.classList.toggle("open");
+    } catch (err) {
+        console.error('Failed to load personalization settings:', err);
     }
+});
 
-    // Close on outside click
-    document.addEventListener("click", function(e) {
-        if (!e.target.closest(".dropdown-row")) {
-            document.querySelectorAll(".dropdown-row.open").forEach(el => el.classList.remove("open"));
-        }
+function setDropdownDisplay(key, value) {
+    const row = document.getElementById(key + '-row');
+    const valEl = document.getElementById(key + '-val');
+    if (!row || !valEl) return;
+    valEl.textContent = value;
+    row.querySelectorAll('.dropdown-option').forEach(o => {
+        o.classList.toggle('selected', o.textContent.trim() === value);
     });
+}
 
-    /* --- PICK OPTION --- */
-    function pickOption(optionEl, value) {
-        const menu   = optionEl.closest(".dropdown-menu");
-        const row    = optionEl.closest(".dropdown-row");
-        const valEl  = row.querySelector(".dropdown-val");
+/* --- SAVE STATUS UI --- */
+function showSaving() {
+    const el = document.getElementById('saveStatus');
+    clearTimeout(statusHideTimer);
+    el.classList.remove('saved');
+    el.classList.add('show', 'saving');
+    document.getElementById('saveStatusText').textContent = 'Saving…';
+}
+function showSaved() {
+    const el = document.getElementById('saveStatus');
+    el.classList.remove('saving');
+    el.classList.add('show', 'saved');
+    document.getElementById('saveStatusText').textContent = 'Saved';
+    clearTimeout(statusHideTimer);
+    statusHideTimer = setTimeout(() => el.classList.remove('show'), 1800);
+}
 
-        // Deselect all, select this one
-        menu.querySelectorAll(".dropdown-option").forEach(o => o.classList.remove("selected"));
-        optionEl.classList.add("selected");
+/* --- SAVE (debounced) --- */
+function queueSave(partial) {
+    if (!currentUser) return;
+    showSaving();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+        try {
+            await setDoc(doc(db, 'users', currentUser.uid), { personalize: partial }, { merge: true });
+            showSaved();
+        } catch (err) {
+            console.error('Failed to save personalization settings:', err);
+        }
+    }, 500);
+}
+function saveField(key, value) { queueSave({ [key]: value }); }
 
-        // Update label
-        valEl.textContent = value;
+/* --- TOGGLES --- */
+function toggleSetting(el, key) {
+    el.classList.toggle('active');
+    saveField(key, el.classList.contains('active'));
+}
+window.toggleSetting = toggleSetting;
 
-        // Close dropdown
-        row.classList.remove("open");
+/* --- DROPDOWN OPEN/CLOSE --- */
+function openDropdown(rowId) {
+    const row = document.getElementById(rowId);
+    document.querySelectorAll(".dropdown-row.open").forEach(el => {
+        if (el.id !== rowId) el.classList.remove("open");
+    });
+    row.classList.toggle("open");
+}
+window.openDropdown = openDropdown;
+
+document.addEventListener("click", function(e) {
+    if (!e.target.closest(".dropdown-row")) {
+        document.querySelectorAll(".dropdown-row.open").forEach(el => el.classList.remove("open"));
     }
+});
 
-    /* --- ADVANCED COLLAPSIBLE --- */
-    function toggleAdvanced() {
-        const header = document.getElementById("advHeader");
-        const body   = document.getElementById("advBody");
-        header.classList.toggle("open");
-        body.classList.toggle("open");
-    }
-    // Start expanded — add .open to header
-    document.getElementById("advHeader").classList.add("open");
+/* --- PICK OPTION --- */
+function pickOption(optionEl, value) {
+    const menu   = optionEl.closest(".dropdown-menu");
+    const row    = optionEl.closest(".dropdown-row");
+    const valEl  = row.querySelector(".dropdown-val");
+
+    menu.querySelectorAll(".dropdown-option").forEach(o => o.classList.remove("selected"));
+    optionEl.classList.add("selected");
+
+    valEl.textContent = value;
+    row.classList.remove("open");
+
+    saveField(row.id.replace('-row', ''), value);
+}
+window.pickOption = pickOption;
+
+/* --- TEXT FIELDS: save on blur --- */
+['customInstructions', 'nickname', 'occupation', 'aboutMore'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('blur', () => saveField(id, el.value));
+});
+
+/* --- ADVANCED COLLAPSIBLE (closed by default) --- */
+function toggleAdvanced() {
+    const header = document.getElementById("advHeader");
+    const body   = document.getElementById("advBody");
+    header.classList.toggle("open");
+    body.classList.toggle("open");
+}
+window.toggleAdvanced = toggleAdvanced;
 </script>
 
 </body>

@@ -1616,3 +1616,224 @@ body {
     justify-content: center;
 }
 /* ====================================================================== */
+
+
+
+.project-title-indicator {
+    display: none;
+    position: fixed;
+    top: 22px;
+    left: 90px;
+    z-index: 50;
+    align-items: center;
+    gap: 8px;
+    color: #e5e5e5;
+    font-size: 15px;
+    font-family: Arial, sans-serif;
+    font-weight: 500;
+}
+.project-title-indicator svg {
+    width: 17px;
+    height: 17px;
+    color: #e5e5e5;
+    flex-shrink: 0;
+}
+
+
+
+.folder-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                visibility 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.folder-popup-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.folder-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.94) translateY(6px);
+    width: 90%;
+    max-width: 420px;
+    max-height: 70vh;
+    background: #1f1f1f;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 24px;
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                visibility 0.4s;
+}
+.folder-popup.show {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) scale(1) translateY(0);
+}
+
+.folder-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.folder-popup-header h3 {
+    font-size: 16px;
+    font-weight: 500;
+    color: #ededed;
+    margin: 0;
+    letter-spacing: -0.1px;
+}
+.folder-popup-close {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-radius: 50%;
+    color: #999999;
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.folder-popup-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+.folder-popup-close:active { transform: scale(0.88); }
+
+.folder-popup-count {
+    font-size: 12.5px;
+    font-weight: 400;
+    color: #8a8a8a;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    letter-spacing: 0.1px;
+}
+
+.folder-resource-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    overflow-y: auto;
+    margin-bottom: 18px;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: #3a3a3a transparent;
+}
+.folder-resource-list::-webkit-scrollbar { width: 5px; }
+.folder-resource-list::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+.folder-resource-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #262626;
+    border: 1px solid #303030;
+    border-radius: 12px;
+    transition: background 0.25s ease, border-color 0.25s ease;
+    opacity: 0;
+    animation: resourceItemIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.folder-resource-item:hover {
+    background: #2b2b2b;
+    border-color: #3f3f3f;
+}
+@keyframes resourceItemIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.folder-resource-icon {
+    width: 17px;
+    height: 17px;
+    color: #7d7d7d;
+    flex-shrink: 0;
+}
+.folder-resource-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+    font-weight: 400;
+    color: #dcdcdc;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    letter-spacing: 0.1px;
+}
+.folder-resource-remove {
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    color: #7d7d7d;
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    flex-shrink: 0;
+}
+.folder-resource-remove:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+.folder-resource-remove:active { transform: scale(0.85); }
+
+.folder-empty-text {
+    font-size: 13px;
+    font-weight: 400;
+    color: #6b6b6b;
+    text-align: center;
+    padding: 26px 0;
+    letter-spacing: 0.1px;
+}
+
+.folder-add-btn {
+    padding: 11px;
+    background: #ffffff;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 500;
+    letter-spacing: 0.1px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.25s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.folder-add-btn:hover:not(:disabled) {
+    background: #e8e8e8;
+    transform: translateY(-1px);
+}
+.folder-add-btn:active:not(:disabled) { transform: translateY(0) scale(0.97); }
+.folder-add-btn:disabled {
+    background: #2e2e2e;
+    color: #737373;
+    cursor: not-allowed;
+}
+

@@ -299,7 +299,7 @@
         </div>
 
         <div class="default-grid">
-            <div class="vid-card default-card active" id="card_default" onclick="pickBackground(this, 'Default')">
+            <div class="vid-card default-card active" id="card_default" data-file="MainBackGround.mp4" onclick="pickBackground(this, 'Default')">
                 <div class="vid-thumb">
                     <video class="thumb-vid" muted loop preload="metadata">
                         <source src="{{ url_for('static', filename='videos/MainBackGround.mp4') }}" type="video/mp4">
@@ -325,7 +325,7 @@
 
         <div class="free-grid">
 
-            <div class="vid-card" id="card_free1" onclick="pickBackground(this, 'Free 1')">
+            <div class="vid-card" id="card_free1" data-file="free1.mp4" onclick="pickBackground(this, 'Free 1')">
                 <div class="vid-thumb">
                     <video class="thumb-vid" muted loop preload="metadata">
                         <source src="{{ url_for('static', filename='videos/free1.mp4') }}" type="video/mp4">
@@ -340,7 +340,7 @@
                 <span class="vid-name">Free 1</span>
             </div>
 
-            <div class="vid-card" id="card_free2" onclick="pickBackground(this, 'Free 2')">
+            <div class="vid-card" id="card_free2" data-file="free2.mp4" onclick="pickBackground(this, 'Free 2')">
                 <div class="vid-thumb">
                     <video class="thumb-vid" muted loop preload="metadata">
                         <source src="{{ url_for('static', filename='videos/free2.mp4') }}" type="video/mp4">
@@ -491,12 +491,38 @@
             card.addEventListener('mouseleave', () => { video.pause(); video.currentTime = 0; });
         });
 
-        /* ── Pick a background — visual only, nothing is saved ── */
-        function pickBackground(cardEl, label) {
-            document.querySelectorAll('.vid-card').forEach(c => c.classList.remove('active'));
-            cardEl.classList.add('active');
-            showToast(label + ' selected', false);
+        
+/* ── Pick a background — saved so Home Page knows what to play ── */
+const BG_STORAGE_KEY = 'clive_bg_video_choice';
+
+function pickBackground(cardEl, label) {
+    document.querySelectorAll('.vid-card').forEach(c => c.classList.remove('active'));
+    cardEl.classList.add('active');
+
+    const file = cardEl.dataset.file;
+    if (file) {
+        const previous = localStorage.getItem(BG_STORAGE_KEY);
+        localStorage.setItem(BG_STORAGE_KEY, file);
+
+        // If the choice actually changed, let it play once more on next visit
+        if (previous !== file) {
+            sessionStorage.removeItem('clive_bg_video_played');
         }
+    }
+
+    showToast(label + ' selected', false);
+}
+
+/* ── Restore active card from a previous visit ── */
+function restoreSavedBackground() {
+    const saved = localStorage.getItem(BG_STORAGE_KEY);
+    if (!saved) return;
+    const match = document.querySelector(`.vid-card[data-file="${saved}"]`);
+    if (!match) return;
+    document.querySelectorAll('.vid-card').forEach(c => c.classList.remove('active'));
+    match.classList.add('active');
+}
+restoreSavedBackground();
 
         /* ── Clicking a locked Premium card — visual only, no navigation ── */
         function lockedClick(cardEl) {

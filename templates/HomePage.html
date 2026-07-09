@@ -10,6 +10,82 @@
 
 <body>
     <!--=======================================================================-->
+    <!-- Background Video Layer — plays the video chosen on the Background page -->
+    <video id="bgVideo" class="bg-video" muted playsinline></video>
+    <style>
+    .bg-video {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        object-fit: cover;
+        z-index: -1;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 1.2s ease;
+    }
+    .bg-video.bg-video-visible { opacity: 1; }
+    </style>
+    <script>
+    (function() {
+    const STORAGE_KEY = 'clive_bg_video_choice';
+    const SESSION_KEY = 'clive_bg_video_played';
+    const DEFAULT_VIDEO = 'MainBackGround.mp4';
+    const FADE_MS = 1200;
+    const START_DELAY_MS = 5000;
+    const FADE_OUT_BEFORE_END_S = 3;
+    const videoEl = document.getElementById('bgVideo');
+    let endWatcher = null;
+    let startTimer = null;
+    let isScheduled = false;
+    let hasAppeared = false;
+    let stopped = false;
+    function getSelectedVideo() {
+        return localStorage.getItem(STORAGE_KEY) || DEFAULT_VIDEO;
+    }
+    function fadeOut() {
+        if (stopped || !videoEl) return;
+        stopped = true;
+        clearTimeout(startTimer);
+        clearInterval(endWatcher);
+        videoEl.classList.remove('bg-video-visible');
+        sessionStorage.setItem(SESSION_KEY, 'true');
+        setTimeout(() => { videoEl.pause(); }, FADE_MS);
+    }
+    window.fadeOutBackgroundVideo = fadeOut;
+    function watchForEnd() {
+        endWatcher = setInterval(() => {
+            if (!videoEl.duration || isNaN(videoEl.duration)) return;
+            const remaining = videoEl.duration - videoEl.currentTime;
+            if (remaining <= FADE_OUT_BEFORE_END_S) fadeOut();
+        }, 250);
+    }
+    function startVideo() {
+        if (!videoEl) return;
+        if (sessionStorage.getItem(SESSION_KEY) === 'true') return;
+        if (isScheduled) return;
+        isScheduled = true;
+        videoEl.src = '/static/videos/' + getSelectedVideo();
+        videoEl.load();
+        startTimer = setTimeout(() => {
+            if (stopped) return;
+            videoEl.play().catch(() => {});
+            videoEl.classList.add('bg-video-visible');
+            hasAppeared = true;
+            watchForEnd();
+        }, START_DELAY_MS);
+    }
+    window.addEventListener('pagehide', () => {
+        if (hasAppeared && !stopped) {
+            sessionStorage.setItem(SESSION_KEY, 'true');
+        }
+    });
+    document.addEventListener('DOMContentLoaded', startVideo);
+    })();
+    </script>
+    <!--=======================================================================-->
+
+
+    <!--=======================================================================-->
     <!-- Vertical line on the left side -->
     <div class="vertical-line"></div>
     <!--=======================================================================-->
@@ -28,6 +104,7 @@
             </svg>
         </div>
     </div>
+
     <!-- work of toggle button(expand and collapse the sidebar vertical line/area ) -->
     <script>
     let isChatModeActive = false; // NEW: tracks whether chat mode has started
@@ -43,7 +120,14 @@
     </script>
     <!-- we add the work of toggle button in this home page file because it's work is very small just to epand and collapse the sidebar -->
     <!--=======================================================================-->
+    
 
+    <div class="project-title-indicator" id="projectTitleIndicator">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+    </svg>
+    <span id="projectTitleText">working in Project</span>
+    </div>
 
     <!--=======================================================================-->
     <!-- Profile circle button -->
@@ -601,11 +685,11 @@
     <!--=======================================================================-->
     <!-- All buttons code which are below the input bar (create image, grouping , project , version) -->
     <div class="quick-actions" id="quickActions">
-    <button class="quick-btn" onclick="openImagineMode()">
+    <button class="quick-btn" onclick="openTypeMode()">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
         </svg>
-        Create Image
+        Agent Mood
     </button>
 
     <button class="quick-btn" onclick="openGroupingModal()">
@@ -631,6 +715,8 @@
     </div>
     <!-- this line of code is responsible to open grouping_modal.html file -->
     {% include "components/grouping_modal.html" %}
+    <!-- this line of code is responsible to open imagine_section.html file -->
+    {% include "components/imagine_section.html" %}
     <!--=======================================================================-->
 
 
@@ -683,16 +769,151 @@
         </svg>
         <span class="share-text">Share</span>
     </button>
-    <button class="chat-edit-btn" title="New chat" onclick="location.reload()">
+    <button class="chat-edit-btn" title="New chat" onclick="startNewChat()">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
         </svg>
     </button>
-</div>
-<!-- ==================================================================================== -->
+    <!-- So guys this is the project icon which appears when the project work is going on beside the new chat icon -->
+    <button class="chat-edit-btn" id="chatProjectBtn" title="Project resources" onclick="openFolderPopup()" style="display:none;">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+    </svg>
+    </button>
+    </div>
+    <!-- And this is the pop up which opens after clicking on folder icon to add or remove files -->
+    <div class="folder-popup-overlay" id="folderPopupOverlay"></div>
+    <div class="folder-popup" id="folderPopup">
+    <div class="folder-popup-header">
+        <h3 id="folderPopupTitle">Project Resources</h3>
+        <button class="folder-popup-close" onclick="closeFolderPopup()" aria-label="Close">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="14" height="14">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+    <div class="folder-popup-count"><span id="folderResourceCount">0</span>/5 files attached</div>
+    <div class="folder-resource-list" id="folderResourceList"></div>
+    <button class="folder-add-btn" id="folderAddBtn" onclick="triggerAddResource()">+ Add file</button>
+    <input type="file" id="folderFileInput" multiple style="display:none;">
+    </div>
+    <!-- ==================================================================================== -->
 
+    <!-- =======================================================================
+     PROJECT MODE SCRIPT
+     On page load: if a project was opened from /projects, shows the
+     "working in {name} project" label + folder icon, and puts the page
+     straight into chat mode.
+     Folder icon → opens a popup to view/add/remove the project's files
+     (max 5), synced back to localStorage for both this page and /projects.
+     "New chat" clears the active project and returns to a plain home page.
+     ======================================================================= -->
+    <script>
+    const MAX_PROJECT_RESOURCES = 5;
+     let activeProject = null;
+    document.addEventListener('DOMContentLoaded', function() {
+    const raw = localStorage.getItem('clive_active_project');
+    if (!raw) return;
+
+    try {
+        activeProject = JSON.parse(raw);
+    const titleEl = document.getElementById('projectTitleIndicator');
+    const textEl = document.getElementById('projectTitleText');
+    if (titleEl && textEl) {
+    const fullText = 'working in ' + activeProject.name + ' project';
+    const MAX_LEN = 25;
+    textEl.title = fullText; // shows full name on hover
+    textEl.textContent = fullText.length > MAX_LEN
+        ? fullText.slice(0, MAX_LEN).trimEnd() + '...'
+        : fullText;
+    titleEl.style.display = 'flex';
+    }
+        const projectBtn = document.getElementById('chatProjectBtn');
+        if (projectBtn) projectBtn.style.display = 'flex';
+    } catch (e) {}
+
+    if (typeof inputWrapper !== 'undefined') inputWrapper.classList.add('moved-to-bottom');
+    hasMovedToBottom = true;
+    if (typeof enterChatMode === 'function') enterChatMode();
+    });
+    function startNewChat() {
+    localStorage.removeItem('clive_active_project');
+    window.location.href = '/';
+    }
+    // ── Project resources popup ──
+    function persistActiveProject() {
+    if (!activeProject) return;
+    localStorage.setItem('clive_active_project', JSON.stringify(activeProject));
+    // Keep the master project list (used by /projects) in sync
+    const allProjects = JSON.parse(localStorage.getItem('clive_projects') || '[]');
+    const idx = allProjects.findIndex(p => p.id === activeProject.id);
+    if (idx !== -1) {
+        allProjects[idx].files = activeProject.resources;
+        localStorage.setItem('clive_projects', JSON.stringify(allProjects));
+    }
+    }
+    function renderFolderPopup() {
+    if (!activeProject) return;
+    document.getElementById('folderPopupTitle').textContent = activeProject.name;
+    const resources = activeProject.resources || [];
+    document.getElementById('folderResourceCount').textContent = resources.length;
+    const list = document.getElementById('folderResourceList');
+    list.innerHTML = resources.length
+    ? resources.map((r, i) => `
+        <div class="folder-resource-item" style="animation-delay: ${i * 0.04}s">
+                <svg class="folder-resource-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                </svg>
+                <span class="folder-resource-name" title="${r.name}">${r.name}</span>
+                <button class="folder-resource-remove" onclick="removeProjectResource(${i})" aria-label="Remove">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="14" height="14">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>`).join('')
+        : '<div class="folder-empty-text">No resources attached yet.</div>';
+
+    const atLimit = resources.length >= MAX_PROJECT_RESOURCES;
+    const addBtn = document.getElementById('folderAddBtn');
+    addBtn.disabled = atLimit;
+    addBtn.textContent = atLimit ? 'Limit reached (5/5)' : '+ Add file';
+    }
+    function openFolderPopup() {
+    if (!activeProject) return;
+    renderFolderPopup();
+    document.getElementById('folderPopup').classList.add('show');
+    document.getElementById('folderPopupOverlay').classList.add('show');
+    } 
+    function closeFolderPopup() {
+    document.getElementById('folderPopup').classList.remove('show');
+    document.getElementById('folderPopupOverlay').classList.remove('show');
+    }
+    function removeProjectResource(index) {
+    activeProject.resources.splice(index, 1);
+    persistActiveProject();
+    renderFolderPopup();
+    }
+    function triggerAddResource() {
+    if (!activeProject || activeProject.resources.length >= MAX_PROJECT_RESOURCES) return;
+    document.getElementById('folderFileInput').click();
+    }
+    document.getElementById('folderFileInput').addEventListener('change', function(e) {
+    if (!activeProject) return;
+    const remaining = MAX_PROJECT_RESOURCES - activeProject.resources.length;
+    const incoming = Array.from(e.target.files).slice(0, remaining);
+    incoming.forEach(f => activeProject.resources.push({ name: f.name, size: f.size }));
+    persistActiveProject();
+    renderFolderPopup();
+    this.value = '';
+    });
+    document.getElementById('folderPopupOverlay').addEventListener('click', closeFolderPopup);
+    document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeFolderPopup();
+    });
+    </script>
+    <!-- ============================================================================================= -->
 
 </body>
 

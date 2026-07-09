@@ -1,0 +1,172 @@
+<!-- ============================== HTML STRUCTURE ============================== -->
+<!-- Imagine Section — swaps in over quick-actions when Imagine mode opens -->
+<div class="imagine-section" id="imagineSection">
+
+    <div class="imagine-explore-header">
+        <span class="imagine-explore-title">Explore ideas</span>
+    </div>
+
+    <div class="imagine-cards-grid">
+        <div class="imagine-card">
+            <div class="imagine-card-img">
+                <img src="static/images/idea1.jpg" alt="Idea 1">
+            </div>
+        </div>
+        <div class="imagine-card">
+            <div class="imagine-card-img">
+                <img src="static/images/idea2.jpg" alt="Idea 2">
+            </div>
+        </div>
+        <div class="imagine-card">
+            <div class="imagine-card-img">
+                <img src="static/images/idea3.jpg" alt="Idea 3">
+            </div>
+        </div>
+        <div class="imagine-card">
+            <div class="imagine-card-img">
+                <img src="static/images/idea4.jpg" alt="Idea 4">
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- ========================================================================== -->
+
+
+<!-- ============================== CSS STYLES ============================== -->
+<style>
+.imagine-section {
+    position: fixed;
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.imagine-section.show {
+    display: flex;
+}
+
+.imagine-section.visible {
+    opacity: 1;
+}
+
+.imagine-explore-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.imagine-explore-title {
+    font-family: Arial, sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: #eee;
+}
+
+.imagine-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.imagine-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.imagine-card-img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: 14px;
+    background: #232323;
+    border: 1px solid #333;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.imagine-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.imagine-card:hover .imagine-card-img {
+    border-color: #555;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 640px) {
+    .imagine-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+<!-- ========================================================================== -->
+
+
+<!-- ============================== JS BEHAVIOR ============================== -->
+<script>
+const IMAGINE_ICON_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="#5b9bd5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+
+function openImagineMode() {
+    const quickActions   = document.getElementById('quickActions');
+    const offersSection  = document.getElementById('offersSection');
+    const inputBarEl     = document.getElementById('inputBar');
+    const imagineSection = document.getElementById('imagineSection');
+    if (!imagineSection || !quickActions || !inputBarEl) return;
+    const messageInputEl = document.getElementById('messageInput');
+    if (messageInputEl) messageInputEl.placeholder = 'What is in your mind?';
+
+    // Position the ideas row exactly where quick-actions currently sits,
+    // matching the width of the real input bar
+    const topRect   = quickActions.getBoundingClientRect();
+    const widthRect = inputBarEl.getBoundingClientRect();
+
+    imagineSection.style.top = topRect.top + 'px';
+    imagineSection.style.left = (widthRect.left + widthRect.width / 2) + 'px';
+    imagineSection.style.width = widthRect.width + 'px';
+    imagineSection.style.transform = 'translateX(-50%)';
+
+    quickActions.style.display = 'none';
+    if (offersSection) offersSection.style.display = 'none';
+
+    imagineSection.classList.add('show');
+    requestAnimationFrame(() => imagineSection.classList.add('visible'));
+
+    if (window.activateInputFeature) {
+        window.activateInputFeature('imagine', 'Create image', IMAGINE_ICON_SVG);
+    }
+}
+
+function closeImagineMode() {
+    const imagineSection = document.getElementById('imagineSection');
+    if (!imagineSection) return;
+    const messageInputEl = document.getElementById('messageInput');
+    if (messageInputEl) messageInputEl.placeholder = 'What do you want to know?';
+
+    imagineSection.classList.remove('visible');
+    setTimeout(() => imagineSection.classList.remove('show'), 300);
+
+    // Only bring the quick actions / offer cards back if the user hasn't
+    // already moved into chat mode — otherwise those stay hidden for good.
+    // (Previously this ran unconditionally, so a stray backspace after
+    // deleting the "Create image" badge text would incorrectly bring the
+    // quick actions and offer cards back even mid-chat.)
+    if (typeof hasMovedToBottom === 'undefined' || !hasMovedToBottom) {
+        const quickActions  = document.getElementById('quickActions');
+        const offersSection = document.getElementById('offersSection');
+        if (quickActions)  quickActions.style.display = 'flex';
+        if (offersSection) offersSection.style.display = 'block';
+    }
+}
+
+window.openImagineMode  = openImagineMode;
+window.closeImagineMode = closeImagineMode;
+</script>
+<!-- ========================================================================== -->

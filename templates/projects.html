@@ -706,6 +706,62 @@
             .projects-grid {
                 grid-template-columns: 1fr;
             }        }
+
+            .project-card-resources {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.resource-chip {
+    max-width: 130px;
+    background-color: #2f2f2f;
+    border: 1px solid #3a3a3a;
+    border-radius: 7px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: #cfcfcf;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.resource-chip.more-chip {
+    color: #9ca3af;
+    font-weight: 500;
+}
+.project-card-no-resources {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #5a5a5a;
+    font-style: italic;
+}
+
+
+.project-card {
+    position: relative; /* needed so the delete button can sit top-right */
+}
+.project-card-delete {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-radius: 8px;
+    color: #8a8a8a;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    z-index: 2;
+}
+.project-card-delete svg { width: 15px; height: 15px; }
+.project-card-delete:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
     </style>
 </head>
 <body>
@@ -887,9 +943,31 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteConfirmOverlay">
+    <div class="modal-container" style="max-width: 380px;" onclick="event.stopPropagation()">
+        <h1 class="modal-title">Delete this project?</h1>
+        <p class="modal-subtitle" id="deleteConfirmText">This will permanently delete the project and its attached files.</p>
+        <div class="modal-buttons">
+            <button type="button" class="back-btn" onclick="cancelDeleteProject()">Cancel</button>
+            <button type="button" class="create-btn" id="confirmDeleteBtn" style="background:#ef4444; color:#fff;">Delete</button>
+        </div>
+    </div>
+</div>
+
     <script>
         let uploadedFiles = [];
         let projects = [];
+        
+        function loadProjectsFromStorage() {
+    const saved = JSON.parse(localStorage.getItem('clive_projects') || '[]');
+    projects = saved.map(p => ({ ...p, createdAt: new Date(p.createdAt) }));
+    renderProjects();
+}
+
+function saveProjectsToStorage() {
+    localStorage.setItem('clive_projects', JSON.stringify(projects));
+}
 
         // ── Time formatting helper ──
         function timeAgo(date) {
@@ -904,23 +982,67 @@
         }
 
         // ── Render project cards ──
-        function renderProjects() {
-            const section = document.getElementById('projectsSection');
-            const grid = document.getElementById('projectsGrid');
+const MAX_PROJECTS = 3;
 
-            if (projects.length === 0) {
-                section.classList.remove('visible');
-                return;
-            }
+function renderProjects() {
+    const section = document.getElementById('projectsSection');
+    const grid = document.getElementById('projectsGrid');
 
-            section.classList.add('visible');
-            grid.innerHTML = projects.map((p) => `
-                <div class="project-card">
-                    <div class="project-card-name">${escapeHtml(p.name)}</div>
-                    <div class="project-card-updated">${timeAgo(p.createdAt)}</div>
-                </div>
-            `).join('');
-        }
+    // ── Enforce max 3 projects ──
+    const newProjectBtn = document.querySelector('.new-project-btn-center');
+    if (newProjectBtn) {
+        const atLimit = projects.length >= MAX_PROJECTS;
+        newProjectBtn.disabled = atLimit;
+        newProjectBtn.style.opacity = atLimit ? '0.4' : '1';
+        newProjectBtn.style.cursor = atLimit ? 'not-allowed' : 'pointer';
+        newProjectBtn.title = atLimit ? 'Limit of 3 projects reached — delete one to create a new one' : '';
+    }
+
+    if (projects.length === 0) {
+        section.classList.remove('visible');
+        return;
+    }
+
+    section.classList.add('visible');
+    grid.innerHTML = projects.map((p, index) => {
+        const files = p.files || [];
+        const visible = files.slice(0, 3);
+        const extra = files.length - visible.length;
+
+        const resourcesHTML = files.length === 0
+            ? '<div class="project-card-no-resources">No resources attached</div>'
+            : `<div class="project-card-resources">
+                ${visible.map(f => `<div class="resource-chip" title="${escapeHtml(f.name)}"><span>${escapeHtml(f.name)}</span></div>`).join('')}
+                ${extra > 0 ? `<div class="resource-chip more-chip">+${extra} more</div>` : ''}
+               </div>`;
+
+        return `
+    <div class="project-card" onclick="openProject(${index})">
+        <button class="project-card-delete" onclick="event.stopPropagation(); confirmDeleteProject(${index})" aria-label="Delete project">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+            </svg>
+        </button>
+        <div class="project-card-name">${escapeHtml(p.name)}</div>
+        <div class="project-card-updated">${timeAgo(p.createdAt)}</div>
+        ${resourcesHTML}
+    </div>
+`;
+    }).join('');
+}
+
+function openProject(index) {
+    const p = projects[index];
+    if (!p) return;
+    const activeProject = {
+        id: p.id,
+        name: p.name,
+        description: p.description || '',
+        resources: (p.files || []).map(f => ({ name: f.name, size: f.size || 0 }))
+    };
+    localStorage.setItem('clive_active_project', JSON.stringify(activeProject));
+    window.location.href = '/';
+}
 
         function escapeHtml(str) {
             const div = document.createElement('div');
@@ -930,9 +1052,13 @@
 
         // Open First Modal
         function openModal() {
-            document.getElementById('modalOverlay').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
+    if (projects.length >= MAX_PROJECTS) {
+        alert('You can only have up to 3 projects. Delete one to create a new one.');
+        return;
+    }
+    document.getElementById('modalOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
 
         // Close First Modal
         function closeModal() {
@@ -1011,12 +1137,18 @@
             handleFiles(e.dataTransfer.files);
         });
 
-        function handleFiles(files) {
-            for (let file of files) {
-                uploadedFiles.push(file);
-            }
-            updateFileList();
-        }
+        const MAX_PROJECT_FILES = 5;
+
+function handleFiles(files) {
+    const remaining = MAX_PROJECT_FILES - uploadedFiles.length;
+    if (remaining <= 0) { updateFileList(); return; }
+
+    const toAdd = Array.from(files).slice(0, remaining);
+    for (let file of toAdd) {
+        uploadedFiles.push(file);
+    }
+    updateFileList();
+}
 
         function formatFileSize(bytes) {
             if (bytes < 1024) return bytes + ' B';
@@ -1025,7 +1157,9 @@
         }
 
         function updateFileList() {
-            fileCount.textContent = uploadedFiles.length;
+            fileCount.textContent = uploadedFiles.length + '/' + MAX_PROJECT_FILES;
+    document.querySelector('.add-file-btn').disabled = uploadedFiles.length >= MAX_PROJECT_FILES;
+            
             
             if (uploadedFiles.length > 0) {
                 dropZone.style.display = 'none';
@@ -1068,13 +1202,15 @@
 
             // ── Add to projects list and render card ──
             projects.push({
-                name: projectName,
-                description: projectDescription,
-                files: [...uploadedFiles],
-                createdAt: new Date()
-            });
+    id: 'proj_' + Date.now(),
+    name: projectName,
+    description: projectDescription,
+    files: uploadedFiles.map(f => ({ name: f.name, size: f.size })),
+    createdAt: new Date()
+});
 
             renderProjects();
+            saveProjectsToStorage();
             
             closeFileModal();
             
@@ -1094,6 +1230,44 @@
                 }
             }
         });
+        loadProjectsFromStorage();
+
+        let projectPendingDeleteIndex = null;
+
+function confirmDeleteProject(index) {
+    projectPendingDeleteIndex = index;
+    const p = projects[index];
+    document.getElementById('deleteConfirmText').textContent =
+        `This will permanently delete "${p.name}" and its attached files.`;
+    document.getElementById('deleteConfirmOverlay').classList.add('active');
+}
+
+function cancelDeleteProject() {
+    projectPendingDeleteIndex = null;
+    document.getElementById('deleteConfirmOverlay').classList.remove('active');
+}
+
+document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+    if (projectPendingDeleteIndex === null) return;
+
+    const deletedProject = projects[projectPendingDeleteIndex];
+    projects.splice(projectPendingDeleteIndex, 1);
+    saveProjectsToStorage();
+    renderProjects();
+
+    // If the deleted project is the one currently active on the home page, clear it
+    const raw = localStorage.getItem('clive_active_project');
+    if (raw) {
+        try {
+            const active = JSON.parse(raw);
+            if (active.id === deletedProject.id) {
+                localStorage.removeItem('clive_active_project');
+            }
+        } catch (e) {}
+    }
+
+    cancelDeleteProject();
+});
     </script>
 </body>
 </html>
