@@ -101,17 +101,40 @@
             </div>
         </div>
 
-        <!-- CTA Buttons -->
-        <button class="offer-popup-cta">
-            Verify My University Email
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-            </svg>
-        </button>
+        <!-- STEP 1: Email verification -->
+        <div class="offer-verify-form" id="offerStepEmail">
+            <input type="email" class="offer-verify-input" id="offerVerifyEmail" placeholder="you@college.ac.in" autocomplete="off">
+            <button class="offer-popup-cta" onclick="submitStudentEmail()">
+                Verify My University Email
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                </svg>
+            </button>
+            <p class="offer-verify-status" id="offerVerifyStatus"></p>
+        </div>
+
+        <!-- STEP 2: Payment authorization (shown after email matches) -->
+        <div class="offer-verify-form" id="offerStepPayment" style="display:none;">
+            <p class="offer-payment-explain">
+                To confirm you're a real student and not just a matching email, we place a small ₹1 authorization hold on a card — <strong>refunded automatically within seconds</strong>. You won't be charged anything ongoing, and this only exists to verify the card is real.
+            </p>
+            <label class="offer-agree-row">
+                <input type="checkbox" id="offerAgreeCheckbox" onchange="document.getElementById('offerPayBtn').disabled = !this.checked;">
+                <span>I understand this places a refundable ₹1 hold and agree to proceed.</span>
+            </label>
+            <button class="offer-popup-cta" id="offerPayBtn" disabled onclick="startPaymentVerification()">
+                Authorize &amp; Verify (₹1, refunded instantly)
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                </svg>
+            </button>
+            <p class="offer-verify-status" id="offerPaymentStatus"></p>
+        </div>
+
         <button class="offer-popup-cta-secondary" onclick="closeOfferPopup()">Maybe later</button>
 
         <p class="offer-popup-footnote">
-            Available for students with a valid university email. One redemption per account.
+            Available for students with a valid university email. One redemption per account. We're rolling out support for institutions gradually — more are added regularly.
         </p>
 
     </div>
@@ -380,6 +403,55 @@
     background: rgba(255,255,255,0.05);
 }
 
+.offer-verify-form {
+    margin-top: 8px;
+}
+
+.offer-verify-input {
+    width: 100%;
+    background: #111;
+    border: 1px solid #444;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 14.5px;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    outline: none;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+}
+.offer-verify-input::placeholder { color: #666; }
+.offer-verify-input:focus { border-color: #3b82f6; }
+
+.offer-verify-status {
+    font-size: 13px;
+    margin-top: 10px;
+    line-height: 1.4;
+    display: none;
+}
+.offer-verify-status.show { display: block; }
+.offer-verify-status.success { color: #4ade80; }
+.offer-verify-status.error   { color: #f87171; }
+
+.offer-payment-explain {
+    font-size: 13px;
+    color: #ccc;
+    line-height: 1.5;
+    margin-bottom: 14px;
+}
+
+.offer-agree-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12.5px;
+    color: #aaa;
+    line-height: 1.4;
+    margin-bottom: 14px;
+    cursor: pointer;
+}
+.offer-agree-row input { margin-top: 2px; }
+
 .offer-popup-footnote {
     font-size: 12.5px;
     color: #666;
@@ -405,5 +477,151 @@ function closeOfferPopup() {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeOfferPopup();
 });
+</script>
+<!--=======================================================================-->
+
+<!--=======================================================================-->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script type="module">
+import { auth, onAuthStateChanged, db, doc, setDoc, serverTimestamp } from "{{ url_for('static', filename='js/firebase-init.js') }}";
+
+let currentVerifyUser = null;
+onAuthStateChanged(auth, (user) => { currentVerifyUser = user; });
+
+// Known college email formats. Add more entries here as you onboard
+// nearby institutes — each just needs a regex matching that college's
+// student email convention.
+const COLLEGE_EMAIL_PATTERNS = [
+    { name: 'GLA University', regex: /^[a-z]+\.[a-z]+_[a-z]{2}\d{2}@gla\.ac\.in$/i }
+    // { name: 'Some Other College', regex: /^.../ },
+];
+
+function matchCollegeEmail(email) {
+    return COLLEGE_EMAIL_PATTERNS.find(p => p.regex.test(email));
+}
+
+let matchedInstitution = null;
+let verifiedEmail = null;
+
+// STEP 1 — email format check, then reveal the payment step
+function submitStudentEmail() {
+    const input = document.getElementById('offerVerifyEmail');
+    const status = document.getElementById('offerVerifyStatus');
+    const email = input.value.trim();
+
+    status.classList.remove('show', 'success', 'error');
+
+    if (!email) {
+        status.textContent = 'Please enter your college email.';
+        status.classList.add('show', 'error');
+        return;
+    }
+
+    const match = matchCollegeEmail(email);
+    if (!match) {
+        status.textContent = "This doesn't match a recognized college email format yet. More institutions are being added.";
+        status.classList.add('show', 'error');
+        return;
+    }
+
+    verifiedEmail = email;
+    matchedInstitution = match.name;
+
+    status.textContent = 'Matched ' + match.name + '. One more step below.';
+    status.classList.add('show', 'success');
+
+    document.getElementById('offerStepEmail').style.display = 'none';
+    document.getElementById('offerStepPayment').style.display = 'block';
+}
+window.submitStudentEmail = submitStudentEmail;
+
+// STEP 2 — ₹1 authorization hold via Razorpay, refunded immediately on success
+async function startPaymentVerification() {
+    const status = document.getElementById('offerPaymentStatus');
+    status.classList.remove('show', 'success', 'error');
+
+    const payBtn = document.getElementById('offerPayBtn');
+    payBtn.disabled = true;
+    payBtn.textContent = 'Setting up…';
+
+    try {
+        const orderRes = await fetch('/api/create-verification-order', { method: 'POST' });
+        const orderData = await orderRes.json();
+
+        const rzp = new Razorpay({
+            key: orderData.key_id,
+            amount: orderData.amount,
+            currency: 'INR',
+            name: 'Clive',
+            description: 'Student verification hold (refunded instantly)',
+            order_id: orderData.order_id,
+            prefill: { email: verifiedEmail },
+            handler: async function (response) {
+                status.textContent = 'Verifying and refunding your hold…';
+                status.classList.add('show');
+
+                const verifyRes = await fetch('/api/verify-and-refund', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature
+                    })
+                });
+                const verifyData = await verifyRes.json();
+
+                if (!verifyData.success) {
+                    status.textContent = 'Payment verification failed. Please try again.';
+                    status.classList.add('error');
+                    payBtn.disabled = false;
+                    payBtn.textContent = 'Authorize & Verify (₹1, refunded instantly)';
+                    return;
+                }
+
+                if (currentVerifyUser) {
+                    try {
+                        await setDoc(doc(db, 'users', currentVerifyUser.uid), {
+                            studentVerification: {
+                                email: verifiedEmail,
+                                institution: matchedInstitution,
+                                status: 'pending',
+                                submittedAt: serverTimestamp()
+                            },
+                            paymentVerification: {
+                                paymentId: verifyData.payment_id,
+                                status: 'authorized_and_refunded',
+                                verifiedAt: serverTimestamp()
+                            }
+                        }, { merge: true });
+                    } catch (err) {
+                        console.error('Failed to save verification:', err);
+                    }
+                }
+
+                status.textContent = "Verified and submitted for review — you'll be notified once approved.";
+                status.classList.remove('error');
+                status.classList.add('success');
+                payBtn.style.display = 'none';
+            },
+            modal: {
+                ondismiss: function () {
+                    payBtn.disabled = false;
+                    payBtn.textContent = 'Authorize & Verify (₹1, refunded instantly)';
+                }
+            },
+            theme: { color: '#3b82f6' }
+        });
+
+        rzp.open();
+    } catch (err) {
+        console.error('Payment setup failed:', err);
+        status.textContent = 'Something went wrong starting payment verification. Please try again.';
+        status.classList.add('show', 'error');
+        payBtn.disabled = false;
+        payBtn.textContent = 'Authorize & Verify (₹1, refunded instantly)';
+    }
+}
+window.startPaymentVerification = startPaymentVerification;
 </script>
 <!--=======================================================================-->

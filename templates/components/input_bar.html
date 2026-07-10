@@ -2,6 +2,10 @@
 <!-- Main wrapper that centers the input bar on the page -->
 <div class="center-wrapper" id="inputWrapper">
   <div class="input-bar" id="inputBar">
+
+    <!-- Attached files/photos row — shows chips for anything picked via the paperclip menu -->
+    <div class="input-attachments" id="inputAttachments"></div>
+
     <div class="input-bottom-row">
 
     <!--=======================================================================-->
@@ -70,6 +74,8 @@ function sendMessage() {
 
     messageInput.value = '';
     messageInput.style.height = 'auto';
+
+    if (window.clearAttachedFiles) window.clearAttachedFiles();
 }
 // Click on Send button
 sendButton.addEventListener('click', sendMessage);
@@ -92,14 +98,16 @@ messageInput.addEventListener('keydown', function(e) {
 <div class="paperclip-overlay" id="paperclip-overlay"></div>
 <div class="paperclip-popup" id="paperclip-popup">
   <!-- Add files or photos -->
-  <div class="popup-option" onclick="closepaperclipPopup()">
+  <div class="popup-option" onclick="triggerAddFiles()">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
     </svg>
     <span>Add files or photos</span>
   </div>
+  <!-- Hidden native file picker triggered by the option above -->
+  <input type="file" id="attachFileInput" multiple accept="image/*,.pdf,.doc,.docx,.txt,.csv,.xlsx,.zip" style="display:none">
   <!-- Take a screenshot -->
-  <div class="popup-option" onclick="closepaperclipPopup()">
+  <div class="popup-option" onclick="triggerScreenshot()">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
       <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
@@ -107,7 +115,7 @@ messageInput.addEventListener('keydown', function(e) {
     <span>Take a screenshot</span>
   </div>
   <!-- Deep Research -->
-  <div class="popup-option web-search-option" onclick="closepaperclipPopup()">
+  <div class="popup-option web-search-option" onclick="selectDeepResearch()">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
     </svg>
@@ -117,7 +125,7 @@ messageInput.addEventListener('keydown', function(e) {
     </svg>
   </div>
   <!-- Web Search -->
-  <div class="popup-option" onclick="closepaperclipPopup()">
+  <div class="popup-option" onclick="selectWebSearch()">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-2.25-1.313M21 7.5v2.25m0-2.25-2.25 1.313M3 7.5l2.25-1.313M3 7.5l2.25 1.313M3 7.5v2.25m9 3 2.25-1.313M12 12.75l-2.25-1.313M12 12.75V15m0 6.75 2.25-1.313M12 21.75V19.5m0 2.25-2.25-1.313m0-16.875L12 2.25l2.25 1.313M21 14.25v2.25l-2.25 1.313m-13.5 0L3 16.5v-2.25" />
     </svg>
@@ -127,7 +135,7 @@ messageInput.addEventListener('keydown', function(e) {
     </svg>
   </div>
   <!-- Coder -->
-  <div class="popup-option coder-option" onclick="closepaperclipPopup()">
+  <div class="popup-option coder-option" onclick="selectCoder()">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" d="m6.75 7.5 3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0 0 21 18V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z" />
     </svg>
@@ -137,7 +145,7 @@ messageInput.addEventListener('keydown', function(e) {
     </svg>
   </div>
   <!-- Short response -->
-  <div class="popup-option" onclick="closepaperclipPopup()">
+  <div class="popup-option" onclick="selectShortResponse()">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z" />
     </svg>
@@ -182,6 +190,92 @@ messageInput.addEventListener('keydown', function(e) {
     display: flex;
     align-items: flex-end;
     width: 100%;
+}
+
+/* Attached files/photos row */
+.input-attachments {
+    display: none;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.input-attachments.has-files {
+    display: flex;
+}
+
+.file-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #242424;
+    border: 1px solid #3a3a3a;
+    border-radius: 10px;
+    padding: 6px 8px 6px 6px;
+    max-width: 220px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+.file-chip:hover {
+    background: #2b2b2b;
+    border-color: #4a4a4a;
+}
+
+.file-chip-thumb {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+    display: block;
+}
+
+.file-chip-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    background: #3a3a3a;
+    color: #ccc;
+    font-family: Arial, sans-serif;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+
+.file-chip-name {
+    font-family: Arial, sans-serif;
+    font-size: 12.5px;
+    color: #ddd;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 110px;
+}
+
+.file-chip-remove {
+    background: rgba(255,255,255,0.08);
+    border: none;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+.file-chip-remove:hover { background: rgba(255,255,255,0.18); }
+.file-chip-remove svg {
+    width: 10px;
+    height: 10px;
+    stroke: #ccc;
+    stroke-width: 2.4;
 }
 
 /* Icon button wrapper (paperclip / mic / send) */
@@ -283,7 +377,9 @@ messageInput.addEventListener('keydown', function(e) {
 }
 .paperclip-overlay.show { display: block; }
 
-/* Popup box itself - appears above paperclip icon */
+/* Popup box itself - appears above paperclip icon.
+   top/left are set dynamically in JS right before it's shown (positionPaperclipPopup);
+   these are just a fallback in case JS hasn't positioned it yet. */
 .paperclip-popup {
     position: fixed;
     bottom: 125px;
@@ -348,12 +444,21 @@ messageInput.addEventListener('keydown', function(e) {
 /* --- Active input feature (e.g. Imagine's "Create image" badge) --- */
 let activeInputFeature = null;
 
+const DEFAULT_PLACEHOLDER = 'What do you want to know?';
+const FEATURE_PLACEHOLDERS = {
+    deepResearch:  'What would you like me to research?',
+    webSearch:     'What should I search the web for?',
+    coder:         'Describe the code you need…',
+    shortResponse: 'Ask a quick question…'
+};
+
 function activateInputFeature(key, label, iconSVG) {
     activeInputFeature = key;
     const badge = document.getElementById('inputFeatureBadge');
     document.getElementById('inputFeatureBadgeIcon').innerHTML = iconSVG;
     document.getElementById('inputFeatureBadgeText').textContent = label;
     badge.classList.add('active');
+    if (FEATURE_PLACEHOLDERS[key]) messageInput.placeholder = FEATURE_PLACEHOLDERS[key];
     messageInput.focus();
 }
 
@@ -361,6 +466,7 @@ function clearInputFeature() {
     const previous = activeInputFeature;
     activeInputFeature = null;
     document.getElementById('inputFeatureBadge').classList.remove('active');
+    if (FEATURE_PLACEHOLDERS[previous]) messageInput.placeholder = DEFAULT_PLACEHOLDER;
     return previous;
 }
 
@@ -455,9 +561,30 @@ function closepaperclipPopup() {
 }
 paperclipButton.addEventListener('click', function(e) {
     e.stopPropagation();
+    const willShow = !paperclipPopup.classList.contains('show');
+    if (willShow) positionPaperclipPopup();
     paperclipPopup.classList.toggle('show');
     paperclipOverlay.classList.toggle('show');
 });
+
+// Anchors the popup directly above the paperclip button, wherever the
+// input bar currently sits (centered on homepage, or docked at bottom in chat)
+function positionPaperclipPopup() {
+    const btnRect = paperclipButton.getBoundingClientRect();
+    const gap = 14;
+    const rightShift = 70; // shifts the popup toward the right of the button
+    paperclipPopup.style.left = (btnRect.left + btnRect.width / 2 + rightShift) + 'px';
+
+    if (hasMovedToBottom) {
+        // Input bar docked at the bottom — popup floats above it
+        paperclipPopup.style.bottom = (window.innerHeight - btnRect.top + gap) + 'px';
+        paperclipPopup.style.top = 'auto';
+    } else {
+        // Input bar still centered on the homepage — popup drops below it
+        paperclipPopup.style.top = (btnRect.bottom + gap) + 'px';
+        paperclipPopup.style.bottom = 'auto';
+    }
+}
 paperclipOverlay.addEventListener('click', closepaperclipPopup);
 document.addEventListener('click', function(e) {
     if (!paperclipPopup.contains(e.target) && !paperclipButton.contains(e.target)) {
@@ -467,3 +594,169 @@ document.addEventListener('click', function(e) {
 </script>
 <!--=======================================================================-->
 
+<!--=======================================================================-->
+<script>
+/* --- File / photo attachments --- */
+let attachedFiles = [];
+
+function triggerAddFiles() {
+    closepaperclipPopup();
+    document.getElementById('attachFileInput').click();
+}
+window.triggerAddFiles = triggerAddFiles;
+
+function getFileExt(name) {
+    const parts = name.split('.');
+    return parts.length > 1 ? parts.pop().toUpperCase() : 'FILE';
+}
+
+function renderAttachments() {
+    const wrap = document.getElementById('inputAttachments');
+    wrap.innerHTML = '';
+    wrap.classList.toggle('has-files', attachedFiles.length > 0);
+
+    attachedFiles.forEach((file, index) => {
+        const chip = document.createElement('div');
+        chip.className = 'file-chip';
+        chip.addEventListener('click', () => openAttachedFile(file));
+
+        if (file.type && file.type.startsWith('image/')) {
+            const img = document.createElement('img');
+            img.className = 'file-chip-thumb';
+            img.src = URL.createObjectURL(file);
+            chip.appendChild(img);
+        } else {
+            const badge = document.createElement('span');
+            badge.className = 'file-chip-badge';
+            badge.textContent = getFileExt(file.name);
+            chip.appendChild(badge);
+        }
+
+        const name = document.createElement('span');
+        name.className = 'file-chip-name';
+        name.textContent = file.name;
+        name.title = file.name;
+        chip.appendChild(name);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'file-chip-remove';
+        removeBtn.setAttribute('aria-label', 'Remove file');
+        removeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+        removeBtn.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            attachedFiles.splice(index, 1);
+            renderAttachments();
+        });
+        chip.appendChild(removeBtn);
+
+        wrap.appendChild(chip);
+    });
+}
+
+document.getElementById('attachFileInput').addEventListener('change', function(e) {
+    attachedFiles = attachedFiles.concat(Array.from(e.target.files));
+    renderAttachments();
+    this.value = ''; // allows picking the same file again later
+
+    // Attaching a file counts as starting to chat, same as typing —
+    // dock the input bar to the bottom just like messageInput's input event does.
+    if (!hasMovedToBottom) {
+        inputWrapper.classList.add('moved-to-bottom');
+        hasMovedToBottom = true;
+        enterChatMode();
+    }
+});
+
+function openAttachedFile(file) {
+    const url = URL.createObjectURL(file);
+    window.open(url, '_blank');
+    // Revoke a little later so the new tab has time to load it
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
+
+window.getAttachedFiles   = () => attachedFiles;
+window.clearAttachedFiles = () => { attachedFiles = []; renderAttachments(); };
+</script>
+<!--=======================================================================-->
+
+<!--=======================================================================-->
+<script>
+/* --- Paperclip menu features that just toggle a badge in the input bar ---
+   Same pattern as Imagine: click to activate, backspace-when-empty to clear.
+   Clicking the same option again also turns it off directly. Their actual
+   behavior (what they DO to the response) will be wired up later — for now
+   this only handles the on/off badge + popup checkmark UI. */
+
+const FEATURE_ICONS = {
+    deepResearch: `<svg viewBox="0 0 24 24" fill="none" stroke="#5b9bd5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418"/></svg>`,
+    webSearch: `<svg viewBox="0 0 24 24" fill="none" stroke="#5b9bd5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m21 7.5-2.25-1.313M21 7.5v2.25m0-2.25-2.25 1.313M3 7.5l2.25-1.313M3 7.5l2.25 1.313M3 7.5v2.25m9 3 2.25-1.313M12 12.75l-2.25-1.313M12 12.75V15m0 6.75 2.25-1.313M12 21.75V19.5m0 2.25-2.25-1.313m0-16.875L12 2.25l2.25 1.313M21 14.25v2.25l-2.25 1.313m-13.5 0L3 16.5v-2.25"/></svg>`,
+    coder: `<svg viewBox="0 0 24 24" fill="none" stroke="#5b9bd5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6.75 7.5 3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0 0 21 18V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>`,
+    shortResponse: `<svg viewBox="0 0 24 24" fill="none" stroke="#5b9bd5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>`
+};
+
+function toggleFeatureOption(key, label) {
+    if (activeInputFeature === key) {
+        clearInputFeature();
+    } else {
+        activateInputFeature(key, label, FEATURE_ICONS[key]);
+    }
+    closepaperclipPopup();
+}
+
+function selectDeepResearch()  { toggleFeatureOption('deepResearch', 'Deep Research'); }
+function selectWebSearch()     { toggleFeatureOption('webSearch', 'Web Search'); }
+function selectCoder()         { toggleFeatureOption('coder', 'Coder'); }
+function selectShortResponse() { toggleFeatureOption('shortResponse', 'Short response'); }
+
+window.selectDeepResearch  = selectDeepResearch;
+window.selectWebSearch     = selectWebSearch;
+window.selectCoder         = selectCoder;
+window.selectShortResponse = selectShortResponse;
+
+/* --- Take a screenshot: captures the screen and attaches it like a file --- */
+async function triggerScreenshot() {
+    closepaperclipPopup();
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+        console.error('Screenshot not supported in this browser.');
+        return;
+    }
+
+    let stream;
+    try {
+        stream = await navigator.mediaDevices.getDisplayMedia({ video: { cursor: 'never' } });
+        const track = stream.getVideoTracks()[0];
+
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        await video.play();
+        await new Promise(resolve => setTimeout(resolve, 200)); // let a real frame render
+
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+
+        track.stop();
+
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        if (!blob) return;
+
+        const file = new File([blob], 'screenshot-' + Date.now() + '.png', { type: 'image/png' });
+        attachedFiles.push(file);
+        renderAttachments();
+
+        if (!hasMovedToBottom) {
+            inputWrapper.classList.add('moved-to-bottom');
+            hasMovedToBottom = true;
+            enterChatMode();
+        }
+    } catch (err) {
+        // User cancelled the screen-share prompt, or permission was denied
+        console.error('Screenshot failed or was cancelled:', err);
+        if (stream) stream.getTracks().forEach(t => t.stop());
+    }
+}
+window.triggerScreenshot = triggerScreenshot;
+</script>
+<!--=======================================================================-->

@@ -119,29 +119,39 @@ function openImagineMode() {
     const offersSection  = document.getElementById('offersSection');
     const inputBarEl     = document.getElementById('inputBar');
     const imagineSection = document.getElementById('imagineSection');
-    if (!imagineSection || !quickActions || !inputBarEl) return;
+    if (!inputBarEl) return;
     const messageInputEl = document.getElementById('messageInput');
     if (messageInputEl) messageInputEl.placeholder = 'What is in your mind?';
 
-    // Position the ideas row exactly where quick-actions currently sits,
-    // matching the width of the real input bar
-    const topRect   = quickActions.getBoundingClientRect();
-    const widthRect = inputBarEl.getBoundingClientRect();
+    const inChatMode = typeof hasMovedToBottom !== 'undefined' && hasMovedToBottom;
 
-    imagineSection.style.top = topRect.top + 'px';
+    // Always activate the "Create image" badge in the real input bar
+    if (window.activateInputFeature) {
+        window.activateInputFeature('imagine', 'Create image', IMAGINE_ICON_SVG);
+    }
+
+    // Explore-ideas cards only ever show on the fresh homepage layout
+    // (input bar still centered, not yet docked to the bottom).
+    if (inChatMode || !imagineSection) return;
+
+    // Already open and positioned — clicking Imagine again shouldn't recompute
+    // position off quickActions, since it's now hidden and its rect would
+    // collapse to top:0, flinging the cards to the top of the screen.
+    if (imagineSection.classList.contains('show')) return;
+
+    const widthRect = inputBarEl.getBoundingClientRect();
+    const topPx = quickActions ? quickActions.getBoundingClientRect().top : (widthRect.top - 190);
+
+    imagineSection.style.top = topPx + 'px';
     imagineSection.style.left = (widthRect.left + widthRect.width / 2) + 'px';
     imagineSection.style.width = widthRect.width + 'px';
     imagineSection.style.transform = 'translateX(-50%)';
 
-    quickActions.style.display = 'none';
+    if (quickActions)  quickActions.style.display = 'none';
     if (offersSection) offersSection.style.display = 'none';
 
     imagineSection.classList.add('show');
     requestAnimationFrame(() => imagineSection.classList.add('visible'));
-
-    if (window.activateInputFeature) {
-        window.activateInputFeature('imagine', 'Create image', IMAGINE_ICON_SVG);
-    }
 }
 
 function closeImagineMode() {
