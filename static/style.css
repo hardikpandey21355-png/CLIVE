@@ -1618,7 +1618,8 @@ body {
 /* ====================================================================== */
 
 
-
+/* ====================================================================== */
+/* THIS IS THE CSS CODE OF PROJECT ICON WHICH APPEARS BESIDE NEW CHAT ICON WHEN WE WORK INSIDE THE PROJECT ALSO IT CONTAINS THE CSS CODE IT'S POP UP WHICH OPENS WHEN CLCIK ON IT */
 .project-title-indicator {
     display: none;
     position: fixed;
@@ -1638,9 +1639,7 @@ body {
     color: #e5e5e5;
     flex-shrink: 0;
 }
-
-
-
+/* THIS IS THE POP UP CSS FOR FOLDER ICON WHICH IS BESIDE THE INPUT BAR */
 .folder-popup-overlay {
     position: fixed;
     inset: 0;
@@ -1657,7 +1656,6 @@ body {
     opacity: 1;
     visibility: visible;
 }
-
 .folder-popup {
     position: fixed;
     top: 50%;
@@ -1691,7 +1689,6 @@ body {
     pointer-events: auto;
     transform: translate(-50%, -50%) scale(1) translateY(0);
 }
-
 .folder-popup-header {
     display: flex;
     justify-content: space-between;
@@ -1723,7 +1720,6 @@ body {
     color: #ffffff;
 }
 .folder-popup-close:active { transform: scale(0.88); }
-
 .folder-popup-count {
     font-size: 12.5px;
     font-weight: 400;
@@ -1733,7 +1729,6 @@ body {
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     letter-spacing: 0.1px;
 }
-
 .folder-resource-list {
     display: flex;
     flex-direction: column;
@@ -1746,7 +1741,6 @@ body {
 }
 .folder-resource-list::-webkit-scrollbar { width: 5px; }
 .folder-resource-list::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-
 .folder-resource-item {
     display: flex;
     align-items: center;
@@ -1803,7 +1797,6 @@ body {
     color: #ef4444;
 }
 .folder-resource-remove:active { transform: scale(0.85); }
-
 .folder-empty-text {
     font-size: 13px;
     font-weight: 400;
@@ -1812,7 +1805,6 @@ body {
     padding: 26px 0;
     letter-spacing: 0.1px;
 }
-
 .folder-add-btn {
     padding: 11px;
     background: #ffffff;
@@ -1836,4 +1828,4 @@ body {
     color: #737373;
     cursor: not-allowed;
 }
-
+/* ====================================================================== */

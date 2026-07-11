@@ -67,7 +67,8 @@ function sendMessage() {
     const message = messageInput.value.trim();
     if (message === '') return;
 
-    appendUserMessage(message);
+    const files = window.getAttachedFiles ? window.getAttachedFiles() : [];
+    appendUserMessage(message, files);
 
     // TODO: replace this with a real API call later
     setTimeout(() => appendAIMessage("This is a placeholder response."), 400);
@@ -276,6 +277,17 @@ messageInput.addEventListener('keydown', function(e) {
     height: 10px;
     stroke: #ccc;
     stroke-width: 2.4;
+}
+
+.attachment-limit-notice {
+    display: none;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    color: #f0a860;
+    margin: -4px 0 10px 2px;
+}
+.attachment-limit-notice.show {
+    display: block;
 }
 
 /* Icon button wrapper (paperclip / mic / send) */
@@ -653,8 +665,21 @@ function renderAttachments() {
     });
 }
 
+const MAX_ATTACHED_FILES = 5;
+
 document.getElementById('attachFileInput').addEventListener('change', function(e) {
-    attachedFiles = attachedFiles.concat(Array.from(e.target.files));
+    const incoming = Array.from(e.target.files);
+    const remaining = MAX_ATTACHED_FILES - attachedFiles.length;
+
+    if (remaining <= 0) {
+        showAttachmentLimitNotice();
+        this.value = '';
+        return;
+    }
+
+    attachedFiles = attachedFiles.concat(incoming.slice(0, remaining));
+    if (incoming.length > remaining) showAttachmentLimitNotice();
+
     renderAttachments();
     this.value = ''; // allows picking the same file again later
 
@@ -667,6 +692,21 @@ document.getElementById('attachFileInput').addEventListener('change', function(e
     }
 });
 
+function showAttachmentLimitNotice() {
+    const wrap = document.getElementById('inputAttachments');
+    let notice = document.getElementById('attachmentLimitNotice');
+    if (!notice) {
+        notice = document.createElement('div');
+        notice.id = 'attachmentLimitNotice';
+        notice.className = 'attachment-limit-notice';
+        notice.textContent = 'You can attach up to ' + MAX_ATTACHED_FILES + ' files at a time.';
+        wrap.parentElement.insertBefore(notice, wrap.nextSibling);
+    }
+    notice.classList.add('show');
+    clearTimeout(showAttachmentLimitNotice._timer);
+    showAttachmentLimitNotice._timer = setTimeout(() => notice.classList.remove('show'), 2500);
+}
+
 function openAttachedFile(file) {
     const url = URL.createObjectURL(file);
     window.open(url, '_blank');
@@ -676,6 +716,7 @@ function openAttachedFile(file) {
 
 window.getAttachedFiles   = () => attachedFiles;
 window.clearAttachedFiles = () => { attachedFiles = []; renderAttachments(); };
+window.showAttachmentLimitNotice = showAttachmentLimitNotice;
 </script>
 <!--=======================================================================-->
 
@@ -741,6 +782,11 @@ async function triggerScreenshot() {
 
         const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
         if (!blob) return;
+
+        if (attachedFiles.length >= MAX_ATTACHED_FILES) {
+            if (window.showAttachmentLimitNotice) window.showAttachmentLimitNotice();
+            return;
+        }
 
         const file = new File([blob], 'screenshot-' + Date.now() + '.png', { type: 'image/png' });
         attachedFiles.push(file);

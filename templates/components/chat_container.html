@@ -89,6 +89,73 @@ scrollbar-color: #333 transparent;
     scroll-margin-top: 75px; /* matches .chat-top-blur height */
 }
 
+/* Attachments shown above a sent user message */
+.msg-attachments {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+    max-width: 75%;
+    margin-left: auto;
+}
+
+.msg-attachment {
+    cursor: pointer;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.msg-attachment:hover {
+    transform: translateY(-2px);
+    opacity: 0.92;
+}
+
+.msg-attachment-img {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    display: block;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+}
+
+.msg-attachment-file {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #242424;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 10px 14px;
+    max-width: 200px;
+}
+
+.msg-attachment-ext {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    background: #3a3a3a;
+    color: #ccc;
+    font-family: Arial, sans-serif;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+
+.msg-attachment-name {
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    color: #ddd;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /* User message bubble */
 .msg-user {
     width: 100%;
@@ -162,6 +229,10 @@ scrollbar-color: #333 transparent;
     transform: scale(0.9);
 }
 
+.msg-icon-btn.copied {
+    color: #4ade80;
+}
+
 .msg-icon-btn svg {
     width: 16px;
     height: 16px;
@@ -197,38 +268,103 @@ scrollbar-color: #333 transparent;
 // Reusable smooth-curve SVG icons (rounded caps/joins, no sharp corners)
 const ICONS = {
     copy: `<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`,
+    check: `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
     thumbsUp: `<svg viewBox="0 0 24 24"><path d="M7 10v12"></path><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"></path></svg>`,
     thumbsDown: `<svg viewBox="0 0 24 24"><path d="M17 14V2"></path><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"></path></svg>`,
     redo: `<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg>`
 };
 
-// Copies plain text to the clipboard
+// Copies plain text to the clipboard, then briefly swaps the button's
+// icon to a checkmark ("Copied") before reverting back to the copy icon
 function copyToClipboard(text, btn) {
-    navigator.clipboard.writeText(text).catch(() => {});
+    navigator.clipboard.writeText(text).then(() => {
+        if (!btn) return;
+        btn.innerHTML = ICONS.check;
+        btn.classList.add('copied');
+        clearTimeout(btn._copyRevertTimer);
+        btn._copyRevertTimer = setTimeout(() => {
+            btn.innerHTML = ICONS.copy;
+            btn.classList.remove('copied');
+        }, 1500);
+    }).catch(() => {});
 }
 
-// Builds a single icon button
+// Builds a single icon button — passes itself into onClick so callers
+// (like copyToClipboard) can update their own icon/state
 function makeIconBtn(iconKey, onClick) {
     const btn = document.createElement('button');
     btn.className = 'msg-icon-btn';
     btn.innerHTML = ICONS[iconKey];
-    btn.addEventListener('click', onClick);
+    btn.addEventListener('click', () => onClick(btn));
     return btn;
 }
 
+// Builds the row of attached files/images shown above a sent message —
+// images get a real thumbnail, everything else gets a small extension badge
+function buildMessageAttachments(files) {
+    const row = document.createElement('div');
+    row.className = 'msg-attachments';
+
+    files.forEach(file => {
+        const item = document.createElement('div');
+        item.className = 'msg-attachment';
+        item.addEventListener('click', () => {
+            const url = URL.createObjectURL(file);
+            window.open(url, '_blank');
+            setTimeout(() => URL.revokeObjectURL(url), 30000);
+        });
+
+        if (file.type && file.type.startsWith('image/')) {
+            const img = document.createElement('img');
+            img.className = 'msg-attachment-img';
+            img.src = URL.createObjectURL(file);
+            item.appendChild(img);
+        } else {
+            const badge = document.createElement('div');
+            badge.className = 'msg-attachment-file';
+
+            const ext = document.createElement('span');
+            ext.className = 'msg-attachment-ext';
+            const parts = file.name.split('.');
+            ext.textContent = parts.length > 1 ? parts.pop().toUpperCase() : 'FILE';
+
+            const name = document.createElement('span');
+            name.className = 'msg-attachment-name';
+            name.textContent = file.name;
+            name.title = file.name;
+
+            badge.appendChild(ext);
+            badge.appendChild(name);
+            item.appendChild(badge);
+        }
+
+        row.appendChild(item);
+    });
+
+    return row;
+}
+
+
+
 // Appends a user message bubble to the chat area, and smoothly scrolls
-// so this new message lands consistently just below the blur banner
-function appendUserMessage(text) {
+// so this new message lands consistently just below the blur banner.
+// `files` is an optional array of File objects attached via the paperclip menu.
+function appendUserMessage(text, files) {
     const area = document.getElementById('chatMessagesArea');
     const spacer = document.getElementById('chatSpacer');
     if (!area || !spacer) return;
+    files = files || [];
 
     const div = document.createElement('div');
     div.className = 'msg-user';
 
-    // Column wrapper: bubble on top, hover-only copy icon below it
+    // Column wrapper: attachments (if any) + bubble on top, hover-only copy icon below it
     const col = document.createElement('div');
     col.className = 'msg-user-col';
+
+    if (files.length > 0) {
+        col.appendChild(buildMessageAttachments(files));
+    }
 
     const bubble = document.createElement('span');
     bubble.className = 'msg-user-bubble';
@@ -236,7 +372,7 @@ function appendUserMessage(text) {
 
     const actions = document.createElement('div');
     actions.className = 'msg-user-actions';
-    actions.appendChild(makeIconBtn('copy', () => copyToClipboard(text)));
+    actions.appendChild(makeIconBtn('copy', (btn) => copyToClipboard(text, btn)));
 
     // Show the copy icon only when the cursor is over the bubble itself
     // (or the icon while moving toward it), not the full-width row
@@ -289,20 +425,31 @@ function appendAIMessage(text) {
     const actions = document.createElement('div');
     actions.className = 'msg-ai-actions';
 
-    actions.appendChild(makeIconBtn('copy', () => copyToClipboard(text)));
+    actions.appendChild(makeIconBtn('copy', (btn) => copyToClipboard(text, btn)));
+
+    // Like/dislike are mutually exclusive — picking one clears the other
+    let liked = false;
+    let disliked = false;
+
+    function updateFeedbackColors() {
+        likeBtn.style.color = liked ? '#4ade80' : '';
+        dislikeBtn.style.color = disliked ? '#f87171' : '';
+    }
 
     const likeBtn = makeIconBtn('thumbsUp', () => {
-        likeBtn.style.color = likeBtn.style.color === 'rgb(255, 255, 255)' ? '' : '#ffffff';
+        liked = !liked;
+        if (liked) disliked = false;
+        updateFeedbackColors();
     });
     const dislikeBtn = makeIconBtn('thumbsDown', () => {
-        dislikeBtn.style.color = dislikeBtn.style.color === 'rgb(255, 255, 255)' ? '' : '#ffffff';
+        disliked = !disliked;
+        if (disliked) liked = false;
+        updateFeedbackColors();
     });
     actions.appendChild(likeBtn);
     actions.appendChild(dislikeBtn);
 
-    actions.appendChild(makeIconBtn('redo', () => {
-        // Placeholder: hook up "regenerate response" logic here
-    }));
+    // Redo/regenerate button removed for now
 
     div.appendChild(actions);
 
