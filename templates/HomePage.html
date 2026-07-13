@@ -9,6 +9,13 @@
 </head>
 
 <body>
+
+    <script>
+      if (localStorage.getItem('clive_open_conversation')) {
+        document.documentElement.classList.add('cl-loading-chat');
+      }
+    </script>
+    
     <!--=======================================================================-->
     <!-- Background Video Layer — plays the video chosen on the Background page -->
     <video id="bgVideo" class="bg-video" muted playsinline></video>
@@ -715,7 +722,11 @@
     </div>
     <!-- this line of code is responsible to open grouping_modal.html file -->
     {% include "components/grouping_modal.html" %}
+    <!-- this line of code is responsible to open mood_selector_modal.html file -->
+    {% include "components/mood_selector_modal.html" %}
     <!-- this line of code is responsible to open imagine_section.html file -->
+     {% include "components/history_popup.html" %}
+     
     {% include "components/imagine_section.html" %}
     <!--=======================================================================-->
 

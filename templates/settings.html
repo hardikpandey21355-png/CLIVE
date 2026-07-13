@@ -595,6 +595,280 @@
             }
             .content-panel { border-left: none; padding-left: 0; margin-top: 20px; }
         }
+
+        .archive-right{
+    position:relative;
+}
+
+.archive-dropdown{
+    display:none;
+
+    position:absolute;
+    top:calc(100% + 8px);
+    right:0;
+
+    width:260px;
+
+    background:#1a1a1a;
+    border:1px solid #333;
+
+    border-radius:12px;
+
+    padding:16px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.45);
+
+    z-index:500;
+}
+
+.archive-dropdown.show{
+    display:block;
+}
+
+.archive-title{
+    font-size:15px;
+    font-weight:600;
+    color:white;
+}
+
+.archive-desc{
+    margin-top:8px;
+    font-size:13px;
+    color:#9b9b9b;
+    line-height:1.5;
+}
+
+.archive-restore-btn{
+
+    margin-top:15px;
+
+    width:100%;
+
+    padding:10px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#2b2b2b;
+
+    color:white;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.archive-restore-btn:hover{
+
+    background:#363636;
+
+}
+
+.archive-all-right {
+    position: relative;
+}
+
+.archive-all-dropdown {
+    display: none;
+
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+
+    width: 270px;
+
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+
+    padding: 16px;
+
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+
+    z-index: 500;
+}
+
+.archive-all-dropdown.show {
+    display: block;
+}
+
+.archive-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.archive-desc {
+    font-size: 13px;
+    color: #9b9b9b;
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
+
+.archive-all-confirm-btn {
+    width: 100%;
+    padding: 10px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #2b2b2b;
+    color: white;
+
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.archive-all-confirm-btn:hover {
+    background: #3a3a3a;
+}
+
+/* Overlay */
+
+.delete-all-modal{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.65);
+
+    display:none;
+
+    justify-content:center;
+
+    align-items:center;
+
+    backdrop-filter:blur(5px);
+
+    z-index:9999;
+}
+
+.delete-all-modal.show{
+
+    display:flex;
+}
+
+/* Card */
+
+.delete-all-card{
+
+    width:420px;
+
+    background:#181818;
+
+    border:1px solid #323232;
+
+    border-radius:18px;
+
+    padding:28px;
+
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+
+    animation:popup .25s ease;
+}
+
+@keyframes popup{
+
+    from{
+        opacity:0;
+        transform:scale(.94);
+    }
+
+    to{
+        opacity:1;
+        transform:scale(1);
+    }
+
+}
+
+.delete-all-icon{
+
+    font-size:42px;
+
+    text-align:center;
+
+    margin-bottom:18px;
+}
+
+.delete-all-card h2{
+
+    color:#fff;
+
+    text-align:center;
+
+    margin-bottom:14px;
+
+    font-size:24px;
+}
+
+.delete-all-card p{
+
+    color:#b7b7b7;
+
+    text-align:center;
+
+    line-height:1.7;
+
+    font-size:14px;
+}
+
+.delete-all-actions{
+
+    display:flex;
+
+    gap:12px;
+
+    margin-top:28px;
+}
+
+.delete-cancel-btn{
+
+    flex:1;
+
+    height:44px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#2a2a2a;
+
+    color:white;
+
+    cursor:pointer;
+}
+
+.delete-cancel-btn:hover{
+
+    background:#363636;
+}
+
+.delete-confirm-btn{
+
+    flex:1;
+
+    height:44px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#d63b3b;
+
+    color:white;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.delete-confirm-btn:hover{
+
+    background:#ef4444;
+}
     </style>
 </head>
 
@@ -713,10 +987,10 @@
                     <div class="section-title">Data controls</div>
                     <div class="setting-row"><div class="setting-label">Improve the model for everyone</div><div class="setting-value">On ›</div></div>
                     <div class="setting-row"><div class="setting-label">Shared links</div><button class="btn-primary">Manage</button></div>
-                    <div class="setting-row"><div class="setting-label">Archived chats</div><button class="btn-primary">Manage</button></div>
-                    <div class="setting-row"><div class="setting-label">Archive all chats</div><button class="btn-primary">Archive all</button></div>
+                    <div class="setting-row"><div class="setting-label">Archived chats</div><div class="archive-right"><button class="btn-primary" id="archived-manage-btn">Manage</button><div class="archive-dropdown" id="archive-dropdown"><div class="archive-title">Archived Chats</div><div class="archive-desc">Restore every archived conversation back into your History.</div><button class="archive-restore-btn">Restore all chats</button></div></div></div>
+                    <div class="setting-row"><div class="setting-label">Archive all chats</div><div class="archive-all-right"><button class="btn-primary" id="archive-all-btn">Archive All</button><div class="archive-all-dropdown" id="archive-all-dropdown"><div class="archive-title">Archive All Chats</div><div class="archive-desc">Archive every conversation currently shown in your History.You can restore them later from Archived Chats.</div><button class="archive-all-confirm-btn">Archive All Chats</button></div></div></div>
                     <div class="setting-row"><div class="setting-label">Delete all chats</div><button class="btn-danger" id="delete-all-chats-btn">Delete all</button></div>
-                    <div class="setting-row"><div class="setting-label">Export data</div><button class="btn-primary">Export</button></div>
+                    <!-- <div class="setting-row"><div class="setting-label">Export data</div><button class="btn-primary">Export</button></div> -->
                 </div>
 
                 <!-- NOTIFICATIONS TAB -->
@@ -989,8 +1263,12 @@
            Nothing here calls a server, deletes real data, saves to
            storage, or persists across a page reload.
            ========================================================= */
+           document.getElementById("back-link").addEventListener("click", () => {
+            window.location.href = "/";
+        });
 
         /* ---------- SIDEBAR NAVIGATION ---------- */
+        
         const buttons = {
             general: document.getElementById("btn-general"),
             account: document.getElementById("btn-account"),
@@ -1065,14 +1343,89 @@
             row.querySelector(".notif-trigger-label").textContent = active.length ? active.join(", ") : "None";
         }
 
+        const archiveBtn = document.getElementById("archived-manage-btn");
+const archiveMenu = document.getElementById("archive-dropdown");
+
+archiveBtn.addEventListener("click",(e)=>{
+
+    e.stopPropagation();
+
+    archiveMenu.classList.toggle("show");
+
+});
+
+document.addEventListener("click",(e)=>{
+
+    if(
+        !archiveMenu.contains(e.target) &&
+        e.target!==archiveBtn
+    ){
+        archiveMenu.classList.remove("show");
+    }
+
+});
+
+
+const archiveAllBtn = document.getElementById("archive-all-btn");
+const archiveAllDropdown = document.getElementById("archive-all-dropdown");
+
+archiveAllBtn.addEventListener("click", function (e) {
+
+    e.stopPropagation();
+
+    archiveAllDropdown.classList.toggle("show");
+
+});
+
+document.addEventListener("click", function (e) {
+
+    if (
+        !archiveAllDropdown.contains(e.target) &&
+        e.target !== archiveAllBtn
+    ) {
+        archiveAllDropdown.classList.remove("show");
+    }
+
+});
+
+
+const deleteAllBtn = document.getElementById("delete-all-chats-btn");
+const deleteModal = document.getElementById("delete-all-modal");
+const cancelDelete = document.getElementById("delete-cancel-btn");
+
+deleteAllBtn.addEventListener("click", () => {
+
+    deleteModal.classList.add("show");
+
+});
+
+cancelDelete.addEventListener("click", () => {
+
+    deleteModal.classList.remove("show");
+
+});
+
+deleteModal.addEventListener("click", (e) => {
+
+    if(e.target === deleteModal){
+
+        deleteModal.classList.remove("show");
+
+    }
+
+});
+
         /* ---------- THEME SELECTION (visual only) ---------- */
         function selectTheme(boxEl) {
             document.querySelectorAll(".theme-box").forEach(box => box.classList.remove("selected"));
             boxEl.classList.add("selected");
         }
 
-        /* ---------- COLOR MESSAGES (visual preview only, nothing saved) ---------- */
-        function applyColor(rowEl) {
+        /* ---------- COLOR MESSAGES (persisted to localStorage, applied to real chat bubbles) ---------- */
+        const BUBBLE_COLOR_KEY = 'clive_message_bubble_color';
+        const BUBBLE_COLOR_NAME_KEY = 'clive_message_bubble_color_name';
+
+        function applyColorUI(rowEl, showToast) {
             const colorValue = rowEl.dataset.color;
             const colorName = rowEl.dataset.name;
 
@@ -1094,8 +1447,27 @@
 
             document.getElementById("preview-color-name").textContent = colorName;
 
-            showAppliedToast(colorName);
+            if (showToast) showAppliedToast(colorName);
         }
+
+        function applyColor(rowEl) {
+            applyColorUI(rowEl, true);
+            localStorage.setItem(BUBBLE_COLOR_KEY, rowEl.dataset.color);
+            localStorage.setItem(BUBBLE_COLOR_NAME_KEY, rowEl.dataset.name);
+        }
+
+        function loadSavedBubbleColor() {
+            const savedColor = localStorage.getItem(BUBBLE_COLOR_KEY);
+            if (!savedColor) return;
+            const rows = document.querySelectorAll('.cm-row');
+            for (const row of rows) {
+                if (row.dataset.color === savedColor) {
+                    applyColorUI(row, false);
+                    break;
+                }
+            }
+        }
+        loadSavedBubbleColor();
 
         function showAppliedToast(name) {
             let toast = document.getElementById("applied-toast");
@@ -1191,6 +1563,41 @@ async function reauthenticate() {
     }
 }
 </script>
+
+
+<!-- Delete All Chats Modal -->
+<div class="delete-all-modal" id="delete-all-modal">
+
+    <div class="delete-all-card">
+
+        <div class="delete-all-icon">
+            🗑️
+        </div>
+
+        <h2>Delete All Chats?</h2>
+
+        <p>
+            This will permanently delete every conversation from your account.
+            <br><br>
+            This action cannot be undone and your chats cannot be recovered.
+        </p>
+
+        <div class="delete-all-actions">
+
+            <button class="delete-cancel-btn" id="delete-cancel-btn">
+                Cancel
+            </button>
+
+            <button class="delete-confirm-btn" id="delete-confirm-btn">
+                Delete All Chats
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
 
 </body>
 </html>

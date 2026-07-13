@@ -63,24 +63,45 @@
 <script>
 // ===================== SEND FUNCTIONALITY =====================
 const sendButton = document.getElementById('sendButton');
-function sendMessage() {
+
+async function sendMessage() {
     const message = messageInput.value.trim();
     if (message === '') return;
 
     const files = window.getAttachedFiles ? window.getAttachedFiles() : [];
     appendUserMessage(message, files);
 
-    // TODO: replace this with a real API call later
-    setTimeout(() => appendAIMessage("This is a placeholder response."), 400);
-
     messageInput.value = '';
     messageInput.style.height = 'auto';
-
     if (window.clearAttachedFiles) window.clearAttachedFiles();
+
+    appendAIMessage("Thinking...", false, true);
+    const aiMessages = document.querySelectorAll('.msg-ai');
+    const thinkingEl = aiMessages[aiMessages.length - 1];
+
+    try {
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message })
+        });
+        const data = await res.json();
+
+       if (data.reply) {
+    updateAIMessage(thinkingEl, data.reply);
+    if (window.saveMessagePairToFirestore) {
+        window.saveMessagePairToFirestore(message, data.reply);
+    }
+} else {
+    updateAIMessage(thinkingEl, "Sorry, something went wrong.");
 }
-// Click on Send button
+    } catch (err) {
+        console.error(err);
+        updateAIMessage(thinkingEl, "Sorry, I couldn't reach the server.");
+    }
+}
+
 sendButton.addEventListener('click', sendMessage);
-// Press Enter to send (Shift + Enter for new line)
 messageInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -806,3 +827,134 @@ async function triggerScreenshot() {
 window.triggerScreenshot = triggerScreenshot;
 </script>
 <!--=======================================================================-->
+
+
+
+<script type="module">
+import { auth, onAuthStateChanged, db, doc, getDoc, setDoc, arrayUnion, serverTimestamp } from "{{ url_for('static', filename='js/firebase-init.js') }}?v=2";
+
+let currentUser = null;
+let currentConversationId = null;
+let messagePairCount = 0;
+let firstUserMessageForTitle = null;
+
+onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (user) loadConversationFromHistoryIfRequested();
+});
+
+// If the user clicked a chat in History, load its messages into the chat
+// area and pick up the same conversation ID so new messages append to it.
+async function loadConversationFromHistoryIfRequested() {
+    const convoId = localStorage.getItem('clive_open_conversation');
+    if (!convoId) return;
+    localStorage.removeItem('clive_open_conversation');
+
+    try {
+        const convoRef = doc(db, 'users', currentUser.uid, 'conversations', convoId);
+        const snap = await getDoc(convoRef);
+        if (!snap.exists()) return;
+
+        const data = snap.data();
+        const messages = data.messages || [];
+        if (messages.length === 0) return;
+
+        currentConversationId = convoId;
+        messagePairCount = Math.floor(messages.length / 2);
+
+        if (!hasMovedToBottom) {
+            inputWrapper.classList.add('moved-to-bottom');
+            hasMovedToBottom = true;
+            enterChatMode();
+        }
+
+        messages.forEach(msg => {
+            if (msg.role === 'user') {
+                appendUserMessage(msg.content, []);
+            } else {
+                appendAIMessage(msg.content, true, false);
+            }
+        });
+    } catch (err) {
+        console.error('Failed to load conversation from history:', err);
+    }
+}
+
+function getConversationId() {
+    if (!currentConversationId) {
+        currentConversationId = 'conv_' + Date.now();
+    }
+    return currentConversationId;
+}
+
+// Builds a short chat title from the first user message
+function buildChatTitle(text) {
+    const trimmed = text.trim().replace(/\s+/g, ' ');
+    const MAX_LEN = 60;
+    return trimmed.length > MAX_LEN ? trimmed.slice(0, MAX_LEN).trimEnd() + '…' : trimmed;
+}
+
+// Saves one user+AI message pair to Firestore under this user's account.
+// After the 2nd exchange, also sets a title for this conversation
+// (derived from the first message), so it can show up in Chat History.
+window.saveMessagePairToFirestore = async function(userText, aiText) {
+    if (!currentUser) return; // not logged in — skip saving
+
+    const convoId = getConversationId();
+    const convoRef = doc(db, 'users', currentUser.uid, 'conversations', convoId);
+
+    messagePairCount++;
+
+    const updateData = {
+        updatedAt: serverTimestamp(),
+        messages: arrayUnion(
+            { role: 'user', content: userText, at: Date.now() },
+            { role: 'assistant', content: aiText, at: Date.now() }
+        )
+    };
+
+    // First exchange: mark the title as "being decided" so History can
+    // show a shimmer, then generate the real title in the background.
+    if (messagePairCount === 1) {
+        updateData.titlePending = true;
+    }
+
+    try {
+        await setDoc(convoRef, updateData, { merge: true });
+    } catch (err) {
+        console.error('Failed to save chat to Firestore:', err);
+    }
+
+    if (messagePairCount === 1) {
+        generateAndSaveTitle(convoRef, userText, aiText);
+    }
+};
+
+// Asks the AI to name the chat based on the first exchange, then saves
+// the result. Falls back to a truncated version of the user's message
+// if the request fails for any reason.
+async function generateAndSaveTitle(convoRef, userText, aiText) {
+    try {
+        const res = await fetch('/api/generate-title', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_message: userText, ai_message: aiText })
+        });
+        const data = await res.json();
+        const title = (data.title || '').trim();
+
+        await setDoc(convoRef, {
+            title: title || buildChatTitle(userText),
+            titlePending: false
+        }, { merge: true });
+    } catch (err) {
+        console.error('Title generation failed, using fallback:', err);
+        try {
+            await setDoc(convoRef, {
+                title: buildChatTitle(userText),
+                titlePending: false
+            }, { merge: true });
+        } catch (e2) {}
+    }
+}
+</script>

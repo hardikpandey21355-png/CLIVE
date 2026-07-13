@@ -1829,3 +1829,29 @@ body {
     cursor: not-allowed;
 }
 /* ====================================================================== */
+
+
+
+/* Instantly hides the landing state if a chat is about to be loaded,
+   so it never flashes before the real chat-mode JS kicks in */
+html.cl-loading-chat #cliveTitle,
+html.cl-loading-chat #quickActions,
+html.cl-loading-chat #offersSection,
+html.cl-loading-chat .privacy-btn,
+html.cl-loading-chat .about-btn,
+html.cl-loading-chat .voice-btn,
+html.cl-loading-chat .features-btn,
+html.cl-loading-chat .help-btn,
+html.cl-loading-chat .upgrade-plan-btn {
+  display: none !important;
+}
+html.cl-loading-chat .chat-top-blur,
+html.cl-loading-chat #chatMessagesArea {
+  display: flex !important;
+}
+html.cl-loading-chat .center-wrapper {
+  top: auto !important;
+  bottom: 30px !important;
+  left: 53% !important;
+  transform: translateX(-50%) !important;
+}

@@ -1,0 +1,487 @@
+<!--=======================================================================-->
+<!-- History Popup — opens when hovering the History button in the sidebar -->
+<div class="history-popup" id="history-popup">
+    <div class="history-popup-header">Chat's</div>
+    <div class="history-popup-list" id="history-popup-list">
+        <div class="history-empty-state">
+            <p>Your chats will appear here</p>
+        </div>
+    </div>
+</div>
+<!-- Shared dropdown menu for chat item actions -->
+<div class="history-item-menu" id="history-item-menu">
+    <div class="hi-menu-option" data-action="pin">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
+        <span>Pin chat</span>
+    </div>
+    <div class="hi-menu-option" data-action="share">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <span>Share chat</span>
+    </div>
+    <div class="hi-menu-option" data-action="archive">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+        <span>Archive chat</span>
+    </div>
+    <div class="hi-menu-divider"></div>
+    <div class="hi-menu-option hi-menu-danger" data-action="delete">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        <span>Delete chat</span>
+    </div>
+</div>
+<!--=======================================================================-->
+
+
+<style>
+.history-popup {
+    position: fixed;
+    top: 318px;
+    left: 52px;
+    height: 360px;
+    width: 195px;
+    max-height: 360px;
+    overflow: hidden;
+    background: #1e1e1e;
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 14px;
+    padding: 10px;
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 10px 34px rgba(0,0,0,0.6);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    animation: historyPopupIn 0.18s ease;
+}
+.history-popup.show { display: flex; }
+
+/* Shift right by the same 11% the sidebar grows when expanded */
+.sidebar.expanded ~ .history-popup {
+    left: calc(52px + 5%);
+}
+
+@keyframes historyPopupIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.history-popup-header {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    color: rgba(255,255,255,0.85);
+    padding: 4px 8px 10px;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+}
+
+.history-popup-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #3a3a3a transparent;
+}
+.history-popup-list::-webkit-scrollbar { width: 5px; }
+.history-popup-list::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 10px; }
+
+/* This is what makes long titles cut off with "..." instead of wrapping
+   or overflowing the popup width. The dots button is positioned absolutely
+   (see below) so it floats over the text instead of squeezing it. */
+.history-chat-item {
+    padding: 9px 10px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    line-height: 1.3;
+    color: rgba(255,255,255,0.8);
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.history-chat-item:hover {
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+}
+.history-chat-item-title {
+    display: block;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Soft fade behind the dots on hover, so truncated text doesn't look like
+   it's being cut off abruptly underneath the button */
+.history-chat-item::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 14px;
+    border-radius: 0 8px 8px 0;
+    background: linear-gradient(to right, transparent, #262626 65%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+.history-chat-item:hover::after {
+    opacity: 1;
+}
+
+.history-chat-item-dots {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    border: none;
+    background:#2b2b2b;;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.55);
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(-50%) translateX(4px);
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.history-chat-item:hover .history-chat-item-dots,
+.history-chat-item-dots.active {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+    pointer-events: auto;
+}
+.history-chat-item-dots:hover {
+    background: rgb(0, 0, 0);
+    color: #fff;
+}
+.history-chat-item-dots svg {
+    width: 15px;
+    height: 15px;
+    pointer-events: none;
+}
+
+/* Shared action menu (pin / share / archive / delete) */
+.history-item-menu {
+    position: fixed;
+    width: 168px;
+    background: #232323;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 6px;
+    z-index: 10001;
+    display: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.55);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+.history-item-menu.show {
+    display: block;
+    animation: historyPopupIn 0.15s ease;
+}
+.hi-menu-option {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 9px;
+    border-radius: 7px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+    cursor: pointer;
+    transition: background 0.13s ease;
+}
+.hi-menu-option:hover { background: rgba(255,255,255,0.07); }
+.hi-menu-option svg { width: 15px; height: 15px; flex-shrink: 0; color: rgba(255,255,255,0.55); }
+.hi-menu-option.hi-menu-danger { color: #f87171; }
+.hi-menu-option.hi-menu-danger svg { color: #f87171; }
+.hi-menu-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.08);
+    margin: 4px 2px;
+}
+.history-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    padding: 90px 10px 20px;
+}
+.history-empty-state p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.history-loading {
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.35);
+    text-align: center;
+    padding: 20px 10px;
+}
+
+.history-title-shimmer {
+    display: inline-block;
+    background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0.35) 25%,
+        rgba(255,255,255,0.95) 50%,
+        rgba(255,255,255,0.35) 75%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: historyTitleShine 1.6s ease-in-out infinite;
+}
+@keyframes historyTitleShine {
+    0%   { background-position: 200% 0%; }
+    100% { background-position: -100% 0%; }
+}
+
+
+</style>
+
+
+<script type="module">
+import { auth, onAuthStateChanged, db, collection, query, orderBy, limit, onSnapshot, doc, deleteDoc, setDoc } from "{{ url_for('static', filename='js/firebase-init.js') }}?v=2";
+
+let historyCloseTimer;
+let currentUser = null;
+let historyUnsubscribe = null;
+
+onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+});
+
+function openHistoryPopup() {
+    clearTimeout(historyCloseTimer);
+    document.getElementById('history-popup').classList.add('show');
+    startChatHistoryListener();
+}
+
+function scheduleHistoryClose() {
+    historyCloseTimer = setTimeout(() => {
+        document.getElementById('history-popup').classList.remove('show');
+        closeItemMenu();
+        stopChatHistoryListener();
+    }, 200);
+}
+
+function renderEmptyState() {
+    return `
+        <div class="history-empty-state">
+            <p>Your chats will appear here</p>
+        </div>
+    `;
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+}
+
+function startChatHistoryListener() {
+    const listEl = document.getElementById('history-popup-list');
+
+    if (!currentUser) {
+        listEl.innerHTML = renderEmptyState();
+        return;
+    }
+
+    // Already listening — don't attach twice
+    if (historyUnsubscribe) return;
+
+    const convosRef = collection(db, 'users', currentUser.uid, 'conversations');
+    const q = query(convosRef, orderBy('updatedAt', 'desc'), limit(15));
+
+    historyUnsubscribe = onSnapshot(q, (snap) => {
+        const titledChats = [];
+        snap.forEach(docSnap => {
+            const data = docSnap.data();
+            if (data.archived) return; // archived chats are hidden from this list
+            if (data.title) {
+                titledChats.push({ id: docSnap.id, title: data.title, pending: false, pinned: !!data.pinned });
+            } else if (data.titlePending) {
+                titledChats.push({ id: docSnap.id, title: null, pending: true, pinned: !!data.pinned });
+            }
+        });
+
+        // Pinned chats float to the top, keeping newest-first order within each group
+        titledChats.sort((a, b) => (a.pinned === b.pinned) ? 0 : (a.pinned ? -1 : 1));
+
+        if (titledChats.length === 0) {
+            listEl.innerHTML = renderEmptyState();
+            return;
+        }
+
+        listEl.innerHTML = titledChats.map(chat => {
+            if (chat.pending) {
+                return `
+                    <div class="history-chat-item" data-id="${chat.id}">
+                        <span class="history-title-shimmer">Naming this chat…</span>
+                    </div>
+                `;
+            }
+            return `
+                <div class="history-chat-item" title="${escapeHtml(chat.title)}" data-id="${chat.id}">
+                    <span class="history-chat-item-title">${chat.pinned ? '📌 ' : ''}${escapeHtml(chat.title)}</span>
+                    <button type="button" class="history-chat-item-dots" data-id="${chat.id}" aria-label="Chat options">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
+                    </button>
+                </div>
+            `;
+        }).join('');
+
+        // Clicking a (non-pending) chat opens it — unless the click was on the dots button
+        listEl.querySelectorAll('.history-chat-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (e.target.closest('.history-chat-item-dots')) return;
+                const convoId = item.dataset.id;
+                if (!convoId) return;
+                localStorage.setItem('clive_open_conversation', convoId);
+                window.location.href = '/';
+            });
+        });
+
+        // Dots button opens the shared action menu
+        listEl.querySelectorAll('.history-chat-item-dots').forEach(dotsBtn => {
+            dotsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openItemMenu(dotsBtn, dotsBtn.dataset.id);
+            });
+        });
+    }, (err) => {
+        console.error('Failed to load chat history:', err);
+        listEl.innerHTML = renderEmptyState();
+    });
+}
+
+function stopChatHistoryListener() {
+    if (historyUnsubscribe) {
+        historyUnsubscribe();
+        historyUnsubscribe = null;
+    }
+}
+
+// Hook hover behavior onto the sidebar History button and the popup itself,
+// without needing to edit HomePage.html's markup at all
+document.addEventListener('DOMContentLoaded', () => {
+    const historyBtn = document.querySelector('.sidebar-History-btn');
+    const popupEl = document.getElementById('history-popup');
+    if (!historyBtn || !popupEl) return;
+
+    historyBtn.addEventListener('mouseenter', openHistoryPopup);
+    historyBtn.addEventListener('mouseleave', scheduleHistoryClose);
+    popupEl.addEventListener('mouseenter', () => clearTimeout(historyCloseTimer));
+    popupEl.addEventListener('mouseleave', (e) => {
+    if (itemMenu.contains(e.relatedTarget)) return;
+    scheduleHistoryClose();
+});
+});
+
+/* ── Chat item action menu (pin / share / archive / delete) ── */
+const itemMenu = document.getElementById('history-item-menu');
+itemMenu.addEventListener('mouseenter', () => {
+    clearTimeout(historyCloseTimer);
+});
+
+itemMenu.addEventListener('mouseleave', () => {
+    scheduleHistoryClose();
+});
+let activeMenuChatId = null;
+let activeMenuBtn = null;
+
+function openItemMenu(btnEl, chatId) {
+    if (activeMenuBtn === btnEl && itemMenu.classList.contains('show')) {
+        closeItemMenu();
+        return;
+    }
+    activeMenuChatId = chatId;
+    activeMenuBtn = btnEl;
+    btnEl.classList.add('active');
+
+    const popupEl = document.getElementById('history-popup');
+    const popupRect = popupEl.getBoundingClientRect();
+    const btnRect = btnEl.getBoundingClientRect();
+    const menuWidth = 168;
+    const gap = 8;
+
+    // Open to the right of the whole popup, aligned with this row
+    let left = popupRect.right - 6;
+    if (left + menuWidth > window.innerWidth - 8) {
+        // not enough room on the right — fall back to the left side instead
+        left = popupRect.left - menuWidth - gap;
+    }
+
+    let top = btnRect.top - 6;
+    const menuApproxHeight = 190;
+    if (top + menuApproxHeight > window.innerHeight - 8) {
+        top = window.innerHeight - 8 - menuApproxHeight;
+    }
+
+    itemMenu.style.top = top + 'px';
+    itemMenu.style.left = left + 'px';
+    itemMenu.classList.add('show');
+}
+
+function closeItemMenu() {
+    itemMenu.classList.remove('show');
+    if (activeMenuBtn) activeMenuBtn.classList.remove('active');
+    activeMenuBtn = null;
+    activeMenuChatId = null;
+}
+
+itemMenu.querySelectorAll('.hi-menu-option').forEach(opt => {
+    opt.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const action = opt.dataset.action;
+        const chatId = activeMenuChatId;
+        closeItemMenu();
+
+// Keep the history popup open
+clearTimeout(historyCloseTimer);
+document.getElementById('history-popup').classList.add('show');
+
+if (!chatId || !currentUser) return;
+
+        if (action === 'delete') {
+            try {
+                await deleteDoc(doc(db, 'users', currentUser.uid, 'conversations', chatId));
+            } catch (err) {
+                console.error('Failed to delete chat:', err);
+            }
+        } else if (action === 'pin') {
+            try {
+                await setDoc(doc(db, 'users', currentUser.uid, 'conversations', chatId), { pinned: true }, { merge: true });
+            } catch (err) {
+                console.error('Failed to pin chat:', err);
+            }
+        } else if (action === 'archive') {
+            try {
+                await setDoc(doc(db, 'users', currentUser.uid, 'conversations', chatId), { archived: true }, { merge: true });
+            } catch (err) {
+                console.error('Failed to archive chat:', err);
+            }
+        } else {
+            // share — not wired to a backend yet
+            console.log(action + ' clicked for', chatId);
+        }
+    });
+});
+
+document.addEventListener('click', (e) => {
+    if (itemMenu.classList.contains('show') && !itemMenu.contains(e.target) && !e.target.closest('.history-chat-item-dots')) {
+        closeItemMenu();
+    }
+});
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeItemMenu();
+});
+</script>

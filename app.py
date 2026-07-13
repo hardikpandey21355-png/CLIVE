@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
 import razorpay
+from Backend.free_brain_plan import get_ai_response, generate_chat_title
 
 app = Flask(__name__)
+app.secret_key = "change-this-to-a-random-secret-string"
 
 # Test-mode keys — move these to environment variables before going live
 RAZORPAY_KEY_ID = "rzp_test_TBnXWTt9rFtOxe"
@@ -106,6 +108,50 @@ def verify_and_refund():
     razorpay_client.payment.refund(data['razorpay_payment_id'], {"amount": 100})
 
     return jsonify({"success": True, "payment_id": data['razorpay_payment_id']})
+
+
+
+@app.route('/api/generate-title', methods=['POST'])
+def api_generate_title():
+    data = request.get_json()
+    user_message = (data or {}).get('user_message', '').strip()
+    ai_message = (data or {}).get('ai_message', '').strip()
+
+    if not user_message or not ai_message:
+        return jsonify({"error": "Missing messages"}), 400
+
+    try:
+        title = generate_chat_title(user_message, ai_message)
+    except Exception as e:
+        print("Title generation error:", e)
+        return jsonify({"error": "Title generation failed"}), 500
+
+    return jsonify({"title": title})
+
+
+
+
+@app.route('/api/chat', methods=['POST'])
+def api_chat():
+    data = request.get_json()
+    user_message = (data or {}).get('message', '').strip()
+
+    if not user_message:
+        return jsonify({"error": "Empty message"}), 400
+
+    history = session.get('chat_history', [])
+
+    try:
+        reply = get_ai_response(user_message, history=history)
+    except Exception as e:
+        print("AI error:", e)
+        return jsonify({"error": "AI request failed"}), 500
+
+    history.append({"role": "user", "content": user_message})
+    history.append({"role": "assistant", "content": reply})
+    session['chat_history'] = history[-20:]
+
+    return jsonify({"reply": reply})
 
 
 if __name__ == "__main__":

@@ -21,7 +21,14 @@ import {
   setDoc,
   getDoc,
   serverTimestamp,
-  deleteDoc 
+  deleteDoc,
+  arrayUnion,
+  collection,
+  query,
+  orderBy,
+  limit,
+  getDocs,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -56,5 +63,12 @@ export {
   EmailAuthProvider,
   reauthenticateWithCredential,
   reauthenticateWithPopup,
-  deleteDoc
+  deleteDoc,
+  arrayUnion,
+  collection,
+  query,
+  orderBy,
+  limit,
+  getDocs,
+  onSnapshot
 };
