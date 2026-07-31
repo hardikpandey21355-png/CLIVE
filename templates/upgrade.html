@@ -395,6 +395,81 @@
   @keyframes fadeUp {
     to { opacity: 1; transform: translateY(0); }
   }
+
+  /* PRO — coming soon shimmer */
+.card.pro-soon {
+  background: linear-gradient(145deg, #1a1a1a 0%, #141414 100%);
+  border-color: rgba(255,255,255,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.pro-soon-badge {
+  background: linear-gradient(90deg, #8a6410 0%, #ffe9a8 22%, #fff6d9 32%, #ffe9a8 42%, #8a6410 65%, #ffe9a8 85%, #8a6410 100%);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  border-color: rgba(255,214,120,0.35);
+  animation: proGoldShine 3.2s linear infinite;
+}
+@keyframes proGoldShine {
+  0%   { background-position: 0% center; }
+  100% { background-position: -300% center; }
+}
+
+.pro-soon-price {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, rgba(255,255,255,0.35) 25%, rgba(255,255,255,0.95) 50%, rgba(255,255,255,0.35) 75%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: proTextShine 2.6s ease-in-out infinite;
+}
+@keyframes proTextShine {
+  0%   { background-position: 200% 0%; }
+  100% { background-position: -100% 0%; }
+}
+
+.card.pro-soon .btn-free:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pro-soon-panel {
+  margin-top: 8px;
+  padding: 22px 14px;
+  border: 1px dashed rgba(255,255,255,0.12);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  flex: 1;
+}
+
+.pro-soon-icon {
+  width: 26px;
+  height: 26px;
+  color: rgba(255,214,120,0.7);
+  animation: proIconSpin 5s linear infinite;
+}
+@keyframes proIconSpin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.pro-soon-text {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.6;
+}
 </style>
 </head>
 <body>
@@ -417,41 +492,51 @@
       <span class="currency">₹</span>
       <span class="price">0</span>
     </div>
-    <p class="period">INR / month</p>
+    <p class="period">Forever</p>
     <p class="tagline">See what AI can do</p>
     <button class="btn btn-free">Your current plan</button>
     <p class="features-label">Includes</p>
     <ul class="feature-list">
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Core AI model</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Limited messages and uploads</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Limited image creation</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Limited memory</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Basic study Q&A</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Chat history for 7 days</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Core AI Model</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Limited messages (20/day)</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Storage (50 MB)</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Limited image creation (5/day)</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Basic Study Q&A</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Upto 3 Project Creations</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Chat history (up to 8 chats)</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Voice mode (few minutes)</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Free Background Videos</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Up to 3 projects</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Default Agent Mood</li>
     </ul>
   </div>
 
   <!-- GO -->
   <div class="card">
-    <div class="badge">Special Offer</div>
     <p class="plan-name">Go</p>
     <div class="price-row">
       <span class="currency">₹</span>
-      <span class="price-strike">199</span>
       <span class="price">29</span>
     </div>
-    <p class="period">INR for the first 7 days</p>
+    <p class="period">INR for 7 days</p>
     <p class="tagline">More access to popular features</p>
-    <button class="btn btn-go" onclick="alert('Payment coming soon!')">Claim Special Offer</button>
-    <p class="promo-note"><u>Promo terms apply.</u> Promo pricing for first 7 days. Plan continues at ₹199/month. Cancel anytime. This plan may include ads.</p>
+    <button class="btn btn-go" onclick="openPaymentModal('go')">Get Go</button>
     <p class="features-label">Includes</p>
     <ul class="feature-list">
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>More messages per day</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>More file uploads</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>More image creation</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Longer memory</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Expanded voice mode</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>500MB storage</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Advanced AI Model</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Unlimited messages</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Storage (150 MB)</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Upto 10 Project Creations</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Image creation (10/day)</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Advanced Study Q&A</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Chat history forever</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Longer voice mode</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Premium Background Videos</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Up to 10 projects</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>More Agent Moods</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Privacy Mode</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Personal Issue Assistant</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>All contact support services</li>
     </ul>
   </div>
 
@@ -460,46 +545,46 @@
     <p class="plan-name">Plus</p>
     <div class="price-row">
       <span class="currency">₹</span>
-      <span class="price">499</span>
+      <span class="price">99</span>
     </div>
-    <p class="period">INR / month (inclusive of GST)</p>
-    <p class="tagline">Unlock the full experience</p>
-    <button class="btn btn-plus" onclick="alert('Payment coming soon!')">Upgrade to Plus</button>
-    <p class="features-label">Everything in Go, and:</p>
+    <p class="period">INR / month</p>
+    <p class="tagline">Same great features, monthly</p>
+    <button class="btn btn-plus" onclick="openPaymentModal('plus')">Upgrade to Plus</button>
+    <p class="features-label">Includes</p>
     <ul class="feature-list">
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Advanced AI model</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Even more messages & uploads</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Even more image creation</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Expanded memory across chats</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Deep research & agent mode</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Projects & smart context</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Image upload in chat</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Human-like chat behaviour</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>1GB storage · Valid 30 days</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Advanced AI Model</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Unlimited messages</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Storage (150 MB)</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Image creation (10/day)</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Advanced Study Q&A</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Upto 10 Project Creations</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Chat history forever</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Longer voice mode</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Premium Background Videos</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Up to 10 projects</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>More Agent Moods</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Privacy Mode</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Personal Issue Assistant</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>All contact support services</li>
     </ul>
   </div>
 
-  <!-- PRO -->
-  <div class="card">
+  <!-- PRO — not decided yet, shimmering "coming soon" -->
+  <div class="card pro-soon">
+    <div class="badge pro-soon-badge">Coming Soon</div>
     <p class="plan-name">Pro</p>
     <div class="price-row">
-      <span class="currency">₹</span>
-      <span class="price">999</span>
+      <span class="pro-soon-price">TBA</span>
     </div>
-    <p class="period">INR / month (inclusive of GST)</p>
-    <p class="tagline">Maximize your productivity</p>
-    <button class="btn btn-pro" onclick="alert('Payment coming soon!')">Upgrade to Pro</button>
-    <p class="features-label">Everything in Plus, and:</p>
-    <ul class="feature-list">
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Maximum accuracy & speed</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Unlimited messages</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Unlimited & faster image creation</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Maximum memory and context</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Expanded projects & tasks</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Early access to new features</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Priority support</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>2GB storage · Valid 30 days</li>
-    </ul>
+    <p class="period">Details coming soon</p>
+    <p class="tagline">Something bigger is on the way</p>
+    <button class="btn btn-free" disabled>Not available yet</button>
+    <div class="pro-soon-panel">
+      <svg class="pro-soon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+      </svg>
+      <p class="pro-soon-text">We're still shaping Pro.<br>Stay tuned — it's going to be worth the wait.</p>
+    </div>
   </div>
 
 </div><!-- end plans-grid -->
@@ -546,11 +631,12 @@
     <p class="features-label">Includes</p>
     <ul class="feature-list">
       <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Core AI model</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Upto 3 Project Creations</li>
       <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Limited messages and uploads</li>
       <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Limited image creation</li>
       <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Limited memory</li>
       <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Basic study Q&A</li>
-      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Chat history for 7 days</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Chat history (up to 8 chats)</li>
     </ul>
   </div>
 
@@ -568,6 +654,7 @@
       <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Refer a friend — earn <strong>50 tokens</strong> per signup</li>
       <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Friend uses Clive for 1 day — earn <strong>100 bonus tokens</strong></li>
       <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>More friends = more tokens, no limit</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Upto 10 Project Creations</li>
       <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Track your token balance in your profile</li>
       <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Tokens expire after 90 days if unused</li>
     </ul>
@@ -587,6 +674,7 @@
       <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Refer 5 friends to collect 500 tokens</li>
       <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Advanced AI model access</li>
       <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>More messages & file uploads</li>
+      <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Upto 10 Project Creations</li>
       <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Image upload in chat</li>
       <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Expanded memory across chats</li>
       <li><svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>Deep research & agent mode</li>
@@ -640,7 +728,11 @@
 
 <button class="back-btn" onclick="window.history.back()">← Back</button>
 
-<script>
+<script type="module">
+  import {
+    auth, onAuthStateChanged, db, doc, getDoc
+  } from "{{ url_for('static', filename='js/firebase-init.js') }}";
+
   const btnPersonal = document.getElementById('btn-personal');
   const btnToken = document.getElementById('btn-token');
   const viewPersonal = document.getElementById('view-personal');
@@ -659,6 +751,74 @@
     viewToken.style.display = 'block';
     viewPersonal.style.display = 'none';
   });
+
+  // Show "Your current plan" based on selectedPlan
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+
+    try {
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (!snap.exists()) return;
+
+      const data = snap.data();
+      let plan = (data.selectedPlan || 'free').toLowerCase();
+
+      // If plan expired, treat as free
+      if (data.planExpiresAt) {
+        const expires = new Date(data.planExpiresAt);
+        if (expires < new Date()) plan = 'free';
+      }
+
+      const freeBtn = document.querySelector('#view-personal .btn-free');
+      const goBtn = document.querySelector('#view-personal .btn-go');
+      const plusBtn = document.querySelector('#view-personal .btn-plus');
+
+      // Reset Free button text
+      if (freeBtn) {
+        freeBtn.textContent = plan === 'free' ? 'Your current plan' : 'Free plan';
+        freeBtn.disabled = plan === 'free';
+        freeBtn.style.cursor = plan === 'free' ? 'default' : 'pointer';
+      }
+
+      if (goBtn) {
+        if (plan === 'go') {
+          goBtn.textContent = 'Your current plan';
+          goBtn.onclick = null;
+          goBtn.disabled = true;
+          goBtn.style.opacity = '0.7';
+          goBtn.style.cursor = 'default';
+        } else if (plan === 'plus' || plan === 'pro') {
+          goBtn.textContent = 'Included in your plan';
+          goBtn.onclick = null;
+          goBtn.disabled = true;
+          goBtn.style.opacity = '0.7';
+          goBtn.style.cursor = 'default';
+        }
+      }
+
+      if (plusBtn) {
+        if (plan === 'plus') {
+          plusBtn.textContent = 'Your current plan';
+          plusBtn.onclick = null;
+          plusBtn.disabled = true;
+          plusBtn.style.opacity = '0.7';
+          plusBtn.style.cursor = 'default';
+        } else if (plan === 'pro') {
+          plusBtn.textContent = 'Included in your plan';
+          plusBtn.onclick = null;
+          plusBtn.disabled = true;
+          plusBtn.style.opacity = '0.7';
+          plusBtn.style.cursor = 'default';
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load plan on upgrade page:', err);
+    }
+  });
 </script>
+
+<!-- Payment modal + pending banner (PhonePe QR verification) -->
+{% include 'payment_modal.html' %}
+
 </body>
 </html>

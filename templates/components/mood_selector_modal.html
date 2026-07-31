@@ -435,3 +435,27 @@ window.closeTypeMode = closeTypeMode;
 window.selectMood = selectMood;
 /*=======================================================================*/
 </script>
+
+
+<script type="module">
+import { auth, onAuthStateChanged, db, doc, getDoc } from "{{ url_for('static', filename='js/firebase-init.js') }}";
+
+function updateMoodBadgesForPlan() {
+    const isPaid = window.userPlan && window.userPlan !== 'free';
+    document.querySelectorAll('.mood-premium-badge').forEach(badge => {
+        badge.style.display = isPaid ? 'none' : '';
+    });
+}
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.userPlan = 'free'; updateMoodBadgesForPlan(); return; }
+    try {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        window.userPlan = snap.exists() ? (snap.data().selectedPlan || 'free') : 'free';
+    } catch (err) {
+        console.error('Failed to load plan for Agent Mood:', err);
+        window.userPlan = 'free';
+    }
+    updateMoodBadgesForPlan();
+});
+</script>

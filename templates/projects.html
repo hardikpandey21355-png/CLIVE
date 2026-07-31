@@ -762,6 +762,36 @@
     background: rgba(239, 68, 68, 0.15);
     color: #ef4444;
 }
+
+
+.project-limit-upgrade {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 18px;
+    cursor: pointer;
+}
+.project-limit-upgrade svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    color: #ffe9a8;
+}
+.project-limit-upgrade-text {
+    font-size: 13px;
+    font-weight: 600;
+    background: linear-gradient(90deg, #8a6410 0%, #ffe9a8 22%, #fff6d9 32%, #ffe9a8 42%, #8a6410 65%, #ffe9a8 85%, #8a6410 100%);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: projectLimitShine 3.2s linear infinite;
+}
+@keyframes projectLimitShine {
+    0%   { background-position: 0% center; }
+    100% { background-position: -300% center; }
+}
     </style>
 </head>
 <body>
@@ -824,6 +854,10 @@
                 <button class="cancel-btn" onclick="window.history.back()">
                     Cancel
                 </button>
+            </div>
+            <div class="project-limit-upgrade" id="projectLimitUpgrade" style="display:none;" onclick="window.location.href='/upgrade'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span class="project-limit-upgrade-text">Upgrade your plan to create more projects</span>
             </div>
 
             <!-- Projects Section (appears after creating a project) -->
@@ -982,7 +1016,7 @@ function saveProjectsToStorage() {
         }
 
         // ── Render project cards ──
-const MAX_PROJECTS = 3;
+window.MAX_PROJECTS = 3;
 
 function renderProjects() {
     const section = document.getElementById('projectsSection');
@@ -991,11 +1025,15 @@ function renderProjects() {
     // ── Enforce max 3 projects ──
     const newProjectBtn = document.querySelector('.new-project-btn-center');
     if (newProjectBtn) {
-        const atLimit = projects.length >= MAX_PROJECTS;
-        newProjectBtn.disabled = atLimit;
-        newProjectBtn.style.opacity = atLimit ? '0.4' : '1';
-        newProjectBtn.style.cursor = atLimit ? 'not-allowed' : 'pointer';
-        newProjectBtn.title = atLimit ? 'Limit of 3 projects reached — delete one to create a new one' : '';
+        const atLimit = projects.length >= window.MAX_PROJECTS;
+newProjectBtn.disabled = atLimit;
+newProjectBtn.style.opacity = atLimit ? '0.4' : '1';
+newProjectBtn.style.cursor = atLimit ? 'not-allowed' : 'pointer';
+newProjectBtn.title = atLimit ? `Limit of ${window.MAX_PROJECTS} projects reached — delete one to create a new one` : '';
+
+const limitNote = document.getElementById('projectLimitUpgrade');
+        const isFreePlan = !window.userProjectsPlan || window.userProjectsPlan === 'free';
+        if (limitNote) limitNote.style.display = (atLimit && isFreePlan) ? 'flex' : 'none';
     }
 
     if (projects.length === 0) {
@@ -1038,7 +1076,7 @@ function openProject(index) {
         id: p.id,
         name: p.name,
         description: p.description || '',
-        resources: (p.files || []).map(f => ({ name: f.name, size: f.size || 0 }))
+        resources: (p.files || []).map(f => ({ name: f.name, size: f.size || 0, content: f.content || null }))
     };
     localStorage.setItem('clive_active_project', JSON.stringify(activeProject));
     window.location.href = '/';
@@ -1052,8 +1090,8 @@ function openProject(index) {
 
         // Open First Modal
         function openModal() {
-    if (projects.length >= MAX_PROJECTS) {
-        alert('You can only have up to 3 projects. Delete one to create a new one.');
+    if (projects.length >= window.MAX_PROJECTS) {
+        alert('You can only have up to ' + window.MAX_PROJECTS + ' projects. Delete one to create a new one.');
         return;
     }
     document.getElementById('modalOverlay').classList.add('active');
@@ -1139,17 +1177,26 @@ function openProject(index) {
 
         const MAX_PROJECT_FILES = 5;
 
-function handleFiles(files) {
+async function handleFiles(files) {
     const remaining = MAX_PROJECT_FILES - uploadedFiles.length;
     if (remaining <= 0) { updateFileList(); return; }
 
     const toAdd = Array.from(files).slice(0, remaining);
     for (let file of toAdd) {
         uploadedFiles.push(file);
+        updateFileList();
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const res = await fetch('/api/project/extract-file', { method: 'POST', body: formData });
+            const data = await res.json();
+            file.extractedContent = data.content || null;
+        } catch (err) {
+            console.error('Failed to read file content:', err);
+            file.extractedContent = null;
+        }
     }
-    updateFileList();
 }
-
         function formatFileSize(bytes) {
             if (bytes < 1024) return bytes + ' B';
             if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
@@ -1205,7 +1252,7 @@ function handleFiles(files) {
     id: 'proj_' + Date.now(),
     name: projectName,
     description: projectDescription,
-    files: uploadedFiles.map(f => ({ name: f.name, size: f.size })),
+    files: uploadedFiles.map(f => ({ name: f.name, size: f.size, content: f.extractedContent || null })),
     createdAt: new Date()
 });
 
@@ -1269,5 +1316,26 @@ document.getElementById('confirmDeleteBtn').addEventListener('click', function()
     cancelDeleteProject();
 });
     </script>
+
+
+
+<script type="module">
+import { auth, onAuthStateChanged, db, doc, getDoc } from "{{ url_for('static', filename='js/firebase-init.js') }}";
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    try {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        const plan = snap.exists() ? (snap.data().selectedPlan || 'free') : 'free';
+        window.userProjectsPlan = plan;
+        window.MAX_PROJECTS = (plan === 'free') ? 3 : 10;
+    } catch (err) {
+        console.error('Failed to load plan for project limit:', err);
+        window.userProjectsPlan = 'free';
+        window.MAX_PROJECTS = 3;
+    }
+    renderProjects();
+});
+</script>
 </body>
 </html>

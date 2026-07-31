@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Payment Requests · Clive</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0f0f0f; color: #f0f0f0;
+      font-family: 'Sora', sans-serif;
+      min-height: 100vh; padding: 32px 20px 60px;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
+    .sub { font-size: 13.5px; color: #888; margin-bottom: 28px; }
+    .locked, .empty {
+      background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 40px 24px; text-align: center; color: #888;
+    }
+    .tabs {
+      display: flex; gap: 6px; margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;
+    }
+    .tab {
+      background: none; border: none; color: #888; font-family: inherit;
+      font-size: 13.5px; font-weight: 600; padding: 8px 14px; border-radius: 8px;
+      cursor: pointer; transition: color 0.15s, background 0.15s;
+    }
+    .tab:hover { color: #ccc; }
+    .tab.active { color: #fff; background: rgba(107,124,255,0.18); }
+    .list { display: flex; flex-direction: column; gap: 12px; }
+    .card {
+      background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 18px 18px 16px;
+      display: grid; grid-template-columns: 1fr auto; gap: 14px;
+      align-items: start;
+    }
+    .card-main { min-width: 0; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 8px; align-items: center; }
+    .badge {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+      padding: 3px 9px; border-radius: 20px;
+    }
+    .badge-pending { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .badge-approved { background: rgba(52,211,153,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.25); }
+    .badge-rejected { background: rgba(248,113,113,0.12); color: #f87171; border: 1px solid rgba(248,113,113,0.25); }
+    .plan-tag {
+      font-size: 12px; font-weight: 700; color: #6b7cff;
+      background: rgba(107,124,255,0.12); padding: 3px 9px; border-radius: 6px;
+    }
+    .meta { font-size: 13px; color: #aaa; line-height: 1.5; }
+    .meta strong { color: #e0e0e0; font-weight: 600; }
+    .utr-box {
+      margin-top: 10px; background: #111; border: 1px solid #2a2a2a;
+      border-radius: 8px; padding: 10px 12px; font-family: ui-monospace, monospace;
+      font-size: 13.5px; color: #e8e8e8; word-break: break-all;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .copy-utr {
+      flex-shrink: 0; background: rgba(255,255,255,0.08); border: none; color: #ccc;
+      border-radius: 6px; padding: 5px 10px; font-size: 11.5px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+    }
+    .copy-utr:hover { background: rgba(255,255,255,0.14); color: #fff; }
+    .shot {
+      margin-top: 10px; max-width: 180px; border-radius: 8px;
+      border: 1px solid #333; cursor: pointer; display: block;
+    }
+    .actions { display: flex; flex-direction: column; gap: 8px; }
+    .btn {
+      border: none; border-radius: 9px; padding: 10px 16px; font-size: 13px;
+      font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap;
+      transition: transform 0.12s, opacity 0.15s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-approve { background: #34d399; color: #0a1f14; }
+    .btn-approve:hover:not(:disabled) { background: #4ade80; }
+    .btn-reject { background: transparent; color: #f87171; border: 1px solid rgba(248,113,113,0.4); }
+    .btn-reject:hover:not(:disabled) { background: rgba(248,113,113,0.1); }
+    .back {
+      display: inline-block; margin-bottom: 20px; color: #888; text-decoration: none;
+      font-size: 13.5px; font-weight: 500;
+    }
+    .back:hover { color: #ccc; }
+    .lightbox {
+      position: fixed; inset: 0; z-index: 99999; background: rgba(0,0,0,0.9);
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .lightbox.show { display: flex; }
+    .lightbox img { max-width: 100%; max-height: 90vh; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="back" href="/upgrade">← Back to plans</a>
+    <h1>Payment requests</h1>
+    <p class="sub" id="adminSub">Loading…</p>
+
+    <div id="lockedView" class="locked" style="display:none;">
+      You don't have access to this page.
+    </div>
+
+    <div id="adminView" style="display:none;">
+      <div class="tabs">
+        <button class="tab active" data-status="pending" onclick="switchTab('pending', this)">Pending</button>
+        <button class="tab" data-status="approved" onclick="switchTab('approved', this)">Approved</button>
+        <button class="tab" data-status="rejected" onclick="switchTab('rejected', this)">Rejected</button>
+      </div>
+      <div class="list" id="requestList"></div>
+      <div class="empty" id="emptyState" style="display:none;">No requests in this tab.</div>
+    </div>
+  </div>
+
+  <div class="lightbox" id="lightbox" onclick="this.classList.remove('show')">
+    <img id="lightboxImg" src="" alt="Screenshot">
+  </div>
+
+  <script type="module">
+    import {
+      auth, onAuthStateChanged, db, doc, setDoc, collection, query, where,
+      getDocs, orderBy, limit, serverTimestamp
+    } from "{{ url_for('static', filename='js/firebase-init.js') }}";
+
+    /* ── Only this UID can use the admin page ── */
+    const ADMIN_UID = 'NQPHMU90avQUIayfWhOfpBfAE1O2';
+
+    let currentTab = 'pending';
+    let cache = { pending: [], approved: [], rejected: [] };
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user || user.uid !== ADMIN_UID) {
+        document.getElementById('lockedView').style.display = 'block';
+        document.getElementById('adminSub').textContent = 'Access denied';
+        return;
+      }
+      document.getElementById('adminView').style.display = 'block';
+      document.getElementById('adminSub').textContent = 'Signed in as ' + (user.email || user.uid);
+      await loadAll();
+      renderList();
+    });
+
+    async function loadAll() {
+      try {
+        const snap = await getDocs(
+          query(collection(db, 'paymentRequests'), orderBy('createdAt', 'desc'), limit(100))
+        );
+        cache = { pending: [], approved: [], rejected: [] };
+        snap.forEach(d => {
+          const data = { id: d.id, ...d.data() };
+          const s = data.status || 'pending';
+          if (cache[s]) cache[s].push(data);
+          else cache.pending.push(data);
+        });
+      } catch (err) {
+        console.error('Failed to load payment requests:', err);
+        document.getElementById('adminSub').textContent = 'Error loading requests — check Firestore index / rules.';
+      }
+    }
+
+    window.switchTab = function(status, btn) {
+      currentTab = status;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      renderList();
+    };
+
+    function formatDate(ts) {
+      if (!ts) return '—';
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+    function renderList() {
+      const list = document.getElementById('requestList');
+      const empty = document.getElementById('emptyState');
+      const items = cache[currentTab] || [];
+      if (items.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      list.innerHTML = items.map(r => {
+        const badgeClass = 'badge-' + (r.status || 'pending');
+        const canAct = r.status === 'pending';
+        return `
+          <div class="card" data-id="${r.id}">
+            <div class="card-main">
+              <div class="row">
+                <span class="badge ${badgeClass}">${r.status || 'pending'}</span>
+                <span class="plan-tag">${r.planLabel || r.plan} · ₹${r.amount}</span>
+                <span class="meta">${formatDate(r.createdAt)}</span>
+              </div>
+              <div class="meta">
+                <strong>${escapeHtml(r.email || 'No email')}</strong><br>
+                UID: ${escapeHtml(r.uid || '')}
+              </div>
+              <div class="utr-box">
+                <span>${escapeHtml(r.utr || '')}</span>
+                <button class="copy-utr" onclick="copyText('${escapeHtml(r.utr || '')}', this)">Copy UTR</button>
+              </div>
+              ${r.screenshotUrl ? `<img class="shot" src="${escapeHtml(r.screenshotUrl)}" alt="Screenshot" onclick="openShot('${escapeHtml(r.screenshotUrl)}')">` : ''}
+            </div>
+            <div class="actions">
+              ${canAct ? `
+                <button class="btn btn-approve" onclick="approveRequest('${r.id}', '${escapeHtml(r.uid)}', '${escapeHtml(r.plan)}', ${Number(r.durationDays) || 30})">Approve</button>
+                <button class="btn btn-reject" onclick="rejectRequest('${r.id}')">Reject</button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    window.copyText = async function(text, btn) {
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.textContent = 'Copied';
+        setTimeout(() => { btn.textContent = 'Copy UTR'; }, 1200);
+      } catch (_) {}
+    };
+
+    window.openShot = function(url) {
+      document.getElementById('lightboxImg').src = url;
+      document.getElementById('lightbox').classList.add('show');
+    };
+
+    window.approveRequest = async function(requestId, uid, plan, durationDays) {
+      if (!confirm('Approve this payment and unlock ' + plan + ' for the user?')) return;
+      const btns = document.querySelectorAll(`[data-id="${requestId}"] .btn`);
+      btns.forEach(b => b.disabled = true);
+
+      try {
+        const expires = new Date();
+        expires.setDate(expires.getDate() + (durationDays || 30));
+
+        // 1) Unlock plan on user
+        await setDoc(doc(db, 'users', uid), {
+          selectedPlan: plan,
+          planExpiresAt: expires.toISOString(),
+          planUpdatedAt: serverTimestamp()
+        }, { merge: true });
+
+        // 2) Mark request approved
+        await setDoc(doc(db, 'paymentRequests', requestId), {
+          status: 'approved',
+          reviewedAt: serverTimestamp(),
+          reviewedBy: ADMIN_UID
+        }, { merge: true });
+
+        await loadAll();
+        renderList();
+      } catch (err) {
+        console.error('Approve failed:', err);
+        alert('Approve failed: ' + (err.message || err));
+        btns.forEach(b => b.disabled = false);
+      }
+    };
+
+    window.rejectRequest = async function(requestId) {
+      if (!confirm('Reject this payment request?')) return;
+      const btns = document.querySelectorAll(`[data-id="${requestId}"] .btn`);
+      btns.forEach(b => b.disabled = true);
+
+      try {
+        await setDoc(doc(db, 'paymentRequests', requestId), {
+          status: 'rejected',
+          reviewedAt: serverTimestamp(),
+          reviewedBy: ADMIN_UID
+        }, { merge: true });
+        await loadAll();
+        renderList();
+      } catch (err) {
+        console.error('Reject failed:', err);
+        alert('Reject failed: ' + (err.message || err));
+        btns.forEach(b => b.disabled = false);
+      }
+    };
+  </script>
+</body>
+</html>

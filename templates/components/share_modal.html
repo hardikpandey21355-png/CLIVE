@@ -1,0 +1,301 @@
+<!--=======================================================================-->
+<!-- Share Modal — opens when a conversation is shared -->
+<div class="share-modal-overlay" id="shareModalOverlay" onclick="closeShareModal(event)">
+    <div class="share-modal" onclick="event.stopPropagation()">
+
+        <button class="share-modal-close" onclick="closeShareModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+        </button>
+
+        <h2 class="share-modal-title">Share this conversation</h2>
+        <p class="share-modal-sub" id="shareModalChatTitle">Anyone with the link can view it</p>
+
+        <div class="share-link-row">
+            <input type="text" id="shareLinkInput" class="share-link-input" readonly onclick="this.select()">
+            <button class="share-copy-btn" id="shareCopyBtn" onclick="copyShareLink()">Copy</button>
+        </div>
+
+        <div class="share-apps-grid" id="shareAppsGrid">
+            <button class="share-app-btn" onclick="shareToWhatsApp()">
+                <span class="share-app-icon share-app-whatsapp">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.986.579 3.836 1.578 5.392L2.5 22l4.735-1.041A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18.11a8.084 8.084 0 01-4.3-1.237l-.309-.183-3.198.703.678-3.15-.201-.318A8.082 8.082 0 013.89 12 8.11 8.11 0 1112 20.11z"/></svg>
+                </span>
+                <span>WhatsApp</span>
+            </button>
+            <button class="share-app-btn" onclick="shareToTwitter()">
+                <span class="share-app-icon share-app-x">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                </span>
+                <span>X</span>
+            </button>
+            <button class="share-app-btn" onclick="shareToFacebook()">
+                <span class="share-app-icon share-app-facebook">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
+                </span>
+                <span>Facebook</span>
+            </button>
+            <button class="share-app-btn" onclick="shareToEmail()">
+                <span class="share-app-icon share-app-email">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+                </span>
+                <span>Email</span>
+            </button>
+            <button class="share-app-btn" id="shareMoreBtn" onclick="shareToMore()" style="display:none;">
+                <span class="share-app-icon share-app-more">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                </span>
+                <span>More</span>
+            </button>
+        </div>
+
+        <p class="share-modal-footnote">This shares a snapshot of the conversation — future messages won't be added to it.</p>
+
+    </div>
+</div>
+<!--=======================================================================-->
+
+
+<style>
+.share-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8,8,10,0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.share-modal-overlay.show { display: flex; }
+
+.share-modal {
+    background: linear-gradient(165deg, #202024 0%, #17171a 55%, #131315 100%);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 400px;
+    padding: 34px 28px 28px;
+    position: relative;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    text-align: center;
+    box-shadow:
+        0 40px 100px rgba(0,0,0,0.55),
+        0 8px 30px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+    animation: shareModalIn 0.28s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes shareModalIn {
+    from { opacity: 0; transform: scale(0.96) translateY(14px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.share-modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.09);
+    color: #999;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.share-modal-close:hover { background: rgba(255,255,255,0.12); color: #fff; transform: rotate(90deg); }
+.share-modal-close svg { width: 14px; height: 14px; }
+
+.share-modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: -0.015em;
+}
+.share-modal-sub {
+    font-size: 13.5px;
+    color: #8f8f95;
+    margin-bottom: 26px;
+    letter-spacing: -0.005em;
+}
+
+.share-link-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 13px;
+    padding: 6px 6px 6px 16px;
+    margin-bottom: 24px;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+.share-link-row:focus-within {
+    border-color: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.05);
+}
+.share-link-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: #d4d4d8;
+    font-size: 13px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-width: 0;
+    text-overflow: ellipsis;
+}
+.share-copy-btn {
+    flex-shrink: 0;
+    background: #fff;
+    color: #111;
+    border: none;
+    border-radius: 9px;
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+    font-family: inherit;
+    letter-spacing: -0.005em;
+}
+.share-copy-btn:hover { background: #f0f0f0; }
+.share-copy-btn:active { transform: scale(0.96); }
+
+.share-apps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 22px;
+}
+.share-app-btn {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 4px 0;
+    font-family: inherit;
+}
+.share-app-icon {
+    width: 48px; height: 48px;
+    border-radius: 15px;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.18s cubic-bezier(0.22,1,0.36,1), box-shadow 0.18s ease, filter 0.18s ease;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+.share-app-btn:hover .share-app-icon {
+    transform: translateY(-3px) scale(1.04);
+    filter: brightness(1.1);
+}
+.share-app-btn:active .share-app-icon { transform: translateY(-1px) scale(0.98); }
+.share-app-icon svg { width: 21px; height: 21px; }
+.share-app-btn span:last-child {
+    font-size: 11.5px;
+    color: #9a9aa0;
+    letter-spacing: -0.005em;
+}
+
+.share-app-whatsapp { background: rgba(37,211,102,0.15); color: #2fe378; }
+.share-app-x        { background: rgba(255,255,255,0.09); color: #fff; }
+.share-app-facebook { background: rgba(24,119,242,0.16); color: #5b9dff; }
+.share-app-email    { background: rgba(255,255,255,0.07); color: #d4d4d8; }
+.share-app-more     { background: rgba(255,255,255,0.07); color: #d4d4d8; }
+
+.share-modal-footnote {
+    font-size: 11.5px;
+    color: #6b6b70;
+    line-height: 1.55;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+}
+</style>
+
+
+<script>
+/*=======================================================================*/
+let currentShareLink = '';
+let currentShareTitle = '';
+
+function openShareModal(link, title) {
+    currentShareLink = link;
+    currentShareTitle = title || 'Shared conversation';
+    document.getElementById('shareLinkInput').value = link;
+    document.getElementById('shareModalChatTitle').textContent = currentShareTitle;
+
+    const copyBtn = document.getElementById('shareCopyBtn');
+    copyBtn.textContent = 'Copy';
+
+    const moreBtn = document.getElementById('shareMoreBtn');
+    moreBtn.style.display = (navigator.share) ? 'flex' : 'none';
+
+    document.getElementById('shareModalOverlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+window.openShareModal = openShareModal;
+
+function closeShareModal(e) {
+    if (e && e.target !== document.getElementById('shareModalOverlay')) return;
+    document.getElementById('shareModalOverlay').classList.remove('show');
+    document.body.style.overflow = '';
+}
+window.closeShareModal = closeShareModal;
+
+async function copyShareLink() {
+    try {
+        await navigator.clipboard.writeText(currentShareLink);
+        const btn = document.getElementById('shareCopyBtn');
+        btn.textContent = 'Copied!';
+        clearTimeout(btn._revertTimer);
+        btn._revertTimer = setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
+    } catch (err) {
+        console.error('Copy failed:', err);
+    }
+}
+window.copyShareLink = copyShareLink;
+
+function shareToWhatsApp() {
+    const text = currentShareTitle + ' — ' + currentShareLink;
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+window.shareToWhatsApp = shareToWhatsApp;
+
+function shareToTwitter() {
+    const url = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(currentShareLink) + '&text=' + encodeURIComponent(currentShareTitle);
+    window.open(url, '_blank');
+}
+window.shareToTwitter = shareToTwitter;
+
+function shareToFacebook() {
+    const url = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(currentShareLink);
+    window.open(url, '_blank');
+}
+window.shareToFacebook = shareToFacebook;
+
+function shareToEmail() {
+    const subject = encodeURIComponent(currentShareTitle);
+    const body = encodeURIComponent(currentShareTitle + '\n\n' + currentShareLink);
+    window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+}
+window.shareToEmail = shareToEmail;
+
+async function shareToMore() {
+    if (!navigator.share) return;
+    try {
+        await navigator.share({ title: currentShareTitle, url: currentShareLink });
+    } catch (err) {
+        // user cancelled the native share sheet — ignore
+    }
+}
+window.shareToMore = shareToMore;
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeShareModal();
+});
+/*=======================================================================*/
+</script>

@@ -9,13 +9,16 @@
 </head>
 
 <body>
-
+    <!--=======================================================================-->
+    <!-- Runs before paint — if we're about to open a chat from History, -->
+    <!-- switch straight to chat layout instead of flashing the homepage first -->
     <script>
       if (localStorage.getItem('clive_open_conversation')) {
         document.documentElement.classList.add('cl-loading-chat');
       }
     </script>
-    
+    <!--=======================================================================-->
+
     <!--=======================================================================-->
     <!-- Background Video Layer — plays the video chosen on the Background page -->
     <video id="bgVideo" class="bg-video" muted playsinline></video>
@@ -679,7 +682,7 @@
 
     <!--=======================================================================-->
     <!-- Upgrade your Plan Button - Top Left Corner  -->
-    <button class="upgrade-plan-btn" onclick="window.location.href='/upgrade';">
+    <button class="upgrade-plan-btn" id="upgradePlanBtn" onclick="window.location.href='/upgrade';">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
         <path
             d="M19.952 1.651a.75.75 0 0 1 .298.599V16.303a3 3 0 0 1-2.176 2.884l-1.32.377a2.553 2.553 0 1 1-1.403-4.909l2.311-.66a1.5 1.5 0 0 0 1.088-1.442V6.994l-9 2.572V19.2a3 3 0 0 1-2.176 2.884l-1.32.377a2.553 2.553 0 1 1-1.402-4.909l2.31-.66A1.5 1.5 0 0 0 8.25 15.45V5.134a.75.75 0 0 1 .544-.721l10.5-3a.75.75 0 0 1 .658.238Z" />
@@ -724,9 +727,11 @@
     {% include "components/grouping_modal.html" %}
     <!-- this line of code is responsible to open mood_selector_modal.html file -->
     {% include "components/mood_selector_modal.html" %}
+    <!-- this line of code is responsible to open history_popup.html file -->
+    {% include "components/history_popup.html" %}
+    <!-- this line of code is responsible to open share_modal.html file -->
+    {% include "components/share_modal.html" %}
     <!-- this line of code is responsible to open imagine_section.html file -->
-     {% include "components/history_popup.html" %}
-     
     {% include "components/imagine_section.html" %}
     <!--=======================================================================-->
 
@@ -771,7 +776,7 @@
 <!-- ================================================================================= -->
 <!-- Chat Share Button -->
 <div class="chat-actions-bar" id="chatActionsBar">
-    <button class="chat-share-btn" onclick="console.log('Share clicked')">
+    <button class="chat-share-btn" onclick="shareCurrentChat()">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
@@ -910,21 +915,67 @@
     if (!activeProject || activeProject.resources.length >= MAX_PROJECT_RESOURCES) return;
     document.getElementById('folderFileInput').click();
     }
-    document.getElementById('folderFileInput').addEventListener('change', function(e) {
+    document.getElementById('folderFileInput').addEventListener('change', async function(e) {
     if (!activeProject) return;
     const remaining = MAX_PROJECT_RESOURCES - activeProject.resources.length;
     const incoming = Array.from(e.target.files).slice(0, remaining);
-    incoming.forEach(f => activeProject.resources.push({ name: f.name, size: f.size }));
-    persistActiveProject();
-    renderFolderPopup();
     this.value = '';
-    });
+
+    for (const f of incoming) {
+        const resource = { name: f.name, size: f.size, content: null };
+        activeProject.resources.push(resource);
+        persistActiveProject();
+        renderFolderPopup();
+
+        try {
+            const formData = new FormData();
+            formData.append('file', f);
+            const res = await fetch('/api/project/extract-file', { method: 'POST', body: formData });
+            const data = await res.json();
+            resource.content = data.content || null;
+        } catch (err) {
+            console.error('Failed to read project file content:', err);
+            resource.content = null;
+        }
+        persistActiveProject();
+    }
+});
     document.getElementById('folderPopupOverlay').addEventListener('click', closeFolderPopup);
     document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeFolderPopup();
     });
     </script>
     <!-- ============================================================================================= -->
+
+
+    <script type="module">
+import { auth, onAuthStateChanged, db, doc, getDoc } from "{{ url_for('static', filename='js/firebase-init.js') }}";
+
+const PLAN_DISPLAY_NAMES = { go: 'Go', plus: 'Plus', pro: 'Pro' };
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) return; // free/logged-out — button stays exactly as-is
+    try {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        const plan = snap.exists() ? (snap.data().selectedPlan || 'free') : 'free';
+        const btn = document.getElementById('upgradePlanBtn');
+        if (btn && plan !== 'free' && PLAN_DISPLAY_NAMES[plan]) {
+            const label = btn.querySelector('.upgrade-btn-label');
+            if (label) {
+                label.textContent = PLAN_DISPLAY_NAMES[plan];
+            } else {
+                btn.lastChild.textContent = ' ' + PLAN_DISPLAY_NAMES[plan];
+            }
+            btn.setAttribute('onclick', "window.location.href='/setting';");
+        }
+        // plan === 'free' → button stays "Upgrade your plan", unchanged
+    } catch (err) {
+        console.error('Failed to load plan for upgrade button:', err);
+        // on error, button stays as "Upgrade your plan" — fails safe toward free behavior
+    }
+});
+</script>
+
 
 </body>
 

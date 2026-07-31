@@ -961,17 +961,14 @@
 
                 <!-- ACCOUNT TAB -->
                 <div id="account-tab" style="display:none;">
-                    <div class="section-title">Account</div>
-                    <div class="plan-box">
-                        <h2 class="plan-title">Free</h2>
-                        <ul class="plan-features">
-                            <li>Get simple explanations</li>
-                            <li>Have short chats for common questions</li>
-                            <li>Save limited memory and context</li>
-                            <li>Normal chat behaviour</li>
-                            <li>Simple answers for study-related questions</li>
-                        </ul>
-                    </div>
+    <div class="section-title">Account</div>
+    <div class="plan-box">
+                    <h2 class="plan-title" id="account-plan-name">Loading…</h2>
+                    <div id="account-plan-price" style="font-size:13px; color:var(--text-secondary); margin-bottom:14px;"></div>
+                    <ul class="plan-features" id="account-plan-features"></ul>
+                    <button class="btn-primary" id="account-upgrade-btn" style="margin-top:16px; display:none;" onclick="window.location.href='/upgrade';">Upgrade Plan</button>
+                    <button class="btn-primary" id="account-select-go-btn" style="margin-top:10px; display:none;" onclick="activateGoPlanForTesting()">Select Go Plan (Test)</button>
+                </div>
                     <div class="delete-section">
                         <span class="delete-text">Delete Account</span>
                         <button class="btn-danger" id="delete-account-btn">Delete</button>
@@ -986,7 +983,7 @@
                 <div id="data-tab" style="display:none;">
                     <div class="section-title">Data controls</div>
                     <div class="setting-row"><div class="setting-label">Improve the model for everyone</div><div class="setting-value">On ›</div></div>
-                    <div class="setting-row"><div class="setting-label">Shared links</div><button class="btn-primary">Manage</button></div>
+                    <div class="setting-row"><div class="setting-label">Shared links</div><div class="archive-right"><button class="btn-primary" id="shared-links-manage-btn">Manage</button><div class="archive-dropdown" id="shared-links-dropdown" style="width:320px;"><div class="archive-title">Shared Links</div><div id="shared-links-list" style="margin-top:10px; max-height:240px; overflow-y:auto; display:flex; flex-direction:column; gap:8px;"></div></div></div></div>
                     <div class="setting-row"><div class="setting-label">Archived chats</div><div class="archive-right"><button class="btn-primary" id="archived-manage-btn">Manage</button><div class="archive-dropdown" id="archive-dropdown"><div class="archive-title">Archived Chats</div><div class="archive-desc">Restore every archived conversation back into your History.</div><button class="archive-restore-btn">Restore all chats</button></div></div></div>
                     <div class="setting-row"><div class="setting-label">Archive all chats</div><div class="archive-all-right"><button class="btn-primary" id="archive-all-btn">Archive All</button><div class="archive-all-dropdown" id="archive-all-dropdown"><div class="archive-title">Archive All Chats</div><div class="archive-desc">Archive every conversation currently shown in your History.You can restore them later from Archived Chats.</div><button class="archive-all-confirm-btn">Archive All Chats</button></div></div></div>
                     <div class="setting-row"><div class="setting-label">Delete all chats</div><button class="btn-danger" id="delete-all-chats-btn">Delete all</button></div>
@@ -1256,6 +1253,22 @@
         </div>
     </div>
 
+    <!-- Delete All Chats Modal (this is the real one wired to Firestore) -->
+    <div class="delete-all-modal" id="delete-all-modal">
+        <div class="delete-all-card">
+            <h2>Delete All Chats?</h2>
+            <p>
+                This will permanently delete every conversation from your account.
+                <br><br>
+                This action cannot be undone and your chats cannot be recovered.
+            </p>
+            <div class="delete-all-actions">
+                <button class="delete-cancel-btn" id="delete-cancel-btn">Cancel</button>
+                <button class="delete-confirm-btn" id="delete-confirm-btn">Delete All Chats</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         /* =========================================================
            UI-ONLY BEHAVIOR
@@ -1304,18 +1317,6 @@
             document.getElementById("delete-modal").classList.add("hidden");
         });
         
-
-        /* ---------- DELETE ALL CHATS MODAL (display only) ---------- */
-        document.getElementById("delete-all-chats-btn").addEventListener("click", () => {
-            document.getElementById("delete-chats-modal").classList.remove("hidden");
-        });
-        document.getElementById("cancel-delete-chats").addEventListener("click", () => {
-            document.getElementById("delete-chats-modal").classList.add("hidden");
-        });
-        document.getElementById("confirm-delete-chats").addEventListener("click", () => {
-            document.getElementById("delete-chats-modal").classList.add("hidden");
-            // No real deletion happens here — UI preview only.
-        });
 
         /* ---------- NOTIFICATIONS DROPDOWN + TOGGLE ---------- */
         function toggleDropdown(triggerEl) {
@@ -1493,13 +1494,125 @@ deleteModal.addEventListener("click", (e) => {
 import {
     auth, db, doc, deleteDoc, onAuthStateChanged,
     deleteUser, EmailAuthProvider, reauthenticateWithCredential,
-    GoogleAuthProvider, reauthenticateWithPopup
+    GoogleAuthProvider, reauthenticateWithPopup,
+    collection, query, where, getDocs, writeBatch, getDoc, setDoc
 } from "{{ url_for('static', filename='js/firebase-init.js') }}";
+
+/* ── Plan definitions — single source of truth for what each plan includes ── */
+const PLAN_DATA = {
+    free: {
+        name: 'Free',
+        priceLabel: '₹0 / month',
+        features: [
+            'Core AI Model',
+            'Limited messages (20/day)',
+            'Storage (50 MB)',
+            'Limited image creation (5/day)',
+            'Basic Study Q&A',
+            'Chat history (up to 8 chats)',
+            'Voice mode (few minutes)',
+            'Free Background Videos',
+            'Limited project creations',
+            'Default Agent Mood'
+        ]
+    },
+    go: {
+        name: 'Go',
+        priceLabel: '₹29 for 7 days',
+        features: [
+            'Advanced AI Model',
+            'Unlimited messages',
+            'Storage (150 MB)',
+            'Image creation (10/day)',
+            'Advanced Study Q&A',
+            'Chat history forever',
+            'Longer voice mode',
+            'Premium Background Videos',
+            'Unlimited project creations',
+            'More Agent Moods',
+            'Privacy Mode',
+            'Personal Issue Assistant',
+            'All contact support services'
+        ]
+    },
+    plus: {
+        name: 'Plus',
+        priceLabel: '₹99 / month',
+        features: [
+            'Advanced AI Model',
+            'Unlimited messages',
+            'Storage (150 MB)',
+            'Image creation (10/day)',
+            'Advanced Study Q&A',
+            'Chat history forever',
+            'Longer voice mode',
+            'Premium Background Videos',
+            'Unlimited project creations',
+            'More Agent Moods',
+            'Privacy Mode',
+            'Personal Issue Assistant',
+            'All contact support services'
+        ]
+    },
+    pro: {
+        name: 'Pro',
+        priceLabel: 'Coming soon',
+        comingSoon: true,
+        features: [
+            "We're still building Pro.",
+            'Something bigger is on the way — stay tuned.'
+        ]
+    }
+};
+
+async function renderAccountPlan(uid) {
+    const nameEl = document.getElementById('account-plan-name');
+    const priceEl = document.getElementById('account-plan-price');
+    const listEl = document.getElementById('account-plan-features');
+    const upgradeBtn = document.getElementById('account-upgrade-btn');
+
+    let planKey = 'free';
+    try {
+        const snap = await getDoc(doc(db, 'users', uid));
+        if (snap.exists() && snap.data().selectedPlan) {
+            planKey = snap.data().selectedPlan;
+        }
+    } catch (err) {
+        console.error('Failed to load plan:', err);
+    }
+
+    const plan = PLAN_DATA[planKey] || PLAN_DATA.free;
+
+    nameEl.textContent = plan.name;
+    priceEl.textContent = plan.priceLabel;
+    listEl.innerHTML = plan.features.map(f => `<li>${f}</li>`).join('');
+
+    upgradeBtn.style.display = (planKey === 'free' || planKey === 'go') ? 'inline-block' : 'none';
+
+    const selectGoBtn = document.getElementById('account-select-go-btn');
+    if (selectGoBtn) selectGoBtn.style.display = (planKey === 'free') ? 'inline-block' : 'none';
+}
+
+window.activateGoPlanForTesting = async function() {
+    if (!currentUser) return;
+    const btn = document.getElementById('account-select-go-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Activating…'; }
+    try {
+        await setDoc(doc(db, 'users', currentUser.uid), { selectedPlan: 'go' }, { merge: true });
+        await renderAccountPlan(currentUser.uid);
+    } catch (err) {
+        console.error('Failed to activate Go plan:', err);
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Select Go Plan (Test)'; }
+    }
+};
+
 
 let currentUser = null;
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
-    if (!user) window.location.href = '/login';
+    if (!user) { window.location.href = '/login'; return; }
+    renderAccountPlan(user.uid);
 });
 
 const confirmBtn = document.getElementById('confirm-delete');
@@ -1562,41 +1675,148 @@ async function reauthenticate() {
         return false;
     }
 }
+
+/* ---------- DATA MANAGE: Archived / Archive All / Delete All ---------- */
+
+async function commitInBatches(docs, mutate) {
+    const chunkSize = 450;
+    for (let i = 0; i < docs.length; i += chunkSize) {
+        const chunk = docs.slice(i, i + chunkSize);
+        const batch = writeBatch(db);
+        chunk.forEach(d => mutate(batch, d));
+        await batch.commit();
+    }
+}
+
+function convosRef() {
+    return collection(db, 'users', currentUser.uid, 'conversations');
+}
+
+// ── Restore all archived chats ──
+async function restoreAllArchivedChats() {
+    if (!currentUser) return;
+    const btn = document.querySelector('.archive-restore-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Restoring...'; }
+    try {
+        const q = query(convosRef(), where('archived', '==', true));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+            showAppliedToast('No archived chats to restore');
+        } else {
+            await commitInBatches(snap.docs, (batch, d) => batch.update(d.ref, { archived: false }));
+            showAppliedToast(snap.size + ' chat' + (snap.size !== 1 ? 's' : '') + ' restored');
+        }
+    } catch (err) {
+        console.error('Failed to restore archived chats:', err);
+        showAppliedToast('Failed to restore chats');
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Restore all chats'; }
+        document.getElementById('archive-dropdown').classList.remove('show');
+    }
+}
+
+// ── Archive all currently non-archived chats ──
+async function archiveAllChats() {
+    if (!currentUser) return;
+    const btn = document.querySelector('.archive-all-confirm-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Archiving...'; }
+    try {
+        const snap = await getDocs(convosRef());
+        const toArchive = snap.docs.filter(d => !d.data().archived);
+        if (toArchive.length === 0) {
+            showAppliedToast('No chats to archive');
+        } else {
+            await commitInBatches(toArchive, (batch, d) => batch.update(d.ref, { archived: true }));
+            showAppliedToast(toArchive.length + ' chat' + (toArchive.length !== 1 ? 's' : '') + ' archived');
+        }
+    } catch (err) {
+        console.error('Failed to archive all chats:', err);
+        showAppliedToast('Failed to archive chats');
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Archive All Chats'; }
+        document.getElementById('archive-all-dropdown').classList.remove('show');
+    }
+}
+
+// ── Delete all chats ──
+async function deleteAllChatsReal() {
+    if (!currentUser) return;
+    const btn = document.getElementById('delete-confirm-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Deleting...'; }
+    try {
+        const snap = await getDocs(convosRef());
+        if (!snap.empty) {
+            await commitInBatches(snap.docs, (batch, d) => batch.delete(d.ref));
+        }
+        showAppliedToast('All chats deleted');
+    } catch (err) {
+        console.error('Failed to delete all chats:', err);
+        showAppliedToast('Failed to delete chats');
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Delete All Chats'; }
+        document.getElementById('delete-all-modal').classList.remove('show');
+    }
+}
+
+document.querySelector('.archive-restore-btn')?.addEventListener('click', restoreAllArchivedChats);
+document.querySelector('.archive-all-confirm-btn')?.addEventListener('click', archiveAllChats);
+document.getElementById('delete-confirm-btn')?.addEventListener('click', deleteAllChatsReal);
+const sharedBtn = document.getElementById('shared-links-manage-btn');
+const sharedDropdown = document.getElementById('shared-links-dropdown');
+const sharedList = document.getElementById('shared-links-list');
+
+sharedBtn?.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    sharedDropdown.classList.toggle('show');
+    if (sharedDropdown.classList.contains('show')) await loadSharedLinks();
+});
+
+async function loadSharedLinks() {
+    if (!currentUser) return;
+    sharedList.innerHTML = '<div style="color:#888; font-size:13px;">Loading...</div>';
+    try {
+        const q = query(collection(db, 'sharedChats'), where('ownerId', '==', currentUser.uid));
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+            sharedList.innerHTML = '<div style="color:#888; font-size:13px;">No shared links yet.</div>';
+            return;
+        }
+
+        sharedList.innerHTML = '';
+        snap.forEach(docSnap => {
+            const d = docSnap.data();
+            const row = document.createElement('div');
+            row.style = 'display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px; background:#222; border-radius:8px;';
+            row.innerHTML = `
+                <span style="font-size:13px; color:#eee; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${d.title || 'Shared conversation'}</span>
+                <button style="background:#3a1a1a; color:#f87171; border:none; border-radius:6px; padding:5px 10px; font-size:12px; cursor:pointer;">Delete</button>
+            `;
+            row.querySelector('button').addEventListener('click', async () => {
+                try {
+                    await deleteDoc(doc(db, 'sharedChats', docSnap.id));
+                    row.remove();
+                } catch (err) {
+                    console.error('Failed to delete shared link:', err);
+                }
+            });
+            sharedList.appendChild(row);
+        });
+    } catch (err) {
+        console.error('Failed to load shared links:', err);
+        sharedList.innerHTML = '<div style="color:#f87171; font-size:13px;">Failed to load.</div>';
+    }
+}
+
+document.addEventListener('click', (e) => {
+    if (sharedDropdown && !sharedDropdown.contains(e.target) && e.target !== sharedBtn) {
+        sharedDropdown.classList.remove('show');
+    }
+});
 </script>
 
 
-<!-- Delete All Chats Modal -->
-<div class="delete-all-modal" id="delete-all-modal">
 
-    <div class="delete-all-card">
-
-        <div class="delete-all-icon">
-            🗑️
-        </div>
-
-        <h2>Delete All Chats?</h2>
-
-        <p>
-            This will permanently delete every conversation from your account.
-            <br><br>
-            This action cannot be undone and your chats cannot be recovered.
-        </p>
-
-        <div class="delete-all-actions">
-
-            <button class="delete-cancel-btn" id="delete-cancel-btn">
-                Cancel
-            </button>
-
-            <button class="delete-confirm-btn" id="delete-confirm-btn">
-                Delete All Chats
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
 
 
 </body>

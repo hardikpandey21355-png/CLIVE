@@ -1,0 +1,363 @@
+<!-- ═══════════════════════════════════════════════════════════
+   PAYMENT MODAL — PhonePe QR (UTR only, no Storage)
+   Open with: openPaymentModal('go')  or  openPaymentModal('plus')
+═══════════════════════════════════════════════════════════ -->
+
+<div class="pay-overlay" id="payOverlay" onclick="closePaymentModal(event)">
+  <div class="pay-modal" id="payModal" onclick="event.stopPropagation()">
+
+    <button class="pay-close" onclick="closePaymentModal()" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <!-- STEP 1: Pay -->
+    <div id="payStepPay">
+      <div class="pay-header">
+        <span class="pay-eyebrow">Upgrade to <span id="payPlanLabel">Go</span></span>
+        <h2 class="pay-title">Pay <span id="payAmountDisplay">₹29</span></h2>
+        <p class="pay-sub" id="payDurationLabel">Valid for 7 days after approval</p>
+      </div>
+
+      <div class="pay-qr-wrap">
+        <img src="/static/images/phonepe_qr.jpeg" alt="PhonePe QR — scan to pay" class="pay-qr" id="payQrImg"
+             onerror="this.src='phonepe_qr.jpeg'">
+        <p class="pay-qr-hint">Scan with any UPI app</p>
+      </div>
+
+      <div class="pay-upi-row">
+        <div class="pay-upi-left">
+          <span class="pay-upi-label">UPI ID</span>
+          <span class="pay-upi-value" id="payUpiValue">8218384624-2@ybl</span>
+        </div>
+        <button type="button" class="pay-copy-btn" id="payCopyUpi" onclick="copyUpiId()">Copy</button>
+      </div>
+
+      <div class="pay-divider"><span>After payment</span></div>
+
+      <div class="pay-form">
+        <label class="pay-label" for="payUtr">UTR / Transaction ID <span class="pay-req">*</span></label>
+        <input type="text" id="payUtr" class="pay-input" placeholder="e.g. 312345678901" autocomplete="off" maxlength="40">
+
+        <p class="pay-hint">You can also send a payment screenshot on WhatsApp: <strong>82183 84624</strong></p>
+
+        <p class="pay-error" id="payError"></p>
+
+        <button type="button" class="pay-submit-btn" id="paySubmitBtn" onclick="submitPaymentRequest()">
+          I've paid — submit for verification
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Success / pending -->
+    <div id="payStepDone" style="display:none;">
+      <div class="pay-done-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <h2 class="pay-title">Verification pending</h2>
+      <p class="pay-sub" style="margin-bottom:20px;">
+        Your <strong id="payDonePlan">Go</strong> payment is under review.
+        Usually approved within a few hours. You'll get access as soon as it's confirmed.
+      </p>
+      <button type="button" class="pay-submit-btn" onclick="closePaymentModal()">Got it</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Pending banner -->
+<div class="pay-pending-banner" id="payPendingBanner" style="display:none;">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+  </svg>
+  <span id="payPendingText">Your payment is under review — usually approved within a few hours.</span>
+</div>
+
+<style>
+.pay-overlay {
+  position: fixed; inset: 0; z-index: 99999;
+  background: rgba(0,0,0,0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 20px;
+}
+.pay-overlay.show { display: flex; }
+
+.pay-modal {
+  background: linear-gradient(180deg, #1c1c1c 0%, #141414 100%);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 22px;
+  width: 100%; max-width: 400px;
+  max-height: 90vh; overflow-y: auto;
+  padding: 28px 24px 24px;
+  position: relative;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+  animation: payModalIn 0.28s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes payModalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.pay-close {
+  position: absolute; top: 14px; right: 14px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+  color: #999; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.pay-close:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.pay-close svg { width: 14px; height: 14px; }
+
+.pay-header { text-align: center; margin-bottom: 18px; padding-right: 20px; }
+.pay-eyebrow {
+  display: inline-block; font-size: 12px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: #6b7cff; margin-bottom: 6px;
+}
+.pay-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+.pay-sub { font-size: 13.5px; color: #8c8c8c; line-height: 1.45; }
+
+.pay-qr-wrap {
+  background: #fff; border-radius: 16px; padding: 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  margin-bottom: 14px;
+}
+.pay-qr { width: 200px; height: 200px; object-fit: contain; display: block; }
+.pay-qr-hint { font-size: 12px; color: #666; margin: 0; }
+
+.pay-upi-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 12px; padding: 12px 14px;
+  margin-bottom: 16px;
+}
+.pay-upi-label { display: block; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #888; margin-bottom: 2px; }
+.pay-upi-value { font-size: 14px; font-weight: 600; color: #e8e8e8; word-break: break-all; }
+.pay-copy-btn {
+  flex-shrink: 0; background: #fff; color: #111; border: none;
+  border-radius: 8px; padding: 8px 14px; font-size: 12.5px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+}
+.pay-copy-btn:hover { background: #e8e8e8; }
+
+.pay-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 4px 0 16px; color: #666; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+.pay-divider::before, .pay-divider::after {
+  content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.08);
+}
+
+.pay-label {
+  display: block; font-size: 12.5px; font-weight: 600; color: #aaa;
+  margin-bottom: 6px;
+}
+.pay-req { color: #f87171; }
+
+.pay-input {
+  width: 100%; background: #111; border: 1px solid #333;
+  border-radius: 11px; padding: 12px 14px; font-size: 14.5px;
+  color: #fff; font-family: inherit; outline: none; margin-bottom: 10px;
+}
+.pay-input:focus { border-color: #6b7cff; }
+.pay-input::placeholder { color: #555; }
+
+.pay-hint {
+  font-size: 12.5px; color: #777; line-height: 1.45; margin-bottom: 14px;
+}
+.pay-hint strong { color: #aaa; }
+
+.pay-error {
+  display: none; font-size: 13px; color: #f87171; margin-bottom: 12px;
+}
+.pay-error.show { display: block; }
+
+.pay-submit-btn {
+  width: 100%; background: #6b7cff; color: #fff; border: none;
+  border-radius: 12px; padding: 14px; font-size: 14.5px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+}
+.pay-submit-btn:hover { background: #5a6bf0; }
+.pay-submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.pay-done-icon {
+  width: 56px; height: 56px; margin: 8px auto 16px;
+  border-radius: 50%;
+  background: rgba(107,124,255,0.12); border: 1px solid rgba(107,124,255,0.3);
+  display: flex; align-items: center; justify-content: center; color: #6b7cff;
+}
+.pay-done-icon svg { width: 26px; height: 26px; }
+#payStepDone { text-align: center; }
+
+.pay-pending-banner {
+  position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+  z-index: 9998;
+  background: #1a1f2e; border: 1px solid rgba(107,124,255,0.4);
+  color: #cfe2ff; padding: 12px 18px; border-radius: 12px;
+  font-size: 13.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+  max-width: min(520px, calc(100vw - 32px));
+}
+.pay-pending-banner svg { flex-shrink: 0; stroke: #6b7cff; }
+</style>
+
+<script type="module">
+import {
+  auth, onAuthStateChanged, db, doc, setDoc, collection, query, where,
+  getDocs, serverTimestamp, limit
+} from "{{ url_for('static', filename='js/firebase-init.js') }}";
+
+const PLAN_CONFIG = {
+  go:   { label: 'Go',   amount: 29,  days: 7,  durationText: 'Valid for 7 days after approval' },
+  plus: { label: 'Plus', amount: 99,  days: 30, durationText: 'Valid for 30 days after approval' }
+};
+
+const UPI_ID = '8218384624-2@ybl';
+
+let currentUser = null;
+let selectedPlan = null;
+
+onAuthStateChanged(auth, (user) => {
+  currentUser = user;
+  if (user) checkPendingRequest(user.uid);
+});
+
+window.openPaymentModal = async function(planKey) {
+  const cfg = PLAN_CONFIG[planKey];
+  if (!cfg) {
+    alert('This plan is not available yet.');
+    return;
+  }
+  if (!currentUser) {
+    alert('Please sign in first to upgrade.');
+    window.location.href = '/';
+    return;
+  }
+
+  const pending = await hasPendingRequest(currentUser.uid);
+  if (pending) {
+    alert('You already have a payment under review. Please wait for approval before submitting another.');
+    return;
+  }
+
+  selectedPlan = planKey;
+
+  document.getElementById('payPlanLabel').textContent = cfg.label;
+  document.getElementById('payAmountDisplay').textContent = '₹' + cfg.amount;
+  document.getElementById('payDurationLabel').textContent = cfg.durationText;
+  document.getElementById('payDonePlan').textContent = cfg.label;
+  document.getElementById('payUpiValue').textContent = UPI_ID;
+  document.getElementById('payUtr').value = '';
+  document.getElementById('payError').classList.remove('show');
+  document.getElementById('payError').textContent = '';
+  document.getElementById('paySubmitBtn').disabled = false;
+  document.getElementById('paySubmitBtn').textContent = "I've paid — submit for verification";
+
+  document.getElementById('payStepPay').style.display = 'block';
+  document.getElementById('payStepDone').style.display = 'none';
+
+  document.getElementById('payOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+};
+
+window.closePaymentModal = function(e) {
+  if (e && e.target !== document.getElementById('payOverlay') && e.type === 'click') return;
+  document.getElementById('payOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+};
+
+window.copyUpiId = async function() {
+  try {
+    await navigator.clipboard.writeText(UPI_ID);
+    const btn = document.getElementById('payCopyUpi');
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
+  } catch (_) {}
+};
+
+function showPayError(msg) {
+  const el = document.getElementById('payError');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+async function hasPendingRequest(uid) {
+  try {
+    const q = query(
+      collection(db, 'paymentRequests'),
+      where('uid', '==', uid),
+      where('status', '==', 'pending'),
+      limit(1)
+    );
+    const snap = await getDocs(q);
+    return !snap.empty;
+  } catch (err) {
+    console.error('Pending check failed:', err);
+    return false;
+  }
+}
+
+async function checkPendingRequest(uid) {
+  const pending = await hasPendingRequest(uid);
+  const banner = document.getElementById('payPendingBanner');
+  if (!banner) return;
+  banner.style.display = pending ? 'flex' : 'none';
+}
+
+window.submitPaymentRequest = async function() {
+  const cfg = PLAN_CONFIG[selectedPlan];
+  if (!cfg || !currentUser) return;
+
+  const utr = (document.getElementById('payUtr').value || '').trim();
+  if (!utr || utr.length < 8) {
+    showPayError('Please enter a valid UTR / Transaction ID (at least 8 characters).');
+    return;
+  }
+
+  const btn = document.getElementById('paySubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+  document.getElementById('payError').classList.remove('show');
+
+  try {
+    const requestId = 'pay_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    await setDoc(doc(db, 'paymentRequests', requestId), {
+      uid: currentUser.uid,
+      email: currentUser.email || '',
+      plan: selectedPlan,
+      planLabel: cfg.label,
+      amount: cfg.amount,
+      durationDays: cfg.days,
+      utr: utr,
+      screenshotUrl: null,
+      status: 'pending',
+      createdAt: serverTimestamp()
+    });
+
+    document.getElementById('payStepPay').style.display = 'none';
+    document.getElementById('payStepDone').style.display = 'block';
+    checkPendingRequest(currentUser.uid);
+  } catch (err) {
+    console.error('Payment submit failed:', err);
+    showPayError('Something went wrong. Please try again. (' + (err.message || 'error') + ')');
+    btn.disabled = false;
+    btn.textContent = "I've paid — submit for verification";
+  }
+};
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closePaymentModal();
+});
+</script>

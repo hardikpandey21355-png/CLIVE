@@ -50,8 +50,8 @@
       <svg class="cs-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
     </a>
 
-    <!-- Phone Primary — Locked -->
-    <div class="cs-row cs-row-locked" onclick="openUpgradePrompt()">
+    <!-- Phone Primary — Locked (unlocks via JS for paid plans) -->
+    <div class="cs-row cs-row-locked" id="csPhoneRow1" onclick="openUpgradePrompt()">
       <div class="cs-row-icon cs-icon-locked">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6.29 6.29l.97-.97a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
@@ -60,20 +60,20 @@
       <div class="cs-row-content">
         <div class="cs-row-header">
           <span class="cs-row-label">Phone Support</span>
-          <span class="cs-badge cs-badge-paid">PREMIUM</span>
+          <span class="cs-badge cs-badge-paid" id="csPhoneBadge1">PREMIUM</span>
         </div>
-        <span class="cs-row-value cs-blurred">+91 98765 43210</span>
-        <span class="cs-row-hint">Upgrade to unlock phone support</span>
+        <span class="cs-row-value cs-blurred" id="csPhoneValue1">+91 82183 84624</span>
+        <span class="cs-row-hint" id="csPhoneHint1">Upgrade to unlock phone support</span>
       </div>
-      <div class="cs-lock-icon">
+      <div class="cs-lock-icon" id="csPhoneLock1">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
         </svg>
       </div>
     </div>
 
-    <!-- Phone Secondary — Locked -->
-    <div class="cs-row cs-row-locked" onclick="openUpgradePrompt()">
+    <!-- Phone Secondary — Locked (unlocks via JS for paid plans) -->
+    <div class="cs-row cs-row-locked" id="csPhoneRow2" onclick="openUpgradePrompt()">
       <div class="cs-row-icon cs-icon-locked">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
@@ -82,12 +82,12 @@
       <div class="cs-row-content">
         <div class="cs-row-header">
           <span class="cs-row-label">Secondary Phone</span>
-          <span class="cs-badge cs-badge-paid">PREMIUM</span>
+          <span class="cs-badge cs-badge-paid" id="csPhoneBadge2">PREMIUM</span>
         </div>
-        <span class="cs-row-value cs-blurred">+91 91234 56789</span>
-        <span class="cs-row-hint">Upgrade to unlock phone support</span>
+        <span class="cs-row-value cs-blurred" id="csPhoneValue2">+91 97597 30780</span>
+        <span class="cs-row-hint" id="csPhoneHint2">Upgrade to unlock phone support</span>
       </div>
-      <div class="cs-lock-icon">
+      <div class="cs-lock-icon" id="csPhoneLock2">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
         </svg>
@@ -447,5 +447,54 @@ window.addEventListener('focus', function() {
 function openUpgradePrompt() {
   alert('Upgrade to Premium to unlock phone support!');
 }
+</script>
+
+
+
+<script type="module">
+import { auth, onAuthStateChanged, db, doc, getDoc } from "{{ url_for('static', filename='js/firebase-init.js') }}";
+
+function unlockPhoneRow(rowId, badgeId, valueId, hintId, lockId) {
+    const row = document.getElementById(rowId);
+    if (!row) return;
+    row.classList.remove('cs-row-locked');
+    row.removeAttribute('onclick');
+    row.style.cursor = 'default';
+
+    const badge = document.getElementById(badgeId);
+    if (badge) {
+        badge.textContent = 'UNLOCKED';
+        badge.classList.remove('cs-badge-paid');
+        badge.classList.add('cs-badge-free');
+    }
+    const value = document.getElementById(valueId);
+    if (value) value.classList.remove('cs-blurred');
+
+    const hint = document.getElementById(hintId);
+    if (hint) hint.style.display = 'none';
+
+    const lock = document.getElementById(lockId);
+    if (lock) lock.style.display = 'none';
+}
+
+function unlockContactSupportPhones() {
+    unlockPhoneRow('csPhoneRow1', 'csPhoneBadge1', 'csPhoneValue1', 'csPhoneHint1', 'csPhoneLock1');
+    unlockPhoneRow('csPhoneRow2', 'csPhoneBadge2', 'csPhoneValue2', 'csPhoneHint2', 'csPhoneLock2');
+}
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) return; // free/logged-out behavior stays exactly as-is
+    try {
+        const snap = await getDoc(doc(db, 'users', user.uid));
+        const plan = snap.exists() ? (snap.data().selectedPlan || 'free') : 'free';
+        if (plan !== 'free') {
+            unlockContactSupportPhones();
+        }
+        // plan === 'free' → do nothing, rows stay locked exactly as before
+    } catch (err) {
+        console.error('Failed to load plan for Contact Support:', err);
+        // on any error, rows stay locked — fails safe toward free behavior
+    }
+});
 </script>
 

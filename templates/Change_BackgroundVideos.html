@@ -157,7 +157,7 @@
         .vid-card:hover .vid-name  { color: rgba(255,255,255,0.72); }
         .vid-card.active .vid-name { color: #4a9eff; font-weight: 500; }
 
-        /* ── PREMIUM CARDS ── */
+        /* ── PREMIUM CARDS (locked / blurred for free users) ── */
         .prem-thumb { border-color: rgba(255,255,255,0.05) !important; }
         .prem-card:hover .vid-thumb { border-color: rgba(255,255,255,0.2) !important; }
 
@@ -172,6 +172,20 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             z-index: 1;
+        }
+
+        /* When locked (free plan), force stronger blur on the video itself */
+        .prem-card.locked .thumb-vid {
+            filter: blur(6px);
+            opacity: 0.55;
+            transform: scale(1.05); /* slight zoom so blur edges don’t show */
+        }
+        .prem-card.locked .play-overlay {
+            display: none; /* no play icon when locked */
+        }
+        .prem-card.locked:hover .vid-thumb {
+            transform: none; /* disable lift effect when locked */
+            box-shadow: none;
         }
 
         /* diagonal shine sweep */
@@ -212,7 +226,7 @@
         .prem-card:nth-child(7) .prem-shine { animation-delay: 2.4s; }
         .prem-card:nth-child(8) .prem-shine { animation-delay: 2.8s; }
 
-        /* lock badge — small enhancement so premium cards read clearly as locked */
+        /* lock badge */
         .prem-lock {
             position: absolute; top: 7px; right: 7px;
             width: 24px; height: 24px; border-radius: 50%;
@@ -228,6 +242,13 @@
         }
         .prem-lock svg { width: 12px; height: 12px; stroke: rgba(255,255,255,0.75); stroke-width: 2; fill: none; }
         .prem-card:hover .prem-lock svg { stroke: #4a9eff; }
+
+        /* Hide lock + glass when unlocked (premium plan) */
+        .prem-card:not(.locked) .prem-lock,
+        .prem-card:not(.locked) .prem-glass,
+        .prem-card:not(.locked) .prem-shine {
+            display: none;
+        }
 
         /* ── UPGRADE CTA — blue ── */
         .upgrade-cta {
@@ -358,114 +379,98 @@
         </div>
 
         <!-- ═══════════════════════════════ -->
-        <!-- PREMIUM SECTION                 -->
+        <!-- PREMIUM SECTION (always visible) -->
         <!-- ═══════════════════════════════ -->
-        <div class="section-label">
+        <div class="section-label" id="premiumSectionLabel">
             <span class="section-label-text">Premium</span>
             <span class="section-label-line"></span>
         </div>
 
-        <div class="premium-grid">
+        <div class="premium-grid" id="premiumGrid">
 
-            <div class="vid-card prem-card" onclick="lockedClick(this)">
+            <div class="vid-card prem-card locked" id="card_premium1" data-file="premium1.mp4" onclick="handlePremiumClick(this, 'Premium 1')">
                 <div class="vid-thumb prem-thumb">
-                    <div class="prem-fill"></div>
+                    <video class="thumb-vid" muted loop preload="metadata">
+                        <source src="{{ url_for('static', filename='videos/premium1.mp4') }}" type="video/mp4">
+                    </video>
                     <div class="prem-glass"></div>
                     <div class="prem-shine"></div>
+                    <div class="play-overlay">
+                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
                     <div class="prem-lock">
-                        <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <div class="active-tick">
+                        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
                     </div>
                 </div>
                 <span class="vid-name">Premium 1</span>
             </div>
 
-            <div class="vid-card prem-card" onclick="lockedClick(this)">
+            <div class="vid-card prem-card locked" id="card_premium2" data-file="premium2.mp4" onclick="handlePremiumClick(this, 'Premium 2')">
                 <div class="vid-thumb prem-thumb">
-                    <div class="prem-fill"></div>
+                    <video class="thumb-vid" muted loop preload="metadata">
+                        <source src="{{ url_for('static', filename='videos/premium2.mp4') }}" type="video/mp4">
+                    </video>
                     <div class="prem-glass"></div>
                     <div class="prem-shine"></div>
+                    <div class="play-overlay">
+                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
                     <div class="prem-lock">
-                        <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <div class="active-tick">
+                        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
                     </div>
                 </div>
                 <span class="vid-name">Premium 2</span>
             </div>
 
-            <div class="vid-card prem-card" onclick="lockedClick(this)">
+            <div class="vid-card prem-card locked" id="card_premium3" data-file="premium3.mp4" onclick="handlePremiumClick(this, 'Premium 3')">
                 <div class="vid-thumb prem-thumb">
-                    <div class="prem-fill"></div>
+                    <video class="thumb-vid" muted loop preload="metadata">
+                        <source src="{{ url_for('static', filename='videos/premium3.mp4') }}" type="video/mp4">
+                    </video>
                     <div class="prem-glass"></div>
                     <div class="prem-shine"></div>
+                    <div class="play-overlay">
+                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
                     <div class="prem-lock">
-                        <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <div class="active-tick">
+                        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
                     </div>
                 </div>
                 <span class="vid-name">Premium 3</span>
             </div>
 
-            <div class="vid-card prem-card" onclick="lockedClick(this)">
+            <div class="vid-card prem-card locked" id="card_premium4" data-file="premium4.mp4" onclick="handlePremiumClick(this, 'Premium 4')">
                 <div class="vid-thumb prem-thumb">
-                    <div class="prem-fill"></div>
+                    <video class="thumb-vid" muted loop preload="metadata">
+                        <source src="{{ url_for('static', filename='videos/premium4.mp4') }}" type="video/mp4">
+                    </video>
                     <div class="prem-glass"></div>
                     <div class="prem-shine"></div>
+                    <div class="play-overlay">
+                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
                     <div class="prem-lock">
-                        <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <div class="active-tick">
+                        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
                     </div>
                 </div>
                 <span class="vid-name">Premium 4</span>
             </div>
 
-            <div class="vid-card prem-card" onclick="lockedClick(this)">
-                <div class="vid-thumb prem-thumb">
-                    <div class="prem-fill"></div>
-                    <div class="prem-glass"></div>
-                    <div class="prem-shine"></div>
-                    <div class="prem-lock">
-                        <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-                    </div>
-                </div>
-                <span class="vid-name">Premium 5</span>
-            </div>
-
-            <div class="vid-card prem-card" onclick="lockedClick(this)">
-                <div class="vid-thumb prem-thumb">
-                    <div class="prem-fill"></div>
-                    <div class="prem-glass"></div>
-                    <div class="prem-shine"></div>
-                    <div class="prem-lock">
-                        <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-                    </div>
-                </div>
-                <span class="vid-name">Premium 6</span>
-            </div>
-
-            <div class="vid-card prem-card" onclick="lockedClick(this)">
-                <div class="vid-thumb prem-thumb">
-                    <div class="prem-fill"></div>
-                    <div class="prem-glass"></div>
-                    <div class="prem-shine"></div>
-                    <div class="prem-lock">
-                        <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-                    </div>
-                </div>
-                <span class="vid-name">Premium 7</span>
-            </div>
-
-            <div class="vid-card prem-card" onclick="lockedClick(this)">
-                <div class="vid-thumb prem-thumb">
-                    <div class="prem-fill"></div>
-                    <div class="prem-glass"></div>
-                    <div class="prem-shine"></div>
-                    <div class="prem-lock">
-                        <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-                    </div>
-                </div>
-                <span class="vid-name">Premium 8</span>
-            </div>
-
         </div>
 
-        <!-- Upgrade CTA — real link, kept like the back button -->
+        <!-- Upgrade CTA -->
         <a class="upgrade-cta" href="/upgrade">
             <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             Unlock all Premium backgrounds — Upgrade your plan
@@ -487,46 +492,75 @@
         document.querySelectorAll('.vid-card').forEach(card => {
             const video = card.querySelector('.thumb-vid');
             if (!video) return;
-            card.addEventListener('mouseenter', () => video.play().catch(() => {}));
-            card.addEventListener('mouseleave', () => { video.pause(); video.currentTime = 0; });
+            card.addEventListener('mouseenter', () => {
+                // Only play if not locked
+                if (!card.classList.contains('locked')) {
+                    video.play().catch(() => {});
+                }
+            });
+            card.addEventListener('mouseleave', () => {
+                video.pause();
+                video.currentTime = 0;
+            });
         });
 
-        
-/* ── Pick a background — saved so Home Page knows what to play ── */
-const BG_STORAGE_KEY = 'clive_bg_video_choice';
+        /* ── Storage key ── */
+        const BG_STORAGE_KEY = 'clive_bg_video_choice';
+        const DEFAULT_FILE = 'MainBackGround.mp4';
 
-function pickBackground(cardEl, label) {
-    document.querySelectorAll('.vid-card').forEach(c => c.classList.remove('active'));
-    cardEl.classList.add('active');
+        /* ── Pick a background ── */
+        function pickBackground(cardEl, label) {
+            // Never allow selecting a locked premium card
+            if (cardEl.classList.contains('locked')) {
+                showToast('Upgrade to unlock this background', true);
+                return;
+            }
 
-    const file = cardEl.dataset.file;
-    if (file) {
-        const previous = localStorage.getItem(BG_STORAGE_KEY);
-        localStorage.setItem(BG_STORAGE_KEY, file);
+            document.querySelectorAll('.vid-card').forEach(c => c.classList.remove('active'));
+            cardEl.classList.add('active');
 
-        // If the choice actually changed, let it play once more on next visit
-        if (previous !== file) {
-            sessionStorage.removeItem('clive_bg_video_played');
+            const file = cardEl.dataset.file;
+            if (file) {
+                const previous = localStorage.getItem(BG_STORAGE_KEY);
+                localStorage.setItem(BG_STORAGE_KEY, file);
+
+                if (previous !== file) {
+                    sessionStorage.removeItem('clive_bg_video_played');
+                }
+            }
+
+            showToast(label + ' selected', false);
         }
-    }
 
-    showToast(label + ' selected', false);
-}
+        /* ── Premium click handler (works for both free & premium users) ── */
+        function handlePremiumClick(cardEl, label) {
+            if (cardEl.classList.contains('locked')) {
+                showToast('Upgrade to unlock this background', true);
+            } else {
+                pickBackground(cardEl, label);
+            }
+        }
 
-/* ── Restore active card from a previous visit ── */
-function restoreSavedBackground() {
-    const saved = localStorage.getItem(BG_STORAGE_KEY);
-    if (!saved) return;
-    const match = document.querySelector(`.vid-card[data-file="${saved}"]`);
-    if (!match) return;
-    document.querySelectorAll('.vid-card').forEach(c => c.classList.remove('active'));
-    match.classList.add('active');
-}
-restoreSavedBackground();
+        /* ── Restore active card — new users always get Default ── */
+        function restoreSavedBackground() {
+            let saved = localStorage.getItem(BG_STORAGE_KEY);
 
-        /* ── Clicking a locked Premium card — visual only, no navigation ── */
-        function lockedClick(cardEl) {
-            showToast('Upgrade to unlock this background', true);
+            // New user / no choice yet → force Default
+            if (!saved) {
+                localStorage.setItem(BG_STORAGE_KEY, DEFAULT_FILE);
+                saved = DEFAULT_FILE;
+            }
+
+            // If saved file points to a locked premium card, fall back to Default
+            const match = document.querySelector(`.vid-card[data-file="${saved}"]`);
+            if (!match || match.classList.contains('locked')) {
+                localStorage.setItem(BG_STORAGE_KEY, DEFAULT_FILE);
+                saved = DEFAULT_FILE;
+            }
+
+            document.querySelectorAll('.vid-card').forEach(c => c.classList.remove('active'));
+            const finalCard = document.querySelector(`.vid-card[data-file="${saved}"]`) || document.getElementById('card_default');
+            if (finalCard) finalCard.classList.add('active');
         }
 
         /* ── Toast ── */
@@ -538,6 +572,42 @@ restoreSavedBackground();
             clearTimeout(t._hideTimer);
             t._hideTimer = setTimeout(() => t.classList.remove('show'), 2800);
         }
+
+        // Run restore early (cards start locked; plan check will unlock later)
+        restoreSavedBackground();
+    </script>
+
+    <script type="module">
+        import { auth, onAuthStateChanged, db, doc, getDoc } from "{{ url_for('static', filename='js/firebase-init.js') }}";
+
+        onAuthStateChanged(auth, async (user) => {
+            let plan = 'free';
+            if (user) {
+                try {
+                    const snap = await getDoc(doc(db, 'users', user.uid));
+                    plan = snap.exists() ? (snap.data().selectedPlan || 'free') : 'free';
+                } catch (err) {
+                    console.error('Failed to load plan for background videos:', err);
+                }
+            }
+
+            const premiumCards = document.querySelectorAll('.prem-card');
+
+            if (plan === 'free') {
+                // Keep premium visible but locked + blurred
+                premiumCards.forEach(card => {
+                    card.classList.add('locked');
+                });
+            } else {
+                // Unlock for premium users
+                premiumCards.forEach(card => {
+                    card.classList.remove('locked');
+                });
+            }
+
+            // Re-run restore after plan is known (in case a premium was previously selected)
+            restoreSavedBackground();
+        });
     </script>
 
 </body>

@@ -1,6 +1,17 @@
 <!-- ============================== HTML STRUCTURE ============================== -->
 <!-- Main wrapper that centers the input bar on the page -->
 <div class="center-wrapper" id="inputWrapper">
+    <div id="ai-limit-banner">
+    <span class="alb-text" id="aiLimitBannerText"></span>
+    <span class="alb-divider"></span>
+    <button type="button" class="alb-upgrade-btn" onclick="window.location.href='/upgrade'">Upgrade</button>
+    <span class="alb-divider"></span>
+    <button type="button" class="alb-close-btn" onclick="dismissAiLimitBanner()" aria-label="Dismiss">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+    </button>
+</div>
   <div class="input-bar" id="inputBar">
 
     <!-- Attached files/photos row — shows chips for anything picked via the paperclip menu -->
@@ -66,38 +77,132 @@ const sendButton = document.getElementById('sendButton');
 
 async function sendMessage() {
     const message = messageInput.value.trim();
-    if (message === '') return;
+    const attachedNow = window.getAttachedFiles ? window.getAttachedFiles() : [];
+    if (message === '' && attachedNow.length === 0) return;
 
-    const files = window.getAttachedFiles ? window.getAttachedFiles() : [];
+    const isImagineMode = activeInputFeature === 'imagine';
+
+    if (!isImagineMode && window.checkAiResponseAllowed) {
+        const check = await window.checkAiResponseAllowed();
+        if (!check.allowed) {
+            if (window.showAiLimitBlockedToast) window.showAiLimitBlockedToast(check.limit);
+            return;
+        }
+    }
+
+    const isPrivate = window.getPrivacyMode ? window.getPrivacyMode() : false;
+
+    const files = attachedNow;
     appendUserMessage(message, files);
 
     messageInput.value = '';
     messageInput.style.height = 'auto';
     if (window.clearAttachedFiles) window.clearAttachedFiles();
 
-    appendAIMessage("Thinking...", false, true);
+    if (isImagineMode) {
+        if (window.closeImagineMode) window.closeImagineMode();
+        await sendImagePrompt(message, isPrivate);
+        return;
+    }
+
+    const thinkingLabel = activeInputFeature === 'deepResearch' ? "Researching..."
+        : activeInputFeature === 'webSearch' ? "Searching the web..."
+        : "Thinking...";
+    appendAIMessage(thinkingLabel, false, true);
     const aiMessages = document.querySelectorAll('.msg-ai');
     const thinkingEl = aiMessages[aiMessages.length - 1];
 
     try {
+        const formData = new FormData();
+        formData.append('message', message);
+        formData.append('privacy', isPrivate ? 'true' : 'false');
+        formData.append('feature', activeInputFeature || 'none');
+        formData.append('mood', localStorage.getItem('clive_agent_mood') || 'default');
+        formData.append('plan', window.currentUserPlan || 'free');
+        formData.append('project_name', (typeof activeProject !== 'undefined' && activeProject) ? activeProject.name : '');
+        formData.append('project_description', (typeof activeProject !== 'undefined' && activeProject) ? (activeProject.description || '') : '');
+        formData.append('project_resources', (typeof activeProject !== 'undefined' && activeProject) ? JSON.stringify(activeProject.resources || []) : '[]');
+        files.forEach(f => formData.append('files', f));
+
         const res = await fetch('/api/chat', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message })
+            body: formData
         });
         const data = await res.json();
 
        if (data.reply) {
     updateAIMessage(thinkingEl, data.reply);
-    if (window.saveMessagePairToFirestore) {
+    if (window.saveMessagePairToFirestore && !isPrivate) {
         window.saveMessagePairToFirestore(message, data.reply);
     }
+    if (window.recordAiResponse) window.recordAiResponse();
 } else {
     updateAIMessage(thinkingEl, "Sorry, something went wrong.");
 }
     } catch (err) {
         console.error(err);
         updateAIMessage(thinkingEl, "Sorry, I couldn't reach the server.");
+    }
+}
+
+async function sendImagePrompt(prompt, isPrivate) {
+    if (window.checkImageGenerationAllowed) {
+        const check = await window.checkImageGenerationAllowed();
+        if (!check.allowed) {
+            if (window.showImageLimitToast) window.showImageLimitToast(check.limit);
+            return;
+        }
+    }
+
+    const area = document.getElementById('chatMessagesArea');
+    const spacer = document.getElementById('chatSpacer');
+    if (!area || !spacer) return;
+
+    // Build the AI message container ourselves (instead of using
+    // appendAIMessage's "Thinking..." text) so we can drop in a
+    // properly-sized animated placeholder box instead.
+    const thinkingEl = document.createElement('div');
+    thinkingEl.className = 'msg-ai';
+    thinkingEl.innerHTML = '<div class="image-gen-placeholder"></div>';
+    area.insertBefore(thinkingEl, spacer);
+
+    requestAnimationFrame(() => {
+        thinkingEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    try {
+        const res = await fetch('/api/generate-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt })
+        });
+        const data = await res.json();
+
+        thinkingEl.innerHTML = '';
+
+        if (data.image) {
+            const img = document.createElement('img');
+            img.src = data.image;
+            img.style.maxWidth = '320px';
+            img.style.borderRadius = '14px';
+            img.style.display = 'block';
+            thinkingEl.appendChild(img);
+
+            if (window.saveMessagePairToFirestore && !isPrivate) {
+                window.saveMessagePairToFirestore(prompt, data.image, 'image');
+            }
+            if (window.recordImageGeneration) window.recordImageGeneration();
+        } else {
+            const p = document.createElement('p');
+            p.textContent = data.error || "Sorry, image generation failed.";
+            thinkingEl.appendChild(p);
+        }
+    } catch (err) {
+        console.error(err);
+        thinkingEl.innerHTML = '';
+        const p = document.createElement('p');
+        p.textContent = "Sorry, I couldn't reach the server.";
+        thinkingEl.appendChild(p);
     }
 }
 
@@ -176,6 +281,26 @@ messageInput.addEventListener('keydown', function(e) {
 </div>
 <!-- ==================THIS IS END OF THE PAPER CLIP POP UP============================ -->
 <!--=======================================================================-->
+
+
+<!-- Free plan: chat history limit popup -->
+<div class="history-limit-overlay" id="historyLimitOverlay" onclick="closeHistoryLimitPopup(event)">
+    <div class="history-limit-modal" onclick="event.stopPropagation()">
+        <div class="hlm-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                <path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/>
+                <path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/>
+            </svg>
+        </div>
+        <h2 class="hlm-title">Chat history limit reached</h2>
+        <p class="hlm-sub">Free plan chat history is limited to 8 saved conversations. Your oldest chat has been automatically deleted to make room for this one.</p>
+        <div class="hlm-btn-row">
+            <button class="hlm-secondary-btn" onclick="closeHistoryLimitPopup()">Got it</button>
+            <button class="hlm-primary-btn" onclick="window.location.href='/upgrade'">Upgrade for unlimited history</button>
+        </div>
+    </div>
+</div>
 
 
 <!-- ============================== CSS STYLES FOR INPUT BAR ============================== -->
@@ -467,6 +592,313 @@ messageInput.addEventListener('keydown', function(e) {
     left: calc(53% + 5.5%);
     transform: translateX(-50%);
 }
+
+
+#share-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: #1e1e1e;
+    border: 1px solid #333;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: Arial, sans-serif;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 99999;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    pointer-events: none;
+}
+
+/* Animated placeholder shown while an image is generating —
+   several color blobs drifting independently in different
+   directions, layered together with a slow hue-rotate on top */
+.image-gen-placeholder {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    max-width: 100%;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #15151a;
+    animation: imageGenHueRotate 8s linear infinite;
+}
+
+.image-gen-placeholder::before,
+.image-gen-placeholder::after {
+    content: '';
+    position: absolute;
+    inset: -40%;
+    background:
+        radial-gradient(circle at 20% 30%, #ff5f6d 0%, transparent 45%),
+        radial-gradient(circle at 75% 20%, #2575fc 0%, transparent 45%),
+        radial-gradient(circle at 30% 80%, #00c9a7 0%, transparent 45%),
+        radial-gradient(circle at 80% 75%, #ffd166 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, #6a11cb 0%, transparent 50%);
+    filter: blur(18px) saturate(1.4);
+}
+
+.image-gen-placeholder::before {
+    animation: imageGenDrift1 6.5s ease-in-out infinite;
+}
+
+.image-gen-placeholder::after {
+    animation: imageGenDrift2 9s ease-in-out infinite;
+    mix-blend-mode: screen;
+    opacity: 0.85;
+}
+
+@keyframes imageGenDrift1 {
+    0%   { transform: translate(0%, 0%) rotate(0deg) scale(1); }
+    25%  { transform: translate(12%, -8%) rotate(30deg) scale(1.1); }
+    50%  { transform: translate(-6%, 10%) rotate(60deg) scale(0.95); }
+    75%  { transform: translate(-12%, -6%) rotate(20deg) scale(1.05); }
+    100% { transform: translate(0%, 0%) rotate(0deg) scale(1); }
+}
+
+@keyframes imageGenDrift2 {
+    0%   { transform: translate(0%, 0%) rotate(0deg) scale(1); }
+    20%  { transform: translate(-10%, 8%) rotate(-25deg) scale(1.08); }
+    45%  { transform: translate(9%, -12%) rotate(-55deg) scale(1); }
+    70%  { transform: translate(8%, 9%) rotate(-15deg) scale(1.12); }
+    100% { transform: translate(0%, 0%) rotate(0deg) scale(1); }
+}
+
+@keyframes imageGenHueRotate {
+    0%   { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+}
+
+/* Image generation limit toast — yellow, same shape/position as privacy-blocked toast */
+#image-limit-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #3a2f10;
+    border: 1px solid rgba(245, 166, 35, 0.5);
+    color: #fbbf24;
+    padding: 12px 14px 12px 16px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-family: Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 360px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.5);
+    z-index: 999999;
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+#image-limit-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+#image-limit-toast .ilt-icon {
+    flex-shrink: 0;
+    display: flex;
+}
+#image-limit-toast .ilt-icon svg {
+    width: 18px;
+    height: 18px;
+    stroke: #f5a623;
+}
+#image-limit-toast .ilt-text {
+    flex: 1;
+    line-height: 1.4;
+}
+#image-limit-toast .ilt-upgrade-btn {
+    flex-shrink: 0;
+    background: #f5a623;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 13px;
+    font-size: 12.5px;
+    font-weight: 700;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+#image-limit-toast .ilt-upgrade-btn:hover {
+    background: #ffb84d;
+    transform: translateY(-1px);
+}
+
+#ai-limit-banner {
+    position: fixed;
+    background: #0d0d0d;
+    border: 1px solid rgba(255,255,255,0.18);
+    color: rgba(255,255,255,0.85);
+    padding: 10px 10px 10px 20px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 400;
+    font-family: Arial, sans-serif;
+    display: none;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 9997;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+#ai-limit-banner.show {
+    display: flex;
+}
+#ai-limit-banner.visible {
+    opacity: 1;
+}
+#ai-limit-banner .alb-text {
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.01em;
+}
+#ai-limit-banner .alb-divider {
+    width: 1px;
+    height: 22px;
+    background: rgba(255,255,255,0.18);
+    flex-shrink: 0;
+}
+#ai-limit-banner .alb-upgrade-btn {
+    flex-shrink: 0;
+    background: none;
+    color: #fff;
+    border: none;
+    padding: 6px 4px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s ease;
+}
+#ai-limit-banner .alb-upgrade-btn:hover {
+    opacity: 0.7;
+}
+#ai-limit-banner .alb-close-btn {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.7);
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s ease;
+}
+#ai-limit-banner .alb-close-btn:hover {
+    color: #fff;
+}
+#ai-limit-banner .alb-close-btn svg {
+    width: 15px;
+    height: 15px;
+}
+
+.history-limit-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 999998;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.history-limit-overlay.show {
+    display: flex;
+    animation: hlmFadeIn 0.2s ease;
+}
+@keyframes hlmFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.history-limit-modal {
+    background: linear-gradient(180deg, #1c1c1c 0%, #141414 100%);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 380px;
+    padding: 30px 26px 26px;
+    text-align: center;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+    animation: hlmPopIn 0.25s cubic-bezier(0.22,1,0.36,1);
+}
+@keyframes hlmPopIn {
+    from { opacity: 0; transform: scale(0.94) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.hlm-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f87171;
+}
+.hlm-icon svg { width: 22px; height: 22px; }
+.hlm-title {
+    font-size: 18.5px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+}
+.hlm-sub {
+    font-size: 13.5px;
+    color: #a3a3a3;
+    line-height: 1.55;
+    margin-bottom: 22px;
+}
+.hlm-btn-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.hlm-primary-btn {
+    background: #ffffff;
+    color: #111;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    transition: background 0.2s ease;
+}
+.hlm-primary-btn:hover { background: #e6e6e6; }
+.hlm-secondary-btn {
+    background: transparent;
+    color: #999;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.hlm-secondary-btn:hover { background: #1e1e1e; color: #ccc; }
 </style>
 <!-- ===========AND HERE THE CSS CODE OF INPUT BAR ENDS========================================= -->
 
@@ -503,6 +935,108 @@ function clearInputFeature() {
     return previous;
 }
 
+function showImageLimitToast(limit) {
+    let toast = document.getElementById('image-limit-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'image-limit-toast';
+        toast.innerHTML = `
+            <span class="ilt-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </span>
+            <span class="ilt-text"></span>
+            <button type="button" class="ilt-upgrade-btn" onclick="window.location.href='/upgrade'">Upgrade</button>
+        `;
+        document.body.appendChild(toast);
+    }
+    toast.querySelector('.ilt-text').textContent =
+        `You've hit your free plan's limit of ${limit} images today.`;
+    toast.classList.add('show');
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 4500);
+}
+window.showImageLimitToast = showImageLimitToast;
+function showAiLimitBlockedToast(limit) {
+    let toast = document.getElementById('image-limit-toast'); // reuse same element/style
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'image-limit-toast';
+        toast.innerHTML = `
+            <span class="ilt-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </span>
+            <span class="ilt-text"></span>
+            <button type="button" class="ilt-upgrade-btn" onclick="window.location.href='/upgrade'">Upgrade</button>
+        `;
+        document.body.appendChild(toast);
+    }
+    toast.querySelector('.ilt-text').textContent =
+        `You've reached your free plan's daily response limit.`;
+    toast.classList.add('show');
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 4500);
+}
+window.showAiLimitBlockedToast = showAiLimitBlockedToast;
+/* --- AI response limit banner (90% warning) --- */
+const AI_LIMIT_DISMISS_KEY = 'clive_ai_limit_banner_dismissed';
+
+function positionAiLimitBanner() {
+    const banner = document.getElementById('ai-limit-banner');
+    const bar = document.getElementById('inputBar');
+    if (!banner || !bar) return;
+    const rect = bar.getBoundingClientRect();
+
+    const gap = 12;        // space between the pill and the input bar
+    const shiftLeft = 62;  // px — increase to push further left
+    const shiftDown = 32;  // px — increase to push further down
+
+    banner.style.width = 'auto';
+    banner.style.left = (rect.left + rect.width / 2 - shiftLeft) + 'px';
+
+    if (hasMovedToBottom) {
+        banner.style.bottom = (window.innerHeight - rect.top + gap - shiftDown) + 'px';
+        banner.style.top = 'auto';
+        banner.style.transform = 'translateX(-50%)';
+    } else {
+        banner.style.top = (rect.top - gap + shiftDown) + 'px';
+        banner.style.bottom = 'auto';
+        banner.style.transform = 'translateX(-50%) translateY(-100%)';
+    }
+}
+
+function showAiLimitBanner(used, limit) {
+    const todayKey = AI_LIMIT_DISMISS_KEY + ':' + new Date().toISOString().slice(0, 10);
+    if (localStorage.getItem(todayKey)) return; // already dismissed today
+
+    const banner = document.getElementById('ai-limit-banner');
+    if (!banner) return;
+    document.getElementById('aiLimitBannerText').innerHTML = `90% limit exceeded`;
+
+    positionAiLimitBanner();
+    banner.classList.add('show');
+    requestAnimationFrame(() => banner.classList.add('visible'));
+}
+
+function dismissAiLimitBanner() {
+    const banner = document.getElementById('ai-limit-banner');
+    if (!banner) return;
+    banner.classList.remove('visible');
+    setTimeout(() => banner.classList.remove('show'), 250);
+
+    const todayKey = AI_LIMIT_DISMISS_KEY + ':' + new Date().toISOString().slice(0, 10);
+    localStorage.setItem(todayKey, 'true');
+}
+window.dismissAiLimitBanner = dismissAiLimitBanner;
+window.showAiLimitBanner = showAiLimitBanner;
+
+window.addEventListener('resize', () => {
+    const banner = document.getElementById('ai-limit-banner');
+    if (banner && banner.classList.contains('show')) positionAiLimitBanner();
+});
 window.activateInputFeature = activateInputFeature;
 window.clearInputFeature = clearInputFeature;
 
@@ -579,6 +1113,15 @@ function enterChatMode() {
     const chatActionsBar = document.getElementById('chatActionsBar');
     if (chatActionsBar) chatActionsBar.classList.add('fade-in');
 }
+function showHistoryLimitPopup() {
+    document.getElementById('historyLimitOverlay').classList.add('show');
+}
+function closeHistoryLimitPopup(e) {
+    if (e && e.target !== document.getElementById('historyLimitOverlay')) return;
+    document.getElementById('historyLimitOverlay').classList.remove('show');
+}
+window.showHistoryLimitPopup = showHistoryLimitPopup;
+window.closeHistoryLimitPopup = closeHistoryLimitPopup;
 </script>
 <!--=======================================================================-->
 
@@ -831,7 +1374,7 @@ window.triggerScreenshot = triggerScreenshot;
 
 
 <script type="module">
-import { auth, onAuthStateChanged, db, doc, getDoc, setDoc, arrayUnion, serverTimestamp } from "{{ url_for('static', filename='js/firebase-init.js') }}?v=2";
+import { auth, onAuthStateChanged, db, doc, getDoc, setDoc, arrayUnion, serverTimestamp, collection, getDocs, deleteDoc } from "{{ url_for('static', filename='js/firebase-init.js') }}?v=2";
 
 let currentUser = null;
 let currentConversationId = null;
@@ -840,8 +1383,114 @@ let firstUserMessageForTitle = null;
 
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
-    if (user) loadConversationFromHistoryIfRequested();
+    if (user) {
+        loadConversationFromHistoryIfRequested();
+        loadUserPlanAndUsage();
+    }
 });
+
+/* ---------- IMAGE GENERATION LIMITS ---------- */
+const IMAGE_DAILY_LIMITS = { free: 5, go: 15, plus: 15, pro: Infinity };
+const AI_DAILY_LIMITS = { free: 20, go: 35, plus: 35, pro: Infinity };
+const AI_WARNING_THRESHOLD = 0.9; // 90%
+
+let currentPlan = 'free';
+let imageUsageCache = null;   // { date: 'YYYY-MM-DD', count: N }
+let messageUsageCache = null; // { date: 'YYYY-MM-DD', count: N }
+
+function todayStr() {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+async function loadUserPlanAndUsage() {
+    if (!currentUser) return;
+    try {
+        const snap = await getDoc(doc(db, 'users', currentUser.uid));
+        const data = snap.exists() ? snap.data() : {};
+        currentPlan = data.selectedPlan || 'free';
+        window.currentUserPlan = currentPlan;
+
+        const usage = data.imageUsage;
+        imageUsageCache = (usage && usage.date === todayStr())
+            ? { date: usage.date, count: usage.count }
+            : { date: todayStr(), count: 0 };
+
+        const msgUsage = data.messageUsage;
+        messageUsageCache = (msgUsage && msgUsage.date === todayStr())
+            ? { date: msgUsage.date, count: msgUsage.count }
+            : { date: todayStr(), count: 0 };
+    } catch (err) {
+        console.error('Failed to load plan/usage:', err);
+        currentPlan = 'free';
+        window.currentUserPlan = currentPlan;
+        imageUsageCache = { date: todayStr(), count: 0 };
+        messageUsageCache = { date: todayStr(), count: 0 };
+    }
+}
+
+window.recordAiResponse = async function () {
+    if (!currentUser) return;
+    if (!messageUsageCache || messageUsageCache.date !== todayStr()) {
+        messageUsageCache = { date: todayStr(), count: 0 };
+    }
+    messageUsageCache.count += 1;
+
+    try {
+        await setDoc(doc(db, 'users', currentUser.uid), {
+            messageUsage: { date: messageUsageCache.date, count: messageUsageCache.count }
+        }, { merge: true });
+    } catch (err) {
+        console.error('Failed to update message usage:', err);
+    }
+
+    const limit = AI_DAILY_LIMITS[currentPlan] ?? AI_DAILY_LIMITS.free;
+    if (limit !== Infinity && messageUsageCache.count >= Math.floor(limit * AI_WARNING_THRESHOLD)) {
+        if (window.showAiLimitBanner) window.showAiLimitBanner(messageUsageCache.count, limit);
+    }
+};
+
+window.checkAiResponseAllowed = async function () {
+    if (!currentUser) return { allowed: true };
+    if (!messageUsageCache || messageUsageCache.date !== todayStr()) {
+        await loadUserPlanAndUsage();
+    }
+    const limit = AI_DAILY_LIMITS[currentPlan] ?? AI_DAILY_LIMITS.free;
+    if (limit !== Infinity && messageUsageCache.count >= limit) {
+        return { allowed: false, limit, used: messageUsageCache.count };
+    }
+    return { allowed: true, limit, used: messageUsageCache.count };
+};
+
+window.checkImageGenerationAllowed = async function () {
+    if (!currentUser) return { allowed: true };
+    if (!imageUsageCache || imageUsageCache.date !== todayStr()) {
+        await loadUserPlanAndUsage();
+    }
+    const limit = IMAGE_DAILY_LIMITS[currentPlan] ?? IMAGE_DAILY_LIMITS.free;
+    if (imageUsageCache.count >= limit) {
+        return { allowed: false, limit, used: imageUsageCache.count };
+    }
+    return { allowed: true, limit, used: imageUsageCache.count };
+};
+
+window.recordImageGeneration = async function () {
+    if (!currentUser) return;
+    if (!imageUsageCache || imageUsageCache.date !== todayStr()) {
+        imageUsageCache = { date: todayStr(), count: 0 };
+    }
+    imageUsageCache.count += 1;
+    try {
+        await setDoc(doc(db, 'users', currentUser.uid), {
+            imageUsage: { date: imageUsageCache.date, count: imageUsageCache.count }
+        }, { merge: true });
+    } catch (err) {
+        console.error('Failed to update image usage:', err);
+    }
+};
 
 // If the user clicked a chat in History, load its messages into the chat
 // area and pick up the same conversation ID so new messages append to it.
@@ -871,6 +1520,8 @@ async function loadConversationFromHistoryIfRequested() {
         messages.forEach(msg => {
             if (msg.role === 'user') {
                 appendUserMessage(msg.content, []);
+            } else if (msg.type === 'image') {
+                appendAIImageMessage(msg.content);
             } else {
                 appendAIMessage(msg.content, true, false);
             }
@@ -897,7 +1548,7 @@ function buildChatTitle(text) {
 // Saves one user+AI message pair to Firestore under this user's account.
 // After the 2nd exchange, also sets a title for this conversation
 // (derived from the first message), so it can show up in Chat History.
-window.saveMessagePairToFirestore = async function(userText, aiText) {
+window.saveMessagePairToFirestore = async function(userText, aiText, aiType) {
     if (!currentUser) return; // not logged in — skip saving
 
     const convoId = getConversationId();
@@ -909,7 +1560,7 @@ window.saveMessagePairToFirestore = async function(userText, aiText) {
         updatedAt: serverTimestamp(),
         messages: arrayUnion(
             { role: 'user', content: userText, at: Date.now() },
-            { role: 'assistant', content: aiText, at: Date.now() }
+            { role: 'assistant', content: aiText, at: Date.now(), type: aiType || 'text' }
         )
     };
 
@@ -926,7 +1577,8 @@ window.saveMessagePairToFirestore = async function(userText, aiText) {
     }
 
     if (messagePairCount === 1) {
-        generateAndSaveTitle(convoRef, userText, aiText);
+        const aiTextForTitle = (aiType === 'image') ? '[Generated an image]' : aiText;
+        generateAndSaveTitle(convoRef, userText, aiTextForTitle);
     }
 };
 
@@ -956,5 +1608,134 @@ async function generateAndSaveTitle(convoRef, userText, aiText) {
             }, { merge: true });
         } catch (e2) {}
     }
+
+    enforceHistoryLimitIfNeeded();
 }
+
+const FREE_HISTORY_LIMIT = 8;
+
+async function enforceHistoryLimitIfNeeded() {
+    if (!currentUser) return;
+    if (currentPlan && currentPlan !== 'free') return; // only enforced on the free plan
+
+    try {
+        const convosRef = collection(db, 'users', currentUser.uid, 'conversations');
+        const snap = await getDocs(convosRef);
+
+        const titled = [];
+        snap.forEach(docSnap => {
+            const data = docSnap.data();
+            if (data.title) {
+                titled.push({
+                    id: docSnap.id,
+                    updatedAt: data.updatedAt,
+                    pinned: !!data.pinned
+                });
+            }
+        });
+
+        if (titled.length <= FREE_HISTORY_LIMIT) return;
+
+        // Oldest first, so the earliest conversations get removed
+        titled.sort((a, b) => {
+            const aTime = a.updatedAt?.toMillis ? a.updatedAt.toMillis() : 0;
+            const bTime = b.updatedAt?.toMillis ? b.updatedAt.toMillis() : 0;
+            return aTime - bTime;
+        });
+
+        const excess = titled.length - FREE_HISTORY_LIMIT;
+        // Pinned chats are protected from auto-deletion
+        const toDelete = titled.filter(c => !c.pinned).slice(0, excess);
+
+        for (const chat of toDelete) {
+            await deleteDoc(doc(db, 'users', currentUser.uid, 'conversations', chat.id));
+        }
+
+        if (toDelete.length > 0 && window.showHistoryLimitPopup) {
+            window.showHistoryLimitPopup();
+        }
+    } catch (err) {
+        console.error('Failed to enforce chat history limit:', err);
+    }
+}
+/* ---------- SHARE CHAT ---------- */
+
+function showShareToast(message, isError) {
+    let toast = document.getElementById('share-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'share-toast';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.style.color = isError ? '#f87171' : '#f0f0f0';
+    toast.style.borderColor = isError ? 'rgba(239,68,68,0.4)' : '#333';
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(10px)';
+    }, 2200);
+}
+
+// Copies a conversation into the public sharedChats collection and
+// puts a shareable link on the clipboard. Works for the active chat
+// (via chatShareCurrent) or any chat by id (via chatShareById, used
+// by the History popup's "Share chat" menu option).
+window.shareConversation = async function(chatId) {
+    if (!currentUser || !chatId) {
+        showShareToast('Nothing to share yet.', true);
+        return;
+    }
+    try {
+        const convoSnap = await getDoc(doc(db, 'users', currentUser.uid, 'conversations', chatId));
+        if (!convoSnap.exists()) {
+            showShareToast('Chat not found.', true);
+            return;
+        }
+        const data = convoSnap.data();
+        const messages = data.messages || [];
+        if (messages.length === 0) {
+            showShareToast('Nothing to share yet.', true);
+            return;
+        }
+
+        const shareId = crypto.randomUUID
+            ? crypto.randomUUID()
+            : 'share_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+
+        await setDoc(doc(db, 'sharedChats', shareId), {
+            title: data.title || 'Shared conversation',
+            messages: messages,
+            createdAt: serverTimestamp(),
+            ownerId: currentUser.uid
+        });
+
+        const link = window.location.origin + '/share/' + shareId;
+        const title = data.title || 'Shared conversation';
+
+        if (window.openShareModal) {
+            window.openShareModal(link, title);
+        } else {
+            // fallback in case the modal component isn't loaded on this page
+            await navigator.clipboard.writeText(link);
+            showShareToast('Link copied to clipboard!');
+        }
+    } catch (err) {
+        console.error('Failed to share chat:', err);
+        showShareToast('Failed to create share link.', true);
+    }
+};
+
+// Shares whichever conversation is currently open in the chat window
+window.shareCurrentChat = function() {
+    if (!currentConversationId) {
+        showShareToast('Send a message first.', true);
+        return;
+    }
+    window.shareConversation(currentConversationId);
+};
 </script>

@@ -469,9 +469,8 @@ if (!chatId || !currentUser) return;
             } catch (err) {
                 console.error('Failed to archive chat:', err);
             }
-        } else {
-            // share — not wired to a backend yet
-            console.log(action + ' clicked for', chatId);
+        } else if (action === 'share') {
+            if (window.shareConversation) window.shareConversation(chatId);
         }
     });
 });

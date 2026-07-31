@@ -203,7 +203,197 @@ scrollbar-color: #333 transparent;
 }
 
 .msg-ai p {
-    margin: 0 0 8px 0;
+    margin: 0 0 16px 0;
+}
+
+.ai-inline-code {
+    background: #232323;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-family: 'Courier New', Consolas, Monaco, monospace;
+    font-size: 0.9em;
+    color: #e8b976;
+}
+
+.ai-link {
+    color: #5b9bd5;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    word-break: break-word;
+    transition: color 0.15s ease;
+}
+.ai-link:hover { color: #7ab0e8; }
+
+/* Paid-plan boxed link chip */
+.ai-link-boxed {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #1c2733;
+    border: 1px solid rgba(91,155,213,0.35);
+    border-radius: 8px;
+    padding: 3px 10px 3px 8px;
+    text-decoration: none;
+    vertical-align: middle;
+    margin: 2px 0;
+}
+.ai-link-boxed:hover {
+    background: #223244;
+    border-color: rgba(122,176,232,0.55);
+}
+.ai-link-boxed span {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.ai-link-icon {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    color: #5b9bd5;
+}
+
+/* Lightweight code syntax coloring — paid plan only */
+.code-keyword { color: #c586c0; font-weight: 600; }
+.code-string  { color: #ce9178; }
+.code-number  { color: #b5cea8; }
+.code-comment { color: #6a9955; font-style: italic; }
+.code-func    { color: #dcdcaa; }
+.code-op      { color: #d4d4d4; opacity: 0.85; }
+
+/* Tint plain identifiers/text too so the whole block reads as "colored"
+   code, not just a few highlighted words on a white background — scoped
+   strictly to paid-plan messages so free-plan code blocks stay untouched. */
+.msg-ai-paid .ai-code-content code {
+    color: #9cdcfe;
+}
+
+/* Paid-plan diagram card */
+.ai-diagram-block {
+    background: #14181d;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 18px;
+    margin: 12px 0;
+    overflow-x: auto;
+}
+.ai-diagram-block svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* .msg-ai-paid is kept as a scoping hook for paid-only code styling below —
+   no visible marker on the message itself anymore. */
+
+.ai-link {
+    color: #5b9bd5;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    word-break: break-word;
+    transition: color 0.15s ease;
+}
+.ai-link:hover {
+    color: #7ab0e8;
+}
+
+.ai-bullet-list {
+    margin: 0 0 12px 0;
+    padding-left: 22px;
+}
+
+.ai-bullet-list li {
+    margin-bottom: 6px;
+    line-height: 1.6;
+}
+
+/* Code block box — used for AI-generated code, letters, applications, etc. */
+.ai-code-block {
+    background: #161616;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.ai-code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    background: #1d1d1d;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.ai-code-lang {
+    font-size: 12px;
+    color: #999;
+    font-family: Arial, sans-serif;
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
+}
+
+.ai-code-copy-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #8a8a8a;
+    padding: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: color 0.2s ease, background 0.2s ease;
+}
+.ai-code-copy-btn:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.08);
+}
+.ai-code-copy-btn.copied { color: #4ade80; }
+.ai-code-copy-btn svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.ai-code-content {
+    margin: 0;
+    padding: 14px 16px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #444 transparent;
+}
+.ai-code-content::-webkit-scrollbar { height: 6px; }
+.ai-code-content::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+
+.ai-code-content code {
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #e4e4e4;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Markdown-style headings inside AI responses (## Heading) */
+.ai-heading {
+    font-size: 23px;
+    font-weight: 700;
+    margin: 28px 0 12px 0 !important;
+    letter-spacing: -0.01em;
+}
+
+.ai-heading:first-child {
+    margin-top: 0 !important;
+}
+
+.msg-ai strong {
+    font-weight: 700;
 }
 
 /* Shared style for every action icon button (copy/like/dislike/redo) */
@@ -313,6 +503,12 @@ const ICONS = {
     redo: `<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg>`
 };
 
+// True whenever a confirmed non-free plan has loaded — set elsewhere as
+// window.currentUserPlan; defaults safely to "free" behavior otherwise.
+function isPaidPlan() {
+    return !!(window.currentUserPlan && window.currentUserPlan !== 'free');
+}
+
 // ── Message bubble color, set from Settings → Color Messages ──
 const BUBBLE_COLOR_KEY = 'clive_message_bubble_color';
 
@@ -323,6 +519,189 @@ function applyBubbleColor(bubbleEl) {
     bubbleEl.style.border = (savedColor === '#2a2a2a')
         ? '1px solid rgba(255,255,255,0.15)'
         : 'none';
+}
+
+function escapeHtmlForCode(str) {
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
+// Escapes HTML, then converts **bold** into <strong>, `code` into <code>,
+// markdown [text](url) links, and bare http(s) URLs into clickable <a> tags.
+// Paid plans get a boxed "chip" link style instead of a plain underlined link.
+function parseInlineMarkdown(text) {
+    const escaped = escapeHtmlForCode(text);
+    const paid = isPaidPlan();
+    const linkClass = paid ? 'ai-link ai-link-boxed' : 'ai-link';
+    const linkIcon = paid
+        ? '<svg class="ai-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>'
+        : '';
+    return escaped
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+?)`/g, '<code class="ai-inline-code">$1</code>')
+        // markdown-style links: [label](https://example.com)
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+            '<a href="$2" target="_blank" rel="noopener noreferrer" class="' + linkClass + '">' + linkIcon + '<span>$1</span></a>')
+        // bare URLs not already inside an href="" we just created
+        .replace(/(^|[^"'>])(https?:\/\/[^\s<]+)/g, function (_, prefix, url) {
+            let trail = '';
+            const trailMatch = url.match(/[.,!?;:)\]]+$/);
+            if (trailMatch) {
+                trail = trailMatch[0];
+                url = url.slice(0, -trail.length);
+            }
+            return prefix + '<a href="' + url + '" target="_blank" rel="noopener noreferrer" class="' + linkClass + '">' + linkIcon + '<span>' + url + '</span></a>' + trail;
+        });
+}
+// Lightweight, dependency-free syntax coloring for paid plans — highlights
+// keywords, strings, numbers, and line comments. Not a full parser, just
+// enough regex-based coloring to make code visually distinct.
+// Single-pass tokenizer — avoids the "double-tagging" bug you'd get from
+// running several separate regex replaces one after another (later passes
+// can accidentally match text inside spans the earlier passes just inserted).
+const CODE_TOKEN_REGEX = /(#.*|\/\/.*)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|\b(function|const|let|var|return|if|else|for|while|class|import|from|export|def|self|new|async|await|try|catch|except|finally|switch|case|break|continue|null|true|false|None|True|False|public|private|static|void|int|str|float|bool)\b|\b([A-Za-z_]\w*)(?=\()|\b(\d+\.?\d*)\b|([+\-*/%=<>!&|^~]{1,3})/g;
+
+function highlightCode(code) {
+    const escaped = escapeHtmlForCode(code);
+    return escaped.replace(CODE_TOKEN_REGEX, function (match, comment, str, keyword, func, num, op) {
+        if (comment) return '<span class="code-comment">' + comment + '</span>';
+        if (str)     return '<span class="code-string">' + str + '</span>';
+        if (keyword) return '<span class="code-keyword">' + keyword + '</span>';
+        if (func)    return '<span class="code-func">' + func + '</span>';
+        if (num)     return '<span class="code-number">' + num + '</span>';
+        if (op)      return '<span class="code-op">' + op + '</span>';
+        return match;
+    });
+}
+
+// Very small sanitizer for AI-generated SVG diagrams (paid plan only) —
+// strips <script> tags and inline event-handler attributes before the SVG
+// is inserted into the DOM. Falls back to plain escaped text if the block
+// doesn't actually start with <svg, so nothing gets rendered blindly.
+function sanitizeSvgForDisplay(raw) {
+    let svg = raw.trim();
+    if (!/^<svg[\s>]/i.test(svg)) {
+        return '<pre class="ai-code-content"><code>' + escapeHtmlForCode(svg) + '</code></pre>';
+    }
+    svg = svg.replace(/<script[\s\S]*?<\/script>/gi, '');
+    svg = svg.replace(/\son\w+\s*=\s*(".*?"|'.*?')/gi, '');
+    svg = svg.replace(/\son\w+\s*=\s*[^\s>]+/gi, '');
+    return svg;
+}
+// Parses AI response text for fenced code blocks (```lang ... ```) and
+// renders each one as a boxed code card with a header + copy button.
+// Everything outside a fence is rendered as normal paragraphs, same as before.
+function renderAIContent(container, text) {
+    const codeBlockRegex = /```(\w*)\n?([\s\S]*?)```/g;
+    let lastIndex = 0;
+    let match;
+    let blockIndex = 0;
+    let hasContent = false;
+
+    function appendTextSegment(segment) {
+        const lines = segment.split('\n').filter(l => l.trim());
+        let currentList = null; // holds an open <ul> while consecutive bullet lines are found
+
+        lines.forEach(line => {
+            // Skip stray setext-style heading underlines (rows of === or ---)
+            // in case the model still slips one in despite the instruction.
+            if (/^[=\-_]{3,}$/.test(line.trim())) return;
+
+            const headingMatch = line.match(/^#{1,3}\s+(.*)/);
+            const bulletMatch = line.match(/^[-*]\s+(.*)/);
+
+            if (bulletMatch) {
+                if (!currentList) {
+                    currentList = document.createElement('ul');
+                    currentList.className = 'ai-bullet-list ai-response-line';
+                    currentList.style.animationDelay = (blockIndex * 0.08) + 's';
+                    container.appendChild(currentList);
+                    blockIndex++;
+                }
+                const li = document.createElement('li');
+                li.innerHTML = parseInlineMarkdown(bulletMatch[1]);
+                currentList.appendChild(li);
+                hasContent = true;
+                return;
+            }
+
+            currentList = null; // a non-bullet line closes the current list
+
+            const p = document.createElement('p');
+            if (headingMatch) {
+                p.classList.add('ai-heading');
+                p.innerHTML = parseInlineMarkdown(headingMatch[1]);
+            } else {
+                p.innerHTML = parseInlineMarkdown(line);
+            }
+            p.classList.add('ai-response-line');
+            p.style.animationDelay = (blockIndex * 0.08) + 's';
+            container.appendChild(p);
+            blockIndex++;
+            hasContent = true;
+        });
+    }
+
+    function appendCodeSegment(lang, code) {
+        // Paid-only diagram blocks render as sanitized inline SVG instead
+        // of a code box. Free plans never get this — the free brain never
+        // outputs a 'diagram' block, but this check is a safety net too.
+        if (isPaidPlan() && lang && lang.trim().toLowerCase() === 'diagram') {
+            const dwrap = document.createElement('div');
+            dwrap.className = 'ai-diagram-block ai-response-line';
+            dwrap.style.animationDelay = (blockIndex * 0.08) + 's';
+            dwrap.innerHTML = sanitizeSvgForDisplay(code.trim());
+            container.appendChild(dwrap);
+            blockIndex++;
+            hasContent = true;
+            return;
+        }
+
+        const wrap = document.createElement('div');
+        wrap.className = 'ai-code-block ai-response-line';
+        wrap.style.animationDelay = (blockIndex * 0.08) + 's';
+
+        const header = document.createElement('div');
+        header.className = 'ai-code-header';
+
+        const langLabel = document.createElement('span');
+        langLabel.className = 'ai-code-lang';
+        langLabel.textContent = lang ? lang : 'text';
+        header.appendChild(langLabel);
+
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'ai-code-copy-btn';
+        copyBtn.innerHTML = ICONS.copy;
+        copyBtn.addEventListener('click', () => copyToClipboard(code.trim(), copyBtn));
+        header.appendChild(copyBtn);
+
+        wrap.appendChild(header);
+
+        const pre = document.createElement('pre');
+        pre.className = 'ai-code-content';
+        const codeEl = document.createElement('code');
+        codeEl.innerHTML = isPaidPlan() ? highlightCode(code.trim()) : escapeHtmlForCode(code.trim());
+        pre.appendChild(codeEl);
+        wrap.appendChild(pre);
+
+        container.appendChild(wrap);
+        blockIndex++;
+        hasContent = true;
+    }
+
+    while ((match = codeBlockRegex.exec(text)) !== null) {
+        const before = text.slice(lastIndex, match.index);
+        if (before.trim()) appendTextSegment(before);
+        appendCodeSegment(match[1], match[2]);
+        lastIndex = codeBlockRegex.lastIndex;
+    }
+
+    const remaining = text.slice(lastIndex);
+    if (remaining.trim()) appendTextSegment(remaining);
+
+    if (!hasContent) appendTextSegment(text);
 }
 
 // Copies plain text to the clipboard, then briefly swaps the button's
@@ -494,21 +873,40 @@ function appendAIMessage(text, showActions = true, isThinking = false) {
     if (!area || !spacer) return;
 
     const div = document.createElement('div');
-    div.className = 'msg-ai';
+    div.className = 'msg-ai' + (isPaidPlan() ? ' msg-ai-paid' : '');
 
-    const lines = text.split('\n').filter(l => l.trim());
-    if (lines.length === 0) lines.push(text);
-
-    lines.forEach(line => {
+    if (isThinking) {
         const p = document.createElement('p');
-        p.textContent = line;
-        if (isThinking) p.classList.add('thinking-shimmer');
+        p.textContent = text;
+        p.classList.add('thinking-shimmer');
         div.appendChild(p);
-    });
+    } else {
+        renderAIContent(div, text);
+    }
 
     if (showActions) {
         div.appendChild(buildAIActions(text));
     }
+
+    area.insertBefore(div, spacer);
+}
+
+// Renders a completed AI image message — used both right after generation
+// and when reloading a saved conversation that contains an image
+function appendAIImageMessage(imageSrc) {
+    const area = document.getElementById('chatMessagesArea');
+    const spacer = document.getElementById('chatSpacer');
+    if (!area || !spacer) return;
+
+    const div = document.createElement('div');
+    div.className = 'msg-ai';
+
+    const img = document.createElement('img');
+    img.src = imageSrc;
+    img.style.maxWidth = '320px';
+    img.style.borderRadius = '14px';
+    img.style.display = 'block';
+    div.appendChild(img);
 
     area.insertBefore(div, spacer);
 }
@@ -518,20 +916,12 @@ function appendAIMessage(text, showActions = true, isThinking = false) {
 function updateAIMessage(msgEl, newText) {
     if (!msgEl) return;
 
-    msgEl.querySelectorAll('p').forEach(p => p.remove());
+    msgEl.classList.toggle('msg-ai-paid', isPaidPlan());
+    msgEl.querySelectorAll('p, .ai-code-block, .ai-diagram-block').forEach(el => el.remove());
     const oldActions = msgEl.querySelector('.msg-ai-actions');
     if (oldActions) oldActions.remove();
 
-    const lines = newText.split('\n').filter(l => l.trim());
-    if (lines.length === 0) lines.push(newText);
-
-    lines.forEach((line, index) => {
-        const p = document.createElement('p');
-        p.textContent = line;
-        p.classList.add('ai-response-line');
-        p.style.animationDelay = (index * 0.08) + 's'; // slight cascade per line
-        msgEl.appendChild(p);
-    });
+    renderAIContent(msgEl, newText);
 
     msgEl.appendChild(buildAIActions(newText));
 }
