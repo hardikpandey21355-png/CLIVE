@@ -74,7 +74,7 @@
         if (sessionStorage.getItem(SESSION_KEY) === 'true') return;
         if (isScheduled) return;
         isScheduled = true;
-        videoEl.src = '/static/videos/' + getSelectedVideo();
+        videoEl.src = 'https://github.com/hardikpandey21355-png/CLIVE/releases/download/Background_Videos/' + getSelectedVideo();
         videoEl.load();
         startTimer = setTimeout(() => {
             if (stopped) return;
