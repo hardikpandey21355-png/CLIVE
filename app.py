@@ -24,7 +24,7 @@ from Backend.moods.rude_mode import get_rude_response
 from Backend.moods.sigma_mode import get_sigma_response
 
 app = Flask(__name__)
-app.secret_key = "change-this-to-a-random-secret-string"
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
 # Test-mode keys — move these to environment variables before going live
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
