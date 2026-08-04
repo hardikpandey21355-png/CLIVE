@@ -1,5 +1,5 @@
 <!-- ============================== HTML STRUCTURE ============================== -->
-<!-- ── Offer 1 Popup: "One month of Clive Pro, free" ── -->
+<!-- ── Offer 1 Popup: Student — 1 month of Plus via QR verification ── -->
 <div class="offer-popup-overlay" id="offerPopupOverlay" onclick="closeOfferPopup()">
     <div class="offer-popup" onclick="event.stopPropagation()">
 
@@ -25,10 +25,10 @@
         </div>
 
         <!-- Title -->
-        <h2 class="offer-popup-title">One month of<br><span>Clive Pro, free.</span></h2>
+        <h2 class="offer-popup-title">One month of<br><span>Clive Plus</span> for students.</h2>
 
         <p class="offer-popup-sub">
-            We believe every student deserves world-class AI. Verify your university email and get a full month of Clive Pro — completely free, no credit card required.
+            Verify your university email, pay &#8377;9 via UPI QR, and submit your transaction ID. After admin approval you get full Plus access for 30 days.
         </p>
 
         <div class="offer-popup-divider"></div>
@@ -55,7 +55,7 @@
                 </div>
                 <div class="offer-perk-body">
                     <span class="offer-perk-name">Deep Research</span>
-                    <span class="offer-perk-desc">Unlimited deep research for essays, projects & papers</span>
+                    <span class="offer-perk-desc">Unlimited deep research for essays, projects &amp; papers</span>
                 </div>
             </div>
             <div class="offer-perk">
@@ -76,8 +76,8 @@
                     </svg>
                 </div>
                 <div class="offer-perk-body">
-                    <span class="offer-perk-name">Unlimited Messages</span>
-                    <span class="offer-perk-desc">No daily limits — chat as much as you need</span>
+                    <span class="offer-perk-name">More Messages</span>
+                    <span class="offer-perk-desc">Extended daily limits — chat as much as you need</span>
                 </div>
             </div>
         </div>
@@ -89,22 +89,22 @@
         <div class="offer-popup-steps">
             <div class="offer-step">
                 <span class="offer-step-num">01</span>
-                <span class="offer-step-text">Sign in with your university email address</span>
+                <span class="offer-step-text">Enter your university email (must match a supported college format)</span>
             </div>
             <div class="offer-step">
                 <span class="offer-step-num">02</span>
-                <span class="offer-step-text">We send a verification link to confirm you're a student</span>
+                <span class="offer-step-text">Scan the PhonePe QR, pay &#8377;9, and enter the UTR / Transaction ID</span>
             </div>
             <div class="offer-step">
                 <span class="offer-step-num">03</span>
-                <span class="offer-step-text">Pro unlocks instantly — valid for 30 days, no card needed</span>
+                <span class="offer-step-text">Admin reviews your request — Plus unlocks for 30 days once approved</span>
             </div>
         </div>
 
         <!-- STEP 1: Email verification -->
         <div class="offer-verify-form" id="offerStepEmail">
-            <input type="email" class="offer-verify-input" id="offerVerifyEmail" placeholder="you@college.ac.in" autocomplete="off">
-            <button class="offer-popup-cta" onclick="submitStudentEmail()">
+            <input type="email" class="offer-verify-input" id="offerVerifyEmail" placeholder="you@gla.ac.in" autocomplete="off">
+            <button type="button" class="offer-popup-cta" id="offerVerifyBtn">
                 Verify My University Email
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
@@ -113,37 +113,18 @@
             <p class="offer-verify-status" id="offerVerifyStatus"></p>
         </div>
 
-        <!-- STEP 2: Payment authorization (shown after email matches) -->
-        <div class="offer-verify-form" id="offerStepPayment" style="display:none;">
-            <p class="offer-payment-explain">
-                To confirm you're a real student and not just a matching email, we place a small ₹1 authorization hold on a card — <strong>refunded automatically within seconds</strong>. You won't be charged anything ongoing, and this only exists to verify the card is real.
-            </p>
-            <label class="offer-agree-row">
-                <input type="checkbox" id="offerAgreeCheckbox" onchange="document.getElementById('offerPayBtn').disabled = !this.checked;">
-                <span>I understand this places a refundable ₹1 hold and agree to proceed.</span>
-            </label>
-            <button class="offer-popup-cta" id="offerPayBtn" disabled onclick="startPaymentVerification()">
-                Authorize &amp; Verify (₹1, refunded instantly)
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                </svg>
-            </button>
-            <p class="offer-verify-status" id="offerPaymentStatus"></p>
-        </div>
-
-        <button class="offer-popup-cta-secondary" onclick="closeOfferPopup()">Maybe later</button>
+        <button type="button" class="offer-popup-cta-secondary" onclick="closeOfferPopup()">Maybe later</button>
 
         <p class="offer-popup-footnote">
-            Available for students with a valid university email. One redemption per account. We're rolling out support for institutions gradually — more are added regularly.
+            Available for students with a valid university email. One redemption per account. Pay &#8377;1 via UPI, submit your UTR, and wait for admin approval. Support for more institutions is added regularly.
         </p>
 
     </div>
 </div>
 <!-- ==================THIS IS END OF THE OFFER 1 POPUP============================ -->
-<!--=======================================================================-->
 
 
-<!-- ============================== CSS STYLES FOR OFFER 1 POPUP ============================== -->
+<!-- ============================== CSS ============================== -->
 <style>
 .offer-popup-overlay {
     position: fixed;
@@ -158,10 +139,7 @@
     z-index: 99999;
     backdrop-filter: blur(8px);
 }
-
-.offer-popup-overlay.show {
-    display: flex;
-}
+.offer-popup-overlay.show { display: flex; }
 
 .offer-popup {
     background: #1a1a1a;
@@ -181,25 +159,12 @@
     text-align: center;
     z-index: 100000;
 }
+.offer-popup::-webkit-scrollbar { width: 6px; }
+.offer-popup::-webkit-scrollbar-track { background: transparent; }
+.offer-popup::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+.offer-popup::-webkit-scrollbar-thumb:hover { background: #555; }
+.offer-popup::-webkit-scrollbar-button { display: none; }
 
-.offer-popup::-webkit-scrollbar {
-    width: 6px;
-}
-.offer-popup::-webkit-scrollbar-track {
-    background: transparent;
-}
-.offer-popup::-webkit-scrollbar-thumb {
-    background: #444;
-    border-radius: 10px;
-}
-.offer-popup::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-.offer-popup::-webkit-scrollbar-button {
-    display: none;
-}
-
-/* Close Button */
 .offer-popup-close {
     position: absolute;
     top: 16px;
@@ -215,16 +180,8 @@
     border-radius: 50%;
     transition: background 0.2s;
 }
-
-.offer-popup-close:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.offer-popup-close svg {
-    width: 20px;
-    height: 20px;
-    stroke: #aaa;
-}
+.offer-popup-close:hover { background: rgba(255, 255, 255, 0.1); }
+.offer-popup-close svg { width: 20px; height: 20px; stroke: #aaa; }
 
 .offer-popup-badge {
     display: inline-flex;
@@ -239,17 +196,8 @@
     margin-bottom: 20px;
 }
 
-.offer-popup-badge svg {
-    margin-right: 2px;
-}
-
-.offer-popup-icon {
-    margin: 10px 0 20px 0;
-}
-
-.offer-popup-icon svg {
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-}
+.offer-popup-icon { margin: 10px 0 20px 0; }
+.offer-popup-icon svg { filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)); }
 
 .offer-popup-title {
     font-size: 28px;
@@ -257,10 +205,7 @@
     margin: 0 0 16px 0;
     font-weight: 700;
 }
-
-.offer-popup-title span {
-    color: #60a5fa;
-}
+.offer-popup-title span { color: #60a5fa; }
 
 .offer-popup-sub {
     font-size: 15.5px;
@@ -284,66 +229,18 @@
     font-weight: 600;
 }
 
-.offer-popup-perks {
-    text-align: left;
-    margin-bottom: 8px;
-}
+.offer-popup-perks { text-align: left; margin-bottom: 8px; }
+.offer-perk { display: flex; gap: 14px; margin-bottom: 18px; }
+.offer-perk:last-child { margin-bottom: 0; }
+.offer-perk-icon { flex-shrink: 0; width: 26px; height: 26px; margin-top: 2px; }
+.offer-perk-icon svg { width: 100%; height: 100%; }
+.offer-perk-body { text-align: left; }
+.offer-perk-name { display: block; font-weight: 600; margin-bottom: 3px; font-size: 15.5px; }
+.offer-perk-desc { display: block; font-size: 14px; color: #aaa; line-height: 1.4; }
 
-.offer-perk {
-    display: flex;
-    gap: 14px;
-    margin-bottom: 18px;
-}
-
-.offer-perk:last-child {
-    margin-bottom: 0;
-}
-
-.offer-perk-icon {
-    flex-shrink: 0;
-    width: 26px;
-    height: 26px;
-    margin-top: 2px;
-}
-
-.offer-perk-icon svg {
-    width: 100%;
-    height: 100%;
-}
-
-.offer-perk-body {
-    text-align: left;
-}
-
-.offer-perk-name {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 3px;
-    font-size: 15.5px;
-}
-
-.offer-perk-desc {
-    display: block;
-    font-size: 14px;
-    color: #aaa;
-    line-height: 1.4;
-}
-
-.offer-popup-steps {
-    text-align: left;
-    margin-bottom: 20px;
-}
-
-.offer-step {
-    display: flex;
-    gap: 14px;
-    margin-bottom: 16px;
-}
-
-.offer-step:last-child {
-    margin-bottom: 0;
-}
-
+.offer-popup-steps { text-align: left; margin-bottom: 20px; }
+.offer-step { display: flex; gap: 14px; margin-bottom: 16px; }
+.offer-step:last-child { margin-bottom: 0; }
 .offer-step-num {
     flex-shrink: 0;
     width: 26px;
@@ -357,12 +254,7 @@
     justify-content: center;
     font-size: 13px;
 }
-
-.offer-step-text {
-    font-size: 15px;
-    color: #ddd;
-    line-height: 1.45;
-}
+.offer-step-text { font-size: 15px; color: #ddd; line-height: 1.45; }
 
 .offer-popup-cta {
     width: 100%;
@@ -380,12 +272,9 @@
     justify-content: center;
     gap: 8px;
     transition: all 0.2s;
+    box-sizing: border-box;
 }
-
-.offer-popup-cta:hover {
-    background: #2563eb;
-    transform: translateY(-1px);
-}
+.offer-popup-cta:hover { background: #2563eb; transform: translateY(-1px); }
 
 .offer-popup-cta-secondary {
     width: 100%;
@@ -397,16 +286,11 @@
     border-radius: 12px;
     cursor: pointer;
     margin-top: 10px;
+    box-sizing: border-box;
 }
+.offer-popup-cta-secondary:hover { background: rgba(255,255,255,0.05); }
 
-.offer-popup-cta-secondary:hover {
-    background: rgba(255,255,255,0.05);
-}
-
-.offer-verify-form {
-    margin-top: 8px;
-}
-
+.offer-verify-form { margin-top: 8px; }
 .offer-verify-input {
     width: 100%;
     background: #111;
@@ -419,6 +303,7 @@
     outline: none;
     margin-bottom: 10px;
     transition: border-color 0.2s;
+    box-sizing: border-box;
 }
 .offer-verify-input::placeholder { color: #666; }
 .offer-verify-input:focus { border-color: #3b82f6; }
@@ -431,26 +316,7 @@
 }
 .offer-verify-status.show { display: block; }
 .offer-verify-status.success { color: #4ade80; }
-.offer-verify-status.error   { color: #f87171; }
-
-.offer-payment-explain {
-    font-size: 13px;
-    color: #ccc;
-    line-height: 1.5;
-    margin-bottom: 14px;
-}
-
-.offer-agree-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    font-size: 12.5px;
-    color: #aaa;
-    line-height: 1.4;
-    margin-bottom: 14px;
-    cursor: pointer;
-}
-.offer-agree-row input { margin-top: 2px; }
+.offer-verify-status.error { color: #f87171; }
 
 .offer-popup-footnote {
     font-size: 12.5px;
@@ -459,169 +325,111 @@
     line-height: 1.4;
 }
 </style>
-<!-- ===========AND HERE THE CSS CODE OF OFFER 1 POPUP ENDS========================================= -->
 
 
-<!-- ============================== JS BEHAVIOR ============================== -->
-<!--=======================================================================-->
+<!-- ============================== JS (classic script — always loads) ============================== -->
 <script>
-/* Open/close behavior for the Offer 1 ("Clive Pro free month") popup */
-function openOfferPopup() {
-    document.getElementById('offerPopupOverlay').classList.add('show');
-    document.body.style.overflow = 'hidden';
-}
-function closeOfferPopup() {
-    document.getElementById('offerPopupOverlay').classList.remove('show');
-    document.body.style.overflow = '';
-}
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeOfferPopup();
+(function () {
+    window.openOfferPopup = function () {
+        var el = document.getElementById('offerPopupOverlay');
+        if (el) el.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    };
+    window.closeOfferPopup = function () {
+        var el = document.getElementById('offerPopupOverlay');
+        if (el) el.classList.remove('show');
+        document.body.style.overflow = '';
+    };
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') window.closeOfferPopup();
+    });
+
+    window.__cliveVerifyUser = null;
+
+    var COLLEGE_EMAIL_PATTERNS = [
+        { name: 'GLA University', regex: /^[a-z0-9]+(?:\.[a-z0-9]+)?_[a-z]{2,4}\d{2}@gla\.ac\.in$/i },
+        { name: 'GLA University', regex: /^[a-z0-9._%+-]+@gla\.ac\.in$/i }
+    ];
+
+    function matchCollegeEmail(email) {
+        for (var i = 0; i < COLLEGE_EMAIL_PATTERNS.length; i++) {
+            if (COLLEGE_EMAIL_PATTERNS[i].regex.test(email)) return COLLEGE_EMAIL_PATTERNS[i];
+        }
+        return null;
+    }
+
+    function showStatus(msg, type) {
+        var status = document.getElementById('offerVerifyStatus');
+        if (!status) {
+            alert(msg);
+            return;
+        }
+        status.textContent = msg;
+        status.classList.remove('show', 'success', 'error');
+        status.classList.add('show', type === 'success' ? 'success' : 'error');
+    }
+
+    window.submitStudentEmail = function () {
+        try {
+            var input = document.getElementById('offerVerifyEmail');
+            var email = (input ? input.value : '').trim();
+
+            if (!window.__cliveVerifyUser) {
+                showStatus('Please sign in first to verify your student status.', 'error');
+                return;
+            }
+
+            if (!email) {
+                showStatus('Please enter your college email.', 'error');
+                return;
+            }
+
+            var match = matchCollegeEmail(email);
+            if (!match) {
+                showStatus("This doesn't match a recognized college email (e.g. name_cs24@gla.ac.in).", 'error');
+                return;
+            }
+
+            showStatus('Matched ' + match.name + '. Opening payment…', 'success');
+
+            setTimeout(function () {
+                window.closeOfferPopup();
+                if (typeof window.openPaymentModal === 'function') {
+                    window.openPaymentModal('student', {
+                        collegeEmail: email,
+                        institution: match.name
+                    });
+                } else {
+                    console.error('openPaymentModal is missing — is payment_modal.html included?');
+                    alert('Payment modal failed to load. Hard-refresh (Ctrl+Shift+R) and try again.');
+                }
+            }, 500);
+        } catch (err) {
+            console.error('submitStudentEmail error:', err);
+            alert('Something went wrong: ' + (err && err.message ? err.message : err));
+        }
+    };
+
+    function bindVerifyBtn() {
+        var btn = document.getElementById('offerVerifyBtn');
+        if (btn && !btn.__cliveBound) {
+            btn.__cliveBound = true;
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                window.submitStudentEmail();
+            });
+        }
+    }
+    document.addEventListener('DOMContentLoaded', bindVerifyBtn);
+    bindVerifyBtn();
+})();
+</script>
+
+<!-- Firebase auth watcher (module) — only sets the signed-in user flag -->
+<script type="module">
+import { auth, onAuthStateChanged } from "/static/js/firebase-init.js";
+
+onAuthStateChanged(auth, function (user) {
+    window.__cliveVerifyUser = user;
 });
 </script>
-<!--=======================================================================-->
-
-<!--=======================================================================-->
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script type="module">
-import { auth, onAuthStateChanged, db, doc, setDoc, serverTimestamp } from "{{ url_for('static', filename='js/firebase-init.js') }}";
-
-let currentVerifyUser = null;
-onAuthStateChanged(auth, (user) => { currentVerifyUser = user; });
-
-// Known college email formats. Add more entries here as you onboard
-// nearby institutes — each just needs a regex matching that college's
-// student email convention.
-const COLLEGE_EMAIL_PATTERNS = [
-    { name: 'GLA University', regex: /^[a-z]+\.[a-z]+_[a-z]{2}\d{2}@gla\.ac\.in$/i }
-    // { name: 'Some Other College', regex: /^.../ },
-];
-
-function matchCollegeEmail(email) {
-    return COLLEGE_EMAIL_PATTERNS.find(p => p.regex.test(email));
-}
-
-let matchedInstitution = null;
-let verifiedEmail = null;
-
-// STEP 1 — email format check, then reveal the payment step
-function submitStudentEmail() {
-    const input = document.getElementById('offerVerifyEmail');
-    const status = document.getElementById('offerVerifyStatus');
-    const email = input.value.trim();
-
-    status.classList.remove('show', 'success', 'error');
-
-    if (!email) {
-        status.textContent = 'Please enter your college email.';
-        status.classList.add('show', 'error');
-        return;
-    }
-
-    const match = matchCollegeEmail(email);
-    if (!match) {
-        status.textContent = "This doesn't match a recognized college email format yet. More institutions are being added.";
-        status.classList.add('show', 'error');
-        return;
-    }
-
-    verifiedEmail = email;
-    matchedInstitution = match.name;
-
-    status.textContent = 'Matched ' + match.name + '. One more step below.';
-    status.classList.add('show', 'success');
-
-    document.getElementById('offerStepEmail').style.display = 'none';
-    document.getElementById('offerStepPayment').style.display = 'block';
-}
-window.submitStudentEmail = submitStudentEmail;
-
-// STEP 2 — ₹1 authorization hold via Razorpay, refunded immediately on success
-async function startPaymentVerification() {
-    const status = document.getElementById('offerPaymentStatus');
-    status.classList.remove('show', 'success', 'error');
-
-    const payBtn = document.getElementById('offerPayBtn');
-    payBtn.disabled = true;
-    payBtn.textContent = 'Setting up…';
-
-    try {
-        const orderRes = await fetch('/api/create-verification-order', { method: 'POST' });
-        const orderData = await orderRes.json();
-
-        const rzp = new Razorpay({
-            key: orderData.key_id,
-            amount: orderData.amount,
-            currency: 'INR',
-            name: 'Clive',
-            description: 'Student verification hold (refunded instantly)',
-            order_id: orderData.order_id,
-            prefill: { email: verifiedEmail },
-            handler: async function (response) {
-                status.textContent = 'Verifying and refunding your hold…';
-                status.classList.add('show');
-
-                const verifyRes = await fetch('/api/verify-and-refund', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        razorpay_order_id: response.razorpay_order_id,
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_signature: response.razorpay_signature
-                    })
-                });
-                const verifyData = await verifyRes.json();
-
-                if (!verifyData.success) {
-                    status.textContent = 'Payment verification failed. Please try again.';
-                    status.classList.add('error');
-                    payBtn.disabled = false;
-                    payBtn.textContent = 'Authorize & Verify (₹1, refunded instantly)';
-                    return;
-                }
-
-                if (currentVerifyUser) {
-                    try {
-                        await setDoc(doc(db, 'users', currentVerifyUser.uid), {
-                            studentVerification: {
-                                email: verifiedEmail,
-                                institution: matchedInstitution,
-                                status: 'pending',
-                                submittedAt: serverTimestamp()
-                            },
-                            paymentVerification: {
-                                paymentId: verifyData.payment_id,
-                                status: 'authorized_and_refunded',
-                                verifiedAt: serverTimestamp()
-                            }
-                        }, { merge: true });
-                    } catch (err) {
-                        console.error('Failed to save verification:', err);
-                    }
-                }
-
-                status.textContent = "Verified and submitted for review — you'll be notified once approved.";
-                status.classList.remove('error');
-                status.classList.add('success');
-                payBtn.style.display = 'none';
-            },
-            modal: {
-                ondismiss: function () {
-                    payBtn.disabled = false;
-                    payBtn.textContent = 'Authorize & Verify (₹1, refunded instantly)';
-                }
-            },
-            theme: { color: '#3b82f6' }
-        });
-
-        rzp.open();
-    } catch (err) {
-        console.error('Payment setup failed:', err);
-        status.textContent = 'Something went wrong starting payment verification. Please try again.';
-        status.classList.add('show', 'error');
-        payBtn.disabled = false;
-        payBtn.textContent = 'Authorize & Verify (₹1, refunded instantly)';
-    }
-}
-window.startPaymentVerification = startPaymentVerification;
-</script>
-<!--=======================================================================-->

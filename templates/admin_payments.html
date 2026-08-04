@@ -96,23 +96,41 @@
 <body>
   <div class="wrap">
     <a class="back" href="/upgrade">← Back to plans</a>
-    <h1>Payment requests</h1>
-    <p class="sub" id="adminSub">Loading…</p>
+<h1>Payment requests</h1>
+<p class="sub" id="adminSub">Loading…</p>
 
-    <div id="lockedView" class="locked" style="display:none;">
-      You don't have access to this page.
-    </div>
+<div id="lockedView" class="locked" style="display:none;">
+  You don't have access to this page.
+</div>
 
-    <div id="adminView" style="display:none;">
-      <div class="tabs">
-        <button class="tab active" data-status="pending" onclick="switchTab('pending', this)">Pending</button>
-        <button class="tab" data-status="approved" onclick="switchTab('approved', this)">Approved</button>
-        <button class="tab" data-status="rejected" onclick="switchTab('rejected', this)">Rejected</button>
-      </div>
-      <div class="list" id="requestList"></div>
-      <div class="empty" id="emptyState" style="display:none;">No requests in this tab.</div>
-    </div>
+<div id="adminView" style="display:none;">
+
+  <div class="tabs" style="margin-bottom:16px;">
+    <button class="tab active" id="modePaymentsBtn" onclick="switchMode('payments', this)">Payments</button>
+    <button class="tab" id="modeStudentBtn" onclick="switchMode('student', this)">Student Verification</button>
   </div>
+
+  <div id="paymentsView">
+    <div class="tabs">
+      <button class="tab active" data-status="pending" onclick="switchTab('pending', this)">Pending</button>
+      <button class="tab" data-status="approved" onclick="switchTab('approved', this)">Approved</button>
+      <button class="tab" data-status="rejected" onclick="switchTab('rejected', this)">Rejected</button>
+    </div>
+    <div class="list" id="requestList"></div>
+    <div class="empty" id="emptyState" style="display:none;">No requests in this tab.</div>
+  </div>
+
+  <div id="studentView" style="display:none;">
+    <div class="tabs">
+      <button class="tab active" data-status="pending" onclick="switchStudentTab('pending', this)">Pending</button>
+      <button class="tab" data-status="approved" onclick="switchStudentTab('approved', this)">Approved</button>
+      <button class="tab" data-status="rejected" onclick="switchStudentTab('rejected', this)">Rejected</button>
+    </div>
+    <div class="list" id="studentRequestList"></div>
+    <div class="empty" id="studentEmptyState" style="display:none;">No requests in this tab.</div>
+  </div>
+
+</div>
 
   <div class="lightbox" id="lightbox" onclick="this.classList.remove('show')">
     <img id="lightboxImg" src="" alt="Screenshot">
@@ -129,6 +147,9 @@
 
     let currentTab = 'pending';
     let cache = { pending: [], approved: [], rejected: [] };
+    let currentMode = 'payments';
+    let currentStudentTab = 'pending';
+    let studentCache = { pending: [], approved: [], rejected: [] };
 
     onAuthStateChanged(auth, async (user) => {
       if (!user || user.uid !== ADMIN_UID) {
@@ -140,6 +161,8 @@
       document.getElementById('adminSub').textContent = 'Signed in as ' + (user.email || user.uid);
       await loadAll();
       renderList();
+      await loadAllStudent();
+      renderStudentList();
     });
 
     async function loadAll() {
@@ -162,9 +185,141 @@
 
     window.switchTab = function(status, btn) {
       currentTab = status;
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      const tabs = btn.closest('.tabs').querySelectorAll('.tab');
+      tabs.forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
       renderList();
+    };
+
+    window.switchMode = function(mode, btn) {
+      currentMode = mode;
+      document.getElementById('modePaymentsBtn').classList.toggle('active', mode === 'payments');
+      document.getElementById('modeStudentBtn').classList.toggle('active', mode === 'student');
+      document.getElementById('paymentsView').style.display = mode === 'payments' ? 'block' : 'none';
+      document.getElementById('studentView').style.display = mode === 'student' ? 'block' : 'none';
+    };
+
+    async function loadAllStudent() {
+      try {
+        const snap = await getDocs(
+          query(collection(db, 'studentVerificationRequests'), orderBy('createdAt', 'desc'), limit(100))
+        );
+        studentCache = { pending: [], approved: [], rejected: [] };
+        snap.forEach(d => {
+          const data = { id: d.id, ...d.data() };
+          const s = data.status || 'pending';
+          if (studentCache[s]) studentCache[s].push(data);
+          else studentCache.pending.push(data);
+        });
+      } catch (err) {
+        console.error('Failed to load student verification requests:', err);
+      }
+    }
+
+    window.switchStudentTab = function(status, btn) {
+      currentStudentTab = status;
+      const tabs = btn.closest('.tabs').querySelectorAll('.tab');
+      tabs.forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      renderStudentList();
+    };
+
+    function renderStudentList() {
+      const list = document.getElementById('studentRequestList');
+      const empty = document.getElementById('studentEmptyState');
+      const items = studentCache[currentStudentTab] || [];
+      if (items.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      list.innerHTML = items.map(r => {
+        const badgeClass = 'badge-' + (r.status || 'pending');
+        const canAct = r.status === 'pending';
+        return `
+          <div class="card" data-sid="${r.id}">
+            <div class="card-main">
+              <div class="row">
+                <span class="badge ${badgeClass}">${r.status || 'pending'}</span>
+                <span class="plan-tag">${escapeHtml(r.institution || 'Unrecognized institution')}</span>
+                <span class="meta">${formatDate(r.createdAt)}</span>
+              </div>
+              <div class="meta">
+                <strong>${escapeHtml(r.email || 'No account email')}</strong><br>
+                College email: ${escapeHtml(r.collegeEmail || '')}<br>
+                UID: ${escapeHtml(r.uid || '')}
+              </div>
+              <div class="utr-box">
+                <span>${escapeHtml(r.utr || '')}</span>
+                <button class="copy-utr" onclick="copyText('${escapeHtml(r.utr || '')}', this)">Copy UTR</button>
+              </div>
+            </div>
+            <div class="actions">
+              ${canAct ? `
+                <button class="btn btn-approve" onclick="approveStudentRequest('${r.id}', '${escapeHtml(r.uid)}')">Approve</button>
+                <button class="btn btn-reject" onclick="rejectStudentRequest('${r.id}', '${escapeHtml(r.uid)}')">Reject</button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.approveStudentRequest = async function(requestId, uid) {
+      if (!confirm('Approve this student and unlock a free month of Plus?')) return;
+      const btns = document.querySelectorAll(`[data-sid="${requestId}"] .btn`);
+      btns.forEach(b => b.disabled = true);
+
+      try {
+        const expires = new Date();
+        expires.setDate(expires.getDate() + 30);
+
+        await setDoc(doc(db, 'users', uid), {
+          selectedPlan: 'plus',
+          planExpiresAt: expires.toISOString(),
+          planUpdatedAt: serverTimestamp(),
+          studentVerification: { status: 'approved', approvedAt: serverTimestamp() }
+        }, { merge: true });
+
+        await setDoc(doc(db, 'studentVerificationRequests', requestId), {
+          status: 'approved',
+          reviewedAt: serverTimestamp(),
+          reviewedBy: ADMIN_UID
+        }, { merge: true });
+
+        await loadAllStudent();
+        renderStudentList();
+      } catch (err) {
+        console.error('Student approve failed:', err);
+        alert('Approve failed: ' + (err.message || err));
+        btns.forEach(b => b.disabled = false);
+      }
+    };
+
+    window.rejectStudentRequest = async function(requestId, uid) {
+      if (!confirm('Reject this student verification request?')) return;
+      const btns = document.querySelectorAll(`[data-sid="${requestId}"] .btn`);
+      btns.forEach(b => b.disabled = true);
+
+      try {
+        await setDoc(doc(db, 'studentVerificationRequests', requestId), {
+          status: 'rejected',
+          reviewedAt: serverTimestamp(),
+          reviewedBy: ADMIN_UID
+        }, { merge: true });
+
+        await setDoc(doc(db, 'users', uid), {
+          studentVerification: { status: 'rejected', reviewedAt: serverTimestamp() }
+        }, { merge: true });
+
+        await loadAllStudent();
+        renderStudentList();
+      } catch (err) {
+        console.error('Student reject failed:', err);
+        alert('Reject failed: ' + (err.message || err));
+        btns.forEach(b => b.disabled = false);
+      }
     };
 
     function formatDate(ts) {

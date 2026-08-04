@@ -220,21 +220,23 @@ import {
 } from "{{ url_for('static', filename='js/firebase-init.js') }}";
 
 const PLAN_CONFIG = {
-  go:   { label: 'Go',   amount: 29,  days: 7,  durationText: 'Valid for 7 days after approval' },
-  plus: { label: 'Plus', amount: 99,  days: 30, durationText: 'Valid for 30 days after approval' }
+  go:      { label: 'Go',   amount: 29, days: 7,  durationText: 'Valid for 7 days after approval' },
+  plus:    { label: 'Plus', amount: 99, days: 30, durationText: 'Valid for 30 days after approval' },
+  student: { label: 'Plus (Student)', amount: 1, days: 30, durationText: 'One-time ₹1 verification — Plus unlocked for 30 days after approval' }
 };
 
 const UPI_ID = '8218384624-2@ybl';
 
 let currentUser = null;
 let selectedPlan = null;
+let studentContext = null; // { collegeEmail, institution } — only set for the student flow
 
 onAuthStateChanged(auth, (user) => {
   currentUser = user;
   if (user) checkPendingRequest(user.uid);
 });
 
-window.openPaymentModal = async function(planKey) {
+window.openPaymentModal = async function(planKey, extra) {
   const cfg = PLAN_CONFIG[planKey];
   if (!cfg) {
     alert('This plan is not available yet.');
@@ -246,9 +248,12 @@ window.openPaymentModal = async function(planKey) {
     return;
   }
 
-  const pending = await hasPendingRequest(currentUser.uid);
+  studentContext = (planKey === 'student' && extra) ? extra : null;
+  const collectionForCheck = planKey === 'student' ? 'studentVerificationRequests' : 'paymentRequests';
+
+  const pending = await hasPendingRequest(currentUser.uid, collectionForCheck);
   if (pending) {
-    alert('You already have a payment under review. Please wait for approval before submitting another.');
+    alert('You already have a request under review. Please wait for approval before submitting another.');
     return;
   }
 
@@ -293,10 +298,10 @@ function showPayError(msg) {
   el.classList.add('show');
 }
 
-async function hasPendingRequest(uid) {
+async function hasPendingRequest(uid, collectionName = 'paymentRequests') {
   try {
     const q = query(
-      collection(db, 'paymentRequests'),
+      collection(db, collectionName),
       where('uid', '==', uid),
       where('status', '==', 'pending'),
       limit(1)
@@ -332,25 +337,53 @@ window.submitPaymentRequest = async function() {
   document.getElementById('payError').classList.remove('show');
 
   try {
-    const requestId = 'pay_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-    await setDoc(doc(db, 'paymentRequests', requestId), {
-      uid: currentUser.uid,
-      email: currentUser.email || '',
-      plan: selectedPlan,
-      planLabel: cfg.label,
-      amount: cfg.amount,
-      durationDays: cfg.days,
-      utr: utr,
-      screenshotUrl: null,
-      status: 'pending',
-      createdAt: serverTimestamp()
-    });
+    if (selectedPlan === 'student') {
+      const requestId = 'stu_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+      await setDoc(doc(db, 'studentVerificationRequests', requestId), {
+        uid: currentUser.uid,
+        email: currentUser.email || '',
+        collegeEmail: studentContext ? studentContext.collegeEmail : '',
+        institution: studentContext ? studentContext.institution : '',
+        utr: utr,
+        screenshotUrl: null,
+        status: 'pending',
+        createdAt: serverTimestamp()
+      });
+
+      // Also stamp a "pending" marker on the user doc so other pages can reflect it
+      await setDoc(doc(db, 'users', currentUser.uid), {
+        studentVerification: {
+          email: studentContext ? studentContext.collegeEmail : '',
+          institution: studentContext ? studentContext.institution : '',
+          status: 'pending',
+          submittedAt: serverTimestamp()
+        }
+      }, { merge: true });
+
+    } else {
+      const requestId = 'pay_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+      await setDoc(doc(db, 'paymentRequests', requestId), {
+        uid: currentUser.uid,
+        email: currentUser.email || '',
+        plan: selectedPlan,
+        planLabel: cfg.label,
+        amount: cfg.amount,
+        durationDays: cfg.days,
+        utr: utr,
+        screenshotUrl: null,
+        status: 'pending',
+        createdAt: serverTimestamp()
+      });
+    }
 
     document.getElementById('payStepPay').style.display = 'none';
     document.getElementById('payStepDone').style.display = 'block';
-    checkPendingRequest(currentUser.uid);
+
+    const collectionForCheck = selectedPlan === 'student' ? 'studentVerificationRequests' : 'paymentRequests';
+    const pending = await hasPendingRequest(currentUser.uid, collectionForCheck);
+    document.getElementById('payPendingBanner').style.display = pending ? 'flex' : 'none';
   } catch (err) {
-    console.error('Payment submit failed:', err);
+    console.error('Submit failed:', err);
     showPayError('Something went wrong. Please try again. (' + (err.message || 'error') + ')');
     btn.disabled = false;
     btn.textContent = "I've paid — submit for verification";

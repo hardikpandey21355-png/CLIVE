@@ -772,6 +772,11 @@
     {% include "components/onboarding_modal.html" %}
     <!-- what broo her it ends because it code is in real file  -->
 
+    <!-- Payment modal (PhonePe QR + UTR) — shared by the Upgrade page and the
+         Student offer popup. Included here so offer_1.html's
+         openPaymentModal('student', {...}) call works on the homepage too. -->
+    {% include "payment_modal.html" %}
+
 
 <!-- ================================================================================= -->
 <!-- Chat Share Button -->
