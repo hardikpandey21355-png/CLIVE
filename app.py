@@ -14,6 +14,7 @@ from Backend.free_brain_plan import get_ai_response, generate_chat_title
 from Backend.paid_plan_brain import get_paid_ai_response
 from Backend.web_search import get_web_search_response
 from Backend.deep_research import get_deep_research_response
+from Backend.auto_feature_detect import needs_live_search, needs_deep_research
 from Backend.coder_mode import get_coder_response
 from Backend.short_response import get_short_response
 from flask import Response
@@ -24,7 +25,10 @@ from Backend.moods.rude_mode import get_rude_response
 from Backend.moods.sigma_mode import get_sigma_response
 
 app = Flask(__name__)
-app.secret_key = os.getenv("FLASK_SECRET_KEY")
+app.secret_key = os.getenv(
+    "FLASK_SECRET_KEY",
+    "clive_super_secret_key_123456789"
+)
 
 # Test-mode keys — move these to environment variables before going live
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
@@ -310,6 +314,13 @@ def api_chat():
         )
 
     history = session.get('chat_history', [])
+
+    # Auto-enable Web Search / Deep Research when the user didn't pick a
+    # mode themselves but the message clearly needs live/current info.
+    if feature == 'none' and mood == 'default' and needs_live_search(user_message):
+        feature = 'deepResearch' if needs_deep_research(user_message) else 'webSearch'
+        print("DEBUG — auto-enabled feature:", feature)
+
     print("DEBUG — feature:", feature, "| mood:", mood, "| plan:", plan)
 
     try:

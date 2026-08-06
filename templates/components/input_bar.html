@@ -105,8 +105,16 @@ async function sendMessage() {
         return;
     }
 
-    const thinkingLabel = activeInputFeature === 'deepResearch' ? "Researching..."
-        : activeInputFeature === 'webSearch' ? "Searching the web..."
+    const LIVE_INFO_REGEX = /\b(latest|breaking|current(ly)?|today'?s?|this week'?s?|right now|live|recent(ly)?|update on|happening now|news|headlines?|score|results?|who won|stock price|share price|exchange rate|weather (today|now|tomorrow)|election results?|current price|trending)\b/i;
+    const DEEP_HINT_REGEX = /\b(compare|comparison|pros and cons|in[- ]depth|detailed analysis|research|report on|deep dive|explain in detail|everything about)\b/i;
+
+    let effectiveFeature = activeInputFeature;
+    if (!effectiveFeature && LIVE_INFO_REGEX.test(message)) {
+        effectiveFeature = DEEP_HINT_REGEX.test(message) ? 'deepResearch' : 'webSearch';
+    }
+
+    const thinkingLabel = effectiveFeature === 'deepResearch' ? "Researching..."
+        : effectiveFeature === 'webSearch' ? "Searching the web..."
         : "Thinking...";
     appendAIMessage(thinkingLabel, false, true);
     const aiMessages = document.querySelectorAll('.msg-ai');
